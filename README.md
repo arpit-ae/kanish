@@ -1,2 +1,3 @@
 # USOA GROUP Website
-Static business website files for USOA GROUP.
+
+Professional static website for USOA GROUP.
