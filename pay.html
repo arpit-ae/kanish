@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Pay | USOA GROUP</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    .payment-card {
+      width: 100%;
+      max-width: 450px;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.10);
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #777;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 18px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #111;
+    }
+
+    .pay-button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 15px;
+      border: 0;
+      border-radius: 10px;
+      background: #111;
+      color: white;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .pay-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .status {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 10px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .success {
+      background: #e8f7ed;
+      color: #176b35;
+    }
+
+    .error {
+      background: #fff0ee;
+      color: #a3261b;
+    }
+
+    .whatsapp {
+      display: none;
+      margin-top: 12px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      background: #168a43;
+      color: white;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .whatsapp.show {
+      display: block;
+    }
+
+    .back {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+      color: #777;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .note {
+      margin-top: 18px;
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="payment-card">
+
+    <div class="logo">
+      USOA GROUP
+    </div>
+
+    <div class="subtitle">
+      Secure Payment
+    </div>
+
+    <label for="amount">
+      Enter Amount
+    </label>
+
+    <input
+      id="amount"
+      type="number"
+      min="1"
+      max="1000000"
+      step="0.01"
+      placeholder="₹ Enter amount"
+    >
+
+    <button
+      id="payButton"
+      class="pay-button"
+      type="button"
+    >
+      Pay with Paytm
+    </button>
+
+    <div
+      id="status"
+      class="status"
+    ></div>
+
+    <a
+      id="whatsapp"
+      class="whatsapp"
+      target="_blank"
+      rel="noopener"
+    >
+      Contact Representative on WhatsApp
+    </a>
+
+    <a
+      href="/"
+      class="back"
+    >
+      ← Back to USOA GROUP
+    </a>
+
+    <div class="note">
+      Payments are processed securely through Paytm.
+    </div>
+
+  </div>
+
+
+<script>
+
+const WHATSAPP_NUMBER = "919142703535";
+
+const amountInput =
+  document.getElementById("amount");
+
+const payButton =
+  document.getElementById("payButton");
+
+const statusBox =
+  document.getElementById("status");
+
+const whatsapp =
+  document.getElementById("whatsapp");
+
+
+/* -----------------------------------------
+   WHATSAPP
+----------------------------------------- */
+
+whatsapp.href =
+  "https://wa.me/" +
+  WHATSAPP_NUMBER +
+  "?text=" +
+  encodeURIComponent(
+    "Hello USOA GROUP, I need help regarding my payment."
+  );
+
+
+/* -----------------------------------------
+   STATUS MESSAGE
+----------------------------------------- */
+
+function showStatus(message, type) {
+
+  statusBox.textContent = message;
+
+  statusBox.className =
+    "status show " + type;
+}
+
+
+/* -----------------------------------------
+   LOAD PAYTM CHECKOUT
+----------------------------------------- */
+
+function loadPaytmCheckout(mid) {
+
+  return new Promise((resolve, reject) => {
+
+    if (
+      window.Paytm &&
+      window.Paytm.CheckoutJS
+    ) {
+      resolve();
+      return;
+    }
+
+    const script =
+      document.createElement("script");
+
+    script.src =
+      "https://securegw-stage.paytm.in/merchantpgpui/checkoutjs/merchants/" +
+      encodeURIComponent(mid) +
+      ".js";
+
+    script.onload = () => {
+
+      if (
+        window.Paytm &&
+        window.Paytm.CheckoutJS
+      ) {
+        resolve();
+      } else {
+        reject(
+          new Error(
+            "Paytm CheckoutJS not available"
+          )
+        );
+      }
+
+    };
+
+    script.onerror = () => {
+
+      reject(
+        new Error(
+          "Unable to load Paytm Checkout"
+        )
+      );
+
+    };
+
+    document.head.appendChild(script);
+
+  });
+
+}
+
+
+/* -----------------------------------------
+   START PAYMENT
+----------------------------------------- */
+
+async function startPayment() {
+
+  const amount =
+    Number(amountInput.value);
+
+
+  /* Amount validation */
+
+  if (
+    !Number.isFinite(amount) ||
+    amount < 1 ||
+    amount > 1000000
+  ) {
+
+    showStatus(
+      "Please enter an amount between ₹1 and ₹10,00,000.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  payButton.disabled = true;
+
+  whatsapp.classList.remove("show");
+
+
+  showStatus(
+    "Creating your payment...",
+    "success"
+  );
+
+
+  try {
+
+    /* ---------------------------------------
+       CREATE ORDER
+    --------------------------------------- */
+
+    const response =
+      await fetch(
+        "/api/create-order",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+              amount: amount
+            })
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    console.log(
+      "Create order response:",
+      data
+    );
+
+
+    /* ---------------------------------------
+       BACKEND ERROR
+    --------------------------------------- */
+
+    if (
+      !response.ok ||
+      !data.success ||
+      !data.txnToken
+    ) {
+
+      throw new Error(
+        data.message ||
+        "Unable to create payment."
+      );
+
+    }
+
+
+    /* ---------------------------------------
+       LOAD PAYTM
+    --------------------------------------- */
+
+    showStatus(
+      "Opening Paytm Checkout...",
+      "success"
+    );
+
+
+    await loadPaytmCheckout(
+      data.mid
+    );
+
+
+    /* ---------------------------------------
+       PAYTM CHECKOUT CONFIG
+    --------------------------------------- */
+
+    const config = {
+
+      root: "",
+
+      flow: "DEFAULT",
+
+      data: {
+
+        orderId:
+          data.orderId,
+
+        token:
+          data.txnToken,
+
+        tokenType:
+          "TXN_TOKEN",
+
+        amount:
+          data.amount
+
+      },
+
+      merchant: {
+
+        mid:
+          data.mid,
+
+        orderId:
+          data.orderId
+
+      },
+
+      handler: {
+
+        notifyMerchant:
+          function(eventName, eventData) {
+
+            console.log(
+              "Paytm event:",
+              eventName,
+              eventData
+            );
+
+          }
+
+      }
+
+    };
+
+
+    /* ---------------------------------------
+       INITIALIZE CHECKOUT
+    --------------------------------------- */
+
+    await window.Paytm.CheckoutJS.init(
+      config
+    );
+
+
+    /* ---------------------------------------
+       OPEN CHECKOUT
+    --------------------------------------- */
+
+    window.Paytm.CheckoutJS.invoke();
+
+
+    showStatus(
+      "Paytm Checkout opened. Please complete your payment.",
+      "success"
+    );
+
+
+    payButton.disabled = false;
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Payment error:",
+      error
+    );
+
+
+    showStatus(
+      "Payment could not be started. Please retry or contact our representative.",
+      "error"
+    );
+
+
+    whatsapp.classList.add("show");
+
+
+    payButton.disabled = false;
+
+  }
+
+}
+
+
+/* -----------------------------------------
+   BUTTON
+----------------------------------------- */
+
+payButton.addEventListener(
+  "click",
+  startPayment
+);
+
+
+/* -----------------------------------------
+   ENTER KEY
+----------------------------------------- */
+
+amountInput.addEventListener(
+  "keydown",
+  function(event) {
+
+    if (event.key === "Enter") {
+
+      startPayment();
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
