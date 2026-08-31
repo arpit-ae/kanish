@@ -20,9 +20,19 @@ async function sha256Hex(text) {
 }
 
 async function generateSalt() {
-  const bytes = new Uint8Array(3);
+  const chars =
+    "9876543210ZYXWVUTSRQPONMLKJIHGFEDCBAabcdefghijklmnopqrstuvwxyz!@#$&_";
+
+  const bytes = new Uint8Array(4);
   crypto.getRandomValues(bytes);
-  return toBase64(bytes);
+
+  let salt = "";
+
+  for (const byte of bytes) {
+    salt += chars[byte % chars.length];
+  }
+
+  return salt;
 }
 
 async function generatePaytmChecksum(paramsString, merchantKey) {
