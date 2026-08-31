@@ -234,6 +234,11 @@ export default {
     }
 
     // Existing website
-    return env.ASSETS.fetch(request);
+    if (url.pathname === "/") {
+  const homeUrl = new URL("/Index.html", request.url);
+  return env.ASSETS.fetch(new Request(homeUrl, request));
+}
+
+return env.ASSETS.fetch(request);
   }
 };
