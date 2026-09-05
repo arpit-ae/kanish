@@ -1,0 +1,33 @@
+Vendored third-party libraries
+==============================
+
+These files are vendored (committed to this repository) rather than loaded
+from a CDN, so that the invoice tool keeps working if a third-party host is
+unreachable and so the site keeps its zero-external-dependency property.
+
+Do not edit these files. To update, re-download the pinned version.
+
+
+html2canvas.min.js
+------------------
+Version : 1.4.1
+Source  : https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js
+Size    : 198689 bytes
+SHA-256 : e87e550794322e574a1fda0c1549a3c70dae5a93d9113417a429016838eab8cb
+License : MIT
+Copyright (c) 2022 Niklas von Hertzen <https://hertzen.com>
+
+
+jspdf.umd.min.js
+----------------
+Version : 2.5.1
+Source  : https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js
+Size    : 364463 bytes
+SHA-256 : 98ccf17aa10c20bb1301762618fcc9b6ab3a4e7f26b6071d64d0b41154df3875
+License : MIT
+Copyright (c) 2010-2021 James Hall and contributors, 2015-2021 yWorks GmbH
+
+
+Both are used only by invoice.html, and only when the "Download PDF" button
+is clicked. They are lazy-loaded on demand so that users who only print never
+download them.
