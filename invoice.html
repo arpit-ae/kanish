@@ -1,0 +1,1436 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Proforma Invoice | USOA GROUP</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f5;color:#111}
+.app{display:grid;grid-template-columns:400px 1fr;min-height:100vh}
+
+/* ---------------- panel ---------------- */
+.panel{background:#fff;border-right:1px solid #d7dbe1;padding:16px 18px 40px;overflow:auto}
+.panel h1{font-size:19px;margin:0 0 2px}
+.muted{color:#667085;font-size:12px;margin:0 0 12px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.back{font-size:12px;font-weight:700;color:#a96e00;text-decoration:none}
+.back:hover{text-decoration:underline}
+.save-state{font-size:11px;font-weight:700;color:#667085;white-space:nowrap}
+.save-state.warn{color:#b42318}
+.group{border-top:1px solid #e5e7eb;padding-top:12px;margin-top:12px}
+.group>h2{font-size:12px;margin:0 0 9px;text-transform:uppercase;letter-spacing:.05em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.full{grid-column:1/-1}
+label{font-size:11px;font-weight:700;color:#344054;display:block;margin-bottom:3px}
+input,textarea,select{width:100%;border:1px solid #cfd4dc;border-radius:6px;padding:7px 8px;font-size:13px;background:#fff;font-family:inherit;color:#111}
+input:focus,textarea:focus,select:focus{outline:none;border-color:#155eef;box-shadow:0 0 0 2px rgba(21,94,239,.15)}
+textarea{min-height:52px;resize:vertical}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}
+button{border:0;border-radius:7px;padding:9px 12px;font-weight:700;cursor:pointer;background:#111;color:#fff;font-family:inherit;font-size:12.5px}
+button:hover{filter:brightness(1.15)}
+button:disabled{opacity:.5;cursor:default;filter:none}
+button.secondary{background:#e8ebef;color:#111}
+button.good{background:#155eef}
+button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
+.help{font-size:11px;color:#667085;line-height:1.5;margin-top:10px}
+.readout{background:#f7f8fa;border:1px solid #e5e7eb;border-radius:7px;padding:9px 10px;font-size:12px;margin-top:9px}
+.readout div{display:flex;justify-content:space-between;gap:10px;padding:2px 0}
+.readout .grand{font-weight:900;border-top:1px solid #d7dbe1;margin-top:4px;padding-top:5px}
+.readout .words{display:block;font-weight:400;color:#344054;text-align:left;line-height:1.4}
+.dupwarn{background:#fffaeb;border:1px solid #f7d774;color:#93370d;border-radius:7px;padding:8px 10px;font-size:11.5px;margin-top:9px;display:none}
+.dupwarn.show{display:block}
+
+/* row cards */
+.row-card{border:1px solid #e5e7eb;border-radius:8px;margin-bottom:7px;background:#fcfcfd}
+.row-card[open]{background:#fff;border-color:#c9d2e3}
+.row-card summary{cursor:pointer;padding:8px 10px;font-size:12px;font-weight:700;color:#344054;display:flex;gap:6px;align-items:center;list-style:none}
+.row-card summary::-webkit-details-marker{display:none}
+.row-card summary .sl{color:#98a2b3;font-weight:900;flex:none}
+.row-card summary .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.row-card summary .amt{margin-left:auto;color:#155eef;flex:none}
+.rc-body{padding:0 10px 4px}
+.rc-tools{display:flex;gap:6px;flex-wrap:wrap;padding:6px 10px 10px;border-top:1px solid #f0f1f3}
+
+/* ---------------- preview ---------------- */
+.preview-wrap{padding:22px;display:flex;justify-content:flex-start;align-items:flex-start;overflow:auto}
+.pages-holder{margin:0 auto;transform-origin:top center}
+.pages-inner{transform-origin:top center}
+.page{width:210mm;height:297mm;background:#fff;box-shadow:0 5px 25px rgba(0,0,0,.16);font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#000;position:relative;padding:18.6mm 11.2mm 21.3mm;overflow:hidden;margin:0 auto 16px}
+.measure-host{position:absolute;left:-100000px;top:0;visibility:hidden;pointer-events:none}
+.measure-host .page{box-shadow:none;margin:0}
+
+/* ---------------- sheet ---------------- */
+.pi-title{height:4.9mm;border:1px solid #111;text-align:center;font-weight:700;font-size:12px;line-height:4.7mm}
+.company{text-align:center;min-height:31.8mm;border-left:1px solid #111;border-right:1px solid #111;border-bottom:1px solid #111;position:relative;padding-top:1mm}
+.company .name{font-family:"Brush Script MT","Segoe Script","Lucida Handwriting","Apple Chancery","Comic Sans MS",cursive;font-size:31px;line-height:34px;font-weight:700}
+.company.plain .name{font-family:Arial,Helvetica,sans-serif;font-size:22px;line-height:26px;letter-spacing:.5px}
+.company .addr{font-size:10px}
+.company .cols{display:flex;justify-content:space-between;padding:1px 8px 0;align-items:flex-start}
+.company .col,.company .mid,.company .right{line-height:14px}
+.company .col{text-align:left;width:32%}
+.company .mid{text-align:center;width:36%}
+.company .right{text-align:right;width:32%}
+.cl{display:block}
+.cl.is-empty{display:none}
+
+.invoice-head{display:grid;grid-template-columns:53% 18% 29%;min-height:18.8mm;border-left:1px solid #111;border-bottom:1px solid #111}
+.box{border-right:1px solid #111;min-height:18.8mm;padding:4px}
+.box:last-child{border-right:0}
+.box .head{font-weight:700;font-size:10px;margin-bottom:4px}
+.buyer{line-height:14px}
+.meta{text-align:center;padding:0}
+.meta .row{min-height:9.35mm;border-bottom:1px solid #111;padding:3px 2px}
+.meta .row:last-child{border-bottom:0}
+.meta strong{display:block}
+
+.items{border-collapse:collapse;width:100%;table-layout:fixed}
+.items th,.items td{border:1px solid #111;padding:4px;vertical-align:top}
+.items th{text-align:center;height:10.3mm;font-size:10px}
+.items td{text-align:center}
+.items .desc{text-align:left}
+.items col:nth-child(1){width:4.87%}
+.items col:nth-child(2){width:16.88%}
+.items col:nth-child(3){width:10.65%}
+.items col:nth-child(4){width:20.49%}
+.items col:nth-child(5){width:9.93%}
+.items col:nth-child(6){width:6.59%}
+.items col:nth-child(7){width:12.91%}
+.items col:nth-child(8){width:17.69%}
+.items .qty{line-height:16px}
+.items .value{font-size:12px}
+.items .cf td{font-weight:700;text-align:right;background:#fff}
+.items .cf td.lbl{text-align:left}
+
+.bottom{display:grid;grid-template-columns:60% 40%;border-left:1px solid #111;border-right:1px solid #111;border-bottom:1px solid #111;min-height:47.4mm}
+.conditions{padding:7px 8px;border-right:1px solid #111;line-height:15px}
+.conditions .amount{margin-bottom:4px}
+.totalbox{display:flex;flex-direction:column}
+.freight{height:39.7mm;display:flex;align-items:flex-end;justify-content:center;border-bottom:1px solid #111;font-weight:700;padding-bottom:6px}
+.gtotal{display:grid;grid-template-columns:55% 45%;min-height:7.7mm}
+.gtotal div{padding:7px 5px;border-right:1px solid #111}
+.gtotal div:last-child{border-right:0}
+.gtotal .right{text-align:right;font-size:12px;font-weight:700}
+
+.bank-sign{display:grid;grid-template-columns:65% 35%;min-height:81.1mm;border-left:1px solid #111;border-right:1px solid #111;border-bottom:1px solid #111}
+.bank{padding:7px 8px;font-size:9.5px;line-height:15px}
+.sign{border-left:1px solid #111;position:relative;padding:8px;text-align:right}
+.sign img{max-width:150px;max-height:80px;display:block;margin:15px auto 0 auto}
+.sigline{border-bottom:1px solid #111;width:70%;margin:62px 0 0 auto}
+.sign .for{position:absolute;right:8px;bottom:8px;font-weight:700}
+.folio{position:absolute;right:11.2mm;bottom:7mm;font-size:9px}
+
+/* ---------------- responsive ---------------- */
+@media (max-width:980px){
+  .app{grid-template-columns:1fr}
+  .panel{border-right:0;border-bottom:1px solid #d7dbe1;overflow:visible}
+  .preview-wrap{padding:14px 8px}
+}
+
+/* ---------------- print ---------------- */
+@page{size:A4;margin:0}
+@media print{
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff}
+  .app{display:block;min-height:0}
+  .panel{display:none !important}
+  .preview-wrap{padding:0;display:block;overflow:visible}
+  .pages-holder{transform:none !important;height:auto !important;margin:0}
+  .pages-inner{transform:none !important;height:auto !important}
+  .page{box-shadow:none;margin:0;break-after:page;page-break-after:always}
+  .page:last-child{break-after:auto;page-break-after:auto}
+  .measure-host{display:none !important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="panel">
+  <div class="topbar">
+    <a class="back" href="/">&larr; Back to USOA GROUP</a>
+    <span class="save-state" id="saveState">Ready</span>
+  </div>
+  <h1>Proforma Invoice</h1>
+  <p class="muted">USOA GROUP &mdash; A4 proforma invoice builder. Fill the form, then Print or Download PDF.</p>
+
+  <div class="group"><h2>Document</h2><div class="grid">
+    <div class="full"><label for="title">Invoice title</label><input id="title"></div>
+    <div><label for="nameFont">Company name style</label><select id="nameFont"><option value="script">Script (handwritten)</option><option value="plain">Plain bold</option></select></div>
+    <div><label for="date">Date</label><input id="date" type="date"></div>
+  </div></div>
+
+  <div class="group"><h2>Exporter / Supplier</h2><div class="grid">
+    <div class="full"><label for="company">Company name</label><input id="company"></div>
+    <div class="full"><label for="address">Address</label><input id="address"></div>
+    <div><label for="ie">IE Code</label><input id="ie"></div>
+    <div><label for="gst">GSTIN</label><input id="gst"></div>
+    <div><label for="fssai">FSSAI L. No.</label><input id="fssai"></div>
+    <div><label for="uam">Udyam / UAM No.</label><input id="uam"></div>
+    <div><label for="apeda">APEDA RCMC No.</label><input id="apeda" placeholder="not set"></div>
+    <div><label for="mandi">MANDI L. No.</label><input id="mandi" placeholder="not set"></div>
+    <div><label for="nbb">NBB Certificate No.</label><input id="nbb" placeholder="not set"></div>
+    <div><label for="nbbreg">NBB Regd. No.</label><input id="nbbreg" placeholder="not set"></div>
+    <div><label for="phone">Phone</label><input id="phone"></div>
+    <div><label for="mobile">Mobile</label><input id="mobile"></div>
+    <div class="full"><label for="email">Email</label><input id="email"></div>
+  </div>
+  <p class="help">Blank credential lines are hidden on the invoice automatically. Fill APEDA / MANDI / NBB once and they are remembered in this browser.</p>
+  </div>
+
+  <div class="group"><h2>Buyer</h2><div class="grid">
+    <div class="full"><label for="buyer">Proforma Invoice To</label><input id="buyer"></div>
+    <div class="full"><label for="buyeraddr">Buyer address</label><textarea id="buyeraddr"></textarea></div>
+    <div><label for="exim">EXIM Code</label><input id="exim"></div>
+    <div><label for="pan">PAN No.</label><input id="pan"></div>
+    <div><label for="supply">Place of Supply</label><input id="supply"></div>
+  </div></div>
+
+  <div class="group"><h2>Invoice number</h2><div class="grid">
+    <div><label for="inv">Invoice No.</label><input id="inv"></div>
+    <div><label for="code">Destination code</label><input id="code" maxlength="4"></div>
+  </div>
+  <div class="dupwarn" id="dupWarn"></div>
+  <p class="help">Format is <b>YY-YY/CODE/number</b>, e.g. 25-26/NP/122. The financial year follows the invoice date.</p>
+  </div>
+
+  <div class="group"><h2>Items</h2>
+    <div id="rowList"></div>
+    <div class="actions" style="margin-top:8px"><button class="good" id="addRow" type="button">+ Add item</button></div>
+    <div class="readout" id="readout"></div>
+  </div>
+
+  <div class="group"><h2>Freight &amp; Terms</h2><div class="grid">
+    <div><label for="freight">Freight (INR)</label><input id="freight" type="number" step="0.01" min="0"></div>
+    <div><label for="payment">Payment Condition</label><input id="payment"></div>
+    <div><label for="incoterms">Incoterms</label><input id="incoterms"></div>
+    <div><label for="shipment">Part Shipment</label><input id="shipment"></div>
+    <div><label for="loading">Port of Loading</label><input id="loading"></div>
+    <div><label for="discharge">Port of Discharge</label><input id="discharge"></div>
+    <div><label for="contact">Contact Person</label><input id="contact"></div>
+    <div><label for="contactno">Contact No.</label><input id="contactno"></div>
+  </div></div>
+
+  <div class="group"><h2>Bank &amp; Signature</h2><div class="grid">
+    <div class="full"><label for="bankname">Bank account name</label><input id="bankname"></div>
+    <div><label for="account">A/C No.</label><input id="account"></div>
+    <div><label for="branch">Bank / Branch</label><input id="branch"></div>
+    <div><label for="ifsc">IFSC</label><input id="ifsc"></div>
+    <div><label for="adcode">Bank AD Code</label><input id="adcode" placeholder="get from your bank"></div>
+    <div><label for="swift">SWIFT</label><input id="swift"></div>
+    <div><label for="jurisdiction">Jurisdiction</label><input id="jurisdiction"></div>
+    <div class="full"><label for="sig">Signature / stamp image (PNG or JPG)</label><input id="sig" type="file" accept="image/png,image/jpeg"></div>
+  </div>
+  <p class="help">Large images are downscaled automatically so they fit in browser storage. If an image still will not fit it is kept for this session only.</p>
+  </div>
+
+  <div class="group"><h2>Output</h2>
+    <div class="actions">
+      <button id="print" type="button">Print / Save PDF</button>
+      <button class="good" id="download" type="button">Download PDF</button>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="newInv" type="button">+ New invoice</button>
+      <button class="secondary" id="dupInv" type="button">Duplicate invoice</button>
+    </div>
+    <div class="actions">
+      <button class="secondary" id="exportBtn" type="button">Export settings</button>
+      <button class="secondary" id="importBtn" type="button">Import settings</button>
+      <input id="importFile" type="file" accept="application/json,.json" style="display:none">
+    </div>
+    <div class="actions">
+      <button class="secondary" id="clearInv" type="button">Clear this invoice</button>
+      <button class="secondary" id="resetAll" type="button">Reset all saved settings</button>
+    </div>
+    <p class="help"><b>Print / Save PDF</b> gives the sharpest result: choose A4, Margins <b>None</b>, Scale <b>100%</b>, and switch <b>Background graphics</b> on.<br><br>
+    <b>Export settings</b> is your backup. Everything is stored only in this browser &mdash; clearing site data, switching browser or using another device will lose it.</p>
+  </div>
+</aside>
+
+<main class="preview-wrap">
+  <div class="pages-holder" id="pagesHolder">
+    <div class="pages-inner" id="pages"></div>
+  </div>
+</main>
+
+</div>
+
+<script>
+(function () {
+"use strict";
+
+/* ============================================================
+   CONSTANTS
+============================================================ */
+
+var K_PROFILE = "usoa.invoice.profile.v1";
+var K_DRAFT   = "usoa.invoice.draft.v1";
+var K_SEQ     = "usoa.invoice.seq.v1";
+
+var PAGE_MM      = 297;
+var PAD_TOP_MM   = 18.6;
+var PAD_BOT_MM   = 21.3;
+var CONTENT_MM   = PAGE_MM - PAD_TOP_MM - PAD_BOT_MM;   /* 257.1 */
+var SAFETY_MM    = 2;
+
+var TEXT_FIELDS = ["title","company","address","ie","gst","fssai","uam","apeda","mandi",
+  "nbb","nbbreg","phone","mobile","email","buyer","buyeraddr","exim","pan","supply",
+  "inv","code","freight","payment","incoterms","loading","discharge","shipment",
+  "contact","contactno","bankname","account","branch","ifsc","adcode","swift","jurisdiction"];
+
+var SELECT_FIELDS = ["nameFont"];
+
+/* Supplier + bank + terms + appearance: the stable stuff, saved as "profile" */
+var PROFILE_FIELDS = ["title","nameFont","company","address","ie","gst","fssai","uam",
+  "apeda","mandi","nbb","nbbreg","phone","mobile","email","payment","incoterms",
+  "loading","discharge","shipment","contact","contactno","code",
+  "bankname","account","branch","ifsc","adcode","swift","jurisdiction"];
+
+var ROW_FIELDS = ["desc","hsn","qty","unit","rate","packs","range","netWt","grossWt"];
+
+/* Verified from the live website (Index.html business-details section).
+   APEDA / MANDI / NBB / AD Code are deliberately left blank: the reference
+   invoice carried another company's values for these and they could not be
+   verified, so they must be filled in by the business before use. */
+var DEFAULTS = {
+  title:"PROFORMA OF INVOICE",
+  nameFont:"script",
+  company:"USOA GROUP",
+  address:"SHIVRAHA CHATURBHUJ, JHAPAHA, 842004, MUZAFFARPUR, BIHAR",
+  ie:"PUSPK6683J",
+  gst:"10PUSPK6683J1ZQ",
+  fssai:"20425061000737",
+  uam:"UDYAM-BR-23-0085469",
+  apeda:"", mandi:"", nbb:"", nbbreg:"",
+  phone:"+919142703535",
+  mobile:"+919934946176",
+  email:"usoagroup@gmail.com",
+  buyer:"", buyeraddr:"", exim:"", pan:"",
+  supply:"Nepal",
+  inv:"", code:"NP",
+  freight:"0",
+  payment:"LC at Sight",
+  incoterms:"Ex Works",
+  loading:"Land Port Raxaul",
+  discharge:"Land Port Birgunj",
+  shipment:"Allowed",
+  contact:"Arpit Kumar",
+  contactno:"+919142703535",
+  bankname:"USOA GROUP",
+  account:"55160200000727",
+  branch:"BANK OF BARODA BRANCH ZEROMILE, MUZAFFARPUR",
+  ifsc:"BARB0ZERMUZ",
+  adcode:"",
+  swift:"BOBBOMNRI",
+  jurisdiction:"MUZAFFARPUR"
+};
+
+function blankRow(){
+  return {desc:"", hsn:"04090000", qty:"", unit:"Kgs.", rate:"",
+          packs:"", range:"", netWt:"", grossWt:""};
+}
+
+/* ============================================================
+   STATE
+============================================================ */
+
+var state = {
+  rows: [blankRow()],
+  sig: null,            /* data URL in use this session */
+  sigPersist: null,     /* data URL small enough for localStorage */
+  invDirty: false,
+  storageOK: true
+};
+
+var seq = { last: {}, used: [] };
+
+/* ============================================================
+   SMALL HELPERS
+============================================================ */
+
+function $(id){ return document.getElementById(id); }
+function num(v){ var n = Number(v); return isFinite(n) ? n : 0; }
+
+function esc(s){
+  return String(s == null ? "" : s)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+
+function fmt(n){
+  return (num(n)).toLocaleString("en-IN",{maximumFractionDigits:0});
+}
+
+/* Rupees and paise as separate strings, the way the reference sheet prints them */
+function splitMoney(n){
+  var v = Math.max(0, num(n));
+  var parts = v.toFixed(2).split(".");
+  return { r: Number(parts[0]).toLocaleString("en-IN"), p: parts[1], rupees: Number(parts[0]) };
+}
+
+/* Indian denominations: Crore / Lacs / Thousand */
+function words(n){
+  n = Math.round(num(n));
+  if (n === 0) return "Zero";
+  var a = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten",
+           "Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen",
+           "Eighteen","Nineteen"];
+  var b = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+  function x(v){
+    if (v < 20) return a[v];
+    if (v < 100) return b[Math.floor(v/10)] + (v%10 ? " " + a[v%10] : "");
+    if (v < 1000) return a[Math.floor(v/100)] + " Hundred" + (v%100 ? " " + x(v%100) : "");
+    return x(Math.floor(v/1000)) + " Thousand" + (v%1000 ? " " + x(v%1000) : "");
+  }
+  var cr = Math.floor(n/10000000);
+  var lk = Math.floor((n%10000000)/100000);
+  var th = Math.floor((n%100000)/1000);
+  var r  = n%1000;
+  var s = "";
+  if (cr) s += x(cr) + " Crore ";
+  if (lk) s += x(lk) + " Lacs ";
+  if (th) s += x(th) + " Thousand ";
+  if (r)  s += x(r);
+  return s.trim();
+}
+
+function moneyWords(total){
+  var m = splitMoney(total);
+  var s = words(m.rupees);
+  if (Number(m.p) > 0) s += " and " + words(Number(m.p)) + " Paise";
+  return s + " Only";
+}
+
+/* "Kgs." -> "kg", "Boxes" -> "box" : the suffix used after the rate */
+function rateSuffix(unit){
+  var u = String(unit || "").trim().replace(/\.$/,"");
+  if (/^kgs?$/i.test(u)) return "kg";
+  if (u.length > 1 && /s$/i.test(u)) return u.slice(0,-1).toLowerCase();
+  return u.toLowerCase();
+}
+
+function fmtQty(v){
+  if (v === "" || v == null) return "";
+  return num(v).toFixed(3);
+}
+
+function fmtRate(v){
+  if (v === "" || v == null) return "";
+  return num(v).toLocaleString("en-IN",{maximumFractionDigits:2});
+}
+
+/* Indian financial year, April to March. 10/01/2026 -> "25-26" */
+function indianFY(iso){
+  var d = parseISO(iso);
+  var start = d.getUTCMonth() >= 3 ? d.getUTCFullYear() : d.getUTCFullYear() - 1;
+  return String(start).slice(2) + "-" + String(start + 1).slice(2);
+}
+
+function parseISO(iso){
+  var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ""));
+  if (m) return new Date(Date.UTC(+m[1], +m[2]-1, +m[3]));
+  return new Date();
+}
+
+function toISO(d){
+  return d.getUTCFullYear() + "-" +
+         String(d.getUTCMonth()+1).padStart(2,"0") + "-" +
+         String(d.getUTCDate()).padStart(2,"0");
+}
+
+/* 2026-01-10 -> 10/01/2026 (DD/MM/YYYY, as the reference sheet prints) */
+function dispDate(iso){
+  var d = parseISO(iso);
+  return String(d.getUTCDate()).padStart(2,"0") + "/" +
+         String(d.getUTCMonth()+1).padStart(2,"0") + "/" + d.getUTCFullYear();
+}
+
+function pxPerMm(){
+  var p = document.createElement("div");
+  p.style.cssText = "height:100mm;width:0;position:absolute;left:-100000px;top:0;visibility:hidden";
+  document.body.appendChild(p);
+  var v = p.offsetHeight / 100;
+  p.parentNode.removeChild(p);
+  return v > 0 ? v : 3.7795;
+}
+
+/* ============================================================
+   FORM READ / WRITE
+============================================================ */
+
+function readForm(){
+  var d = {};
+  TEXT_FIELDS.forEach(function(k){ d[k] = $(k) ? $(k).value : ""; });
+  SELECT_FIELDS.forEach(function(k){ d[k] = $(k) ? $(k).value : ""; });
+  d.date = $("date").value;
+  return d;
+}
+
+function applyValues(obj){
+  if (!obj) return;
+  TEXT_FIELDS.concat(SELECT_FIELDS, ["date"]).forEach(function(k){
+    if (obj[k] != null && $(k)) $(k).value = obj[k];
+  });
+}
+
+function setDefaults(){
+  applyValues(DEFAULTS);
+  $("date").value = toISO(new Date());
+}
+
+/* ============================================================
+   SHEET HTML BUILDERS  (single source of truth: used for both
+   the measuring pass and the real pages)
+============================================================ */
+
+/* A credential line that disappears entirely when its value is blank */
+function cl(label, val){
+  var v = String(val == null ? "" : val).trim();
+  return '<span class="cl' + (v ? "" : " is-empty") + '">' + esc(label) + esc(v) + '</span>';
+}
+
+function headerHTML(d){
+  var nameClass = "company" + (d.nameFont === "plain" ? " plain" : "");
+
+  var html = "";
+  html += '<div class="pi-title">' + esc(d.title || "PROFORMA OF INVOICE") + '</div>';
+  html += '<div class="' + nameClass + '">';
+  html +=   '<div class="name">' + esc(d.company) + '</div>';
+  html +=   '<div class="addr">' + esc(d.address) + '</div>';
+  html +=   '<div class="cols">';
+  html +=     '<div class="col">'
+            +   cl("IE CODE: ", d.ie)
+            +   cl("APEDA RCMC No: ", d.apeda)
+            +   cl("MANDI L.No: ", d.mandi)
+            +   cl("NBB Certificate No: ", d.nbb)
+            + '</div>';
+  html +=     '<div class="mid">'
+            +   '<span class="cl">Ph. : ' + esc(d.phone) + ' &nbsp;Mob.: ' + esc(d.mobile) + '</span>'
+            +   cl("Mail ID: ", d.email)
+            + '</div>';
+  html +=     '<div class="right">'
+            +   cl("GSTIN: ", d.gst)
+            +   cl("UAM No: ", d.uam)
+            +   cl("FSSAI L. No: ", d.fssai)
+            +   cl("Regd. No: ", d.nbbreg)
+            + '</div>';
+  html +=   '</div>';
+  html += '</div>';
+
+  html += '<div class="invoice-head">';
+  html +=   '<div class="box buyer">'
+          +   '<div class="head">Proforma Invoice To: ' + esc(d.buyer) + '</div>'
+          +   '<span class="cl">' + esc(d.buyeraddr).replace(/\n/g,"<br>") + '</span>'
+          +   cl("Exim Code : ", d.exim)
+          +   cl("PAN No. : ", d.pan)
+          +   (String(d.supply||"").trim()
+                ? '<span class="cl"><b>Place of Supply:</b> ' + esc(d.supply) + '</span>' : "")
+          + '</div>';
+  html +=   '<div class="meta"><div class="row"><strong>PROFORMA<br>INVOICE NO</strong>'
+          +   '<span>' + esc(d.inv) + '</span></div></div>';
+  html +=   '<div class="meta"><div class="row"><strong>Dated</strong>'
+          +   '<span>' + esc(dispDate(d.date)) + '</span></div></div>';
+  html += '</div>';
+  return html;
+}
+
+function colgroupHTML(){
+  return '<colgroup><col><col><col><col><col><col><col><col></colgroup>';
+}
+
+function theadHTML(){
+  return '<thead><tr>'
+       + '<th>Sl.<br>No.</th>'
+       + '<th>Description of Goods</th>'
+       + '<th>HSN</th>'
+       + '<th>QTY</th>'
+       + '<th>Units</th>'
+       + '<th>Rate</th>'
+       + '<th>Value of Goods (INR)</th>'
+       + '<th></th>'
+       + '</tr></thead>';
+}
+
+function rowValue(r){
+  return Math.round(num(r.qty) * num(r.rate) * 100) / 100;
+}
+
+function rowHTML(r, index, stretchPx){
+  var m = splitMoney(rowValue(r));
+  var qtyLines = '<span class="cl">' + esc(fmtQty(r.qty)) + '</span>'
+    + (String(r.packs||"").trim()   ? '<span class="cl">' + esc(r.packs) + '</span>' : "")
+    + (String(r.range||"").trim()   ? '<span class="cl">(' + esc(r.range) + ')</span>' : "")
+    + (String(r.netWt||"").trim()   ? '<span class="cl">Nt. Wt. ' + esc(r.netWt) + '</span>' : "")
+    + (String(r.grossWt||"").trim() ? '<span class="cl">Gr. Wt. ' + esc(r.grossWt) + '</span>' : "");
+
+  var rateTxt = String(r.rate||"").trim() === "" ? ""
+              : fmtRate(r.rate) + (rateSuffix(r.unit) ? "/" + esc(rateSuffix(r.unit)) : "");
+
+  return '<tr class="item-row"' + (stretchPx ? ' style="height:' + stretchPx + 'px"' : "") + '>'
+       + '<td>' + (index + 1) + '.</td>'
+       + '<td class="desc">' + esc(r.desc) + '</td>'
+       + '<td>' + esc(r.hsn) + '</td>'
+       + '<td class="qty">' + qtyLines + '</td>'
+       + '<td>' + esc(r.unit) + '</td>'
+       + '<td>' + rateTxt + '</td>'
+       + '<td class="value">' + esc(m.r) + '</td>'
+       + '<td class="value">' + esc(m.p) + '</td>'
+       + '</tr>';
+}
+
+function cfRowHTML(amount){
+  var m = splitMoney(amount);
+  return '<tr class="cf"><td class="lbl" colspan="6">Carried forward INR.</td>'
+       + '<td class="value">' + esc(m.r) + '</td>'
+       + '<td class="value">' + esc(m.p) + '</td></tr>';
+}
+
+function bottomHTML(d, subtotal, grand){
+  var f = splitMoney(d.freight);
+  var g = splitMoney(grand);
+  var html = '<div class="bottom">';
+  html += '<div class="conditions">';
+  html +=   '<div class="amount">Total Amount in words (INR): ' + esc(moneyWords(grand)) + '</div>';
+  html +=   cl("Payment Condition : ", d.payment);
+  html +=   cl("Port of Loading : ", d.loading);
+  html +=   cl("Port of Discharge : ", d.discharge);
+  html +=   cl("Part Shipment : ", d.shipment);
+  html +=   cl("Contact Person : ", d.contact);
+  html +=   cl("Contact No. : ", d.contactno);
+  html +=   cl("Incoterms : ", d.incoterms);
+  html += '</div>';
+  html += '<div class="totalbox">';
+  html +=   '<div class="freight">FREIGHT INR. <span style="margin-left:5px">' + esc(f.r) + '</span></div>';
+  html +=   '<div class="gtotal"><div>G. TOTAL INR.</div>'
+          +   '<div class="right">' + esc(g.r) + ' &nbsp; ' + esc(g.p) + '</div></div>';
+  html += '</div>';
+  html += '</div>';
+  return html;
+}
+
+function bankHTML(d){
+  var lines = [];
+  lines.push(['Bank Account-', d.bankname, true]);
+  lines.push(['A/C No- ', d.account + (String(d.branch||"").trim() ? " (" + d.branch + ")" : ""), true]);
+  lines.push(['IFSC-', d.ifsc, true]);
+  lines.push(['BANK AD Code-', d.adcode, true]);
+  lines.push(['Swift Code-', d.swift, true]);
+
+  var html = '<div class="bank-sign"><div class="bank">';
+  var n = 0;
+  lines.forEach(function(L){
+    if (!String(L[1]||"").trim()) return;
+    n++;
+    html += '<div>' + n + '. ' + esc(L[0]) + '<b>' + esc(L[1]) + '</b></div>';
+  });
+  if (String(d.jurisdiction||"").trim()){
+    n++;
+    html += '<div>' + n + '. All disputes are Subject to ' + esc(d.jurisdiction) + ' Jurisdiction only.</div>';
+  }
+  html += '</div>';
+
+  html += '<div class="sign"><div>For: <b>' + esc(String(d.company||"").toUpperCase()) + '</b></div>';
+  html += state.sig
+        ? '<img src="' + state.sig + '" alt="Signature">'
+        : '<div class="sigline"></div>';
+  html += '<div class="for">Prop.</div></div></div>';
+  return html;
+}
+
+function folioHTML(i, n){
+  return '<div class="folio">Page ' + i + ' of ' + n + '</div>';
+}
+
+function tableHTML(bodyRows){
+  return '<table class="items">' + colgroupHTML() + theadHTML()
+       + '<tbody>' + bodyRows + '</tbody></table>';
+}
+
+/* ============================================================
+   MEASURING + PAGINATION
+============================================================ */
+
+function measure(data, rows){
+  var host = document.createElement("div");
+  host.className = "measure-host";
+  var page = document.createElement("div");
+  page.className = "page";
+
+  var headerWrap = document.createElement("div");
+  headerWrap.innerHTML = headerHTML(data);
+
+  var tbl = document.createElement("table");
+  tbl.className = "items";
+  tbl.innerHTML = colgroupHTML() + theadHTML() + "<tbody></tbody>";
+  var tbody = tbl.querySelector("tbody");
+  rows.forEach(function(r, i){ tbody.insertAdjacentHTML("beforeend", rowHTML(r, i, 0)); });
+
+  var cf = document.createElement("table");
+  cf.className = "items";
+  cf.innerHTML = colgroupHTML() + "<tbody>" + cfRowHTML(0) + "</tbody>";
+
+  var bottomWrap = document.createElement("div");
+  bottomWrap.innerHTML = bottomHTML(data, 0, 0);
+  var bankWrap = document.createElement("div");
+  bankWrap.innerHTML = bankHTML(data);
+
+  page.appendChild(headerWrap);
+  page.appendChild(tbl);
+  page.appendChild(cf);
+  page.appendChild(bottomWrap);
+  page.appendChild(bankWrap);
+  host.appendChild(page);
+  document.body.appendChild(host);
+
+  var rowEls = Array.prototype.slice.call(tbody.children);
+  var res = {
+    host: host,
+    header: headerWrap.offsetHeight,
+    thead: tbl.tHead.offsetHeight,
+    rows: rowEls.map(function(e){ return e.offsetHeight; }),
+    cf: cf.offsetHeight,
+    bottom: bottomWrap.firstChild.offsetHeight,
+    bank: bankWrap.firstChild.offsetHeight
+  };
+  return res;
+}
+
+function paginate(rowPx, capFirst, capOther, reserve){
+  var pages = [], cur = [], used = 0, cap = capFirst;
+
+  for (var i = 0; i < rowPx.length; i++){
+    var h = rowPx[i];
+    if (cur.length && used + h > cap){
+      pages.push(cur);
+      cur = []; used = 0; cap = capOther;
+    }
+    cur.push(i);
+    used += h;
+  }
+  if (cur.length) pages.push(cur);
+  if (!pages.length) pages = [[]];
+
+  /* The last page also has to carry the totals + bank + signature block.
+     Push trailing rows onto a fresh page until it does. */
+  var guard = 0;
+  while (guard++ < 200){
+    var li = pages.length - 1;
+    var capLast = (li === 0 ? capFirst : capOther);
+    var u = 0;
+    for (var j = 0; j < pages[li].length; j++) u += rowPx[pages[li][j]];
+    if (u + reserve <= capLast) break;
+    if (pages[li].length <= 1 && u + reserve > capLast){
+      if (pages.length === 1) break;              /* cannot split further */
+      if (pages[li].length === 1){ pages.pop(); pages.push([]); break; }
+    }
+    var moved = pages[li].pop();
+    if (!pages[li].length) pages.splice(li, 1);
+    pages.push([moved]);
+  }
+  return pages;
+}
+
+/* ============================================================
+   RENDER
+============================================================ */
+
+var layoutWarning = "";
+
+function layout(){
+  var data = readForm();
+  var rows = state.rows;
+  var ppm  = pxPerMm();
+
+  var avail = (CONTENT_MM - SAFETY_MM) * ppm;
+  var m = measure(data, rows);
+  var host = m.host;
+
+  var tail = m.bottom + m.bank;
+
+  /* First pass: no "carried forward" rows. If it all fits on one page we
+     never need them, so do not reserve space for them. */
+  var capFirst = avail - m.header - m.thead;
+  var capOther = avail - m.thead;
+  var pages = paginate(m.rows, capFirst, capOther, tail);
+
+  if (pages.length > 1){
+    capFirst -= m.cf;
+    capOther -= m.cf;
+    pages = paginate(m.rows, capFirst, capOther, tail);
+  }
+
+  layoutWarning = "";
+  if (tail > capOther) {
+    layoutWarning = "The totals and bank block alone need more space than one A4 page has. Shorten the bank details or reduce the signature size.";
+  }
+  for (var k = 0; k < m.rows.length; k++){
+    if (m.rows[k] > capOther - tail){
+      layoutWarning = "Item " + (k+1) + " is taller than the space left on a page; it may be clipped. Reduce its description or quantity lines.";
+      break;
+    }
+  }
+
+  /* On a single page the items area must fill the sheet so the totals and
+     bank block sit at the bottom, as in the reference invoice. The row budget
+     is what is left after the header, the table head AND the tail block. */
+  var stretchPer = [];
+  if (pages.length === 1){
+    var sum = m.rows.reduce(function(a,b){ return a + b; }, 0);
+    var leftover = capFirst - tail - sum;
+    if (leftover > 0){
+      var each = Math.floor(leftover / m.rows.length);
+      var rem = leftover - each * m.rows.length;
+      stretchPer = m.rows.map(function(h, i){
+        return h + each + (i === m.rows.length - 1 ? rem : 0) - 1;
+      });
+    }
+  }
+
+  var out = "";
+  for (var p = 0; p < pages.length; p++){
+    var idxs = pages[p];
+    var isFirst = (p === 0);
+    var isLast  = (p === pages.length - 1);
+
+    var body = "";
+    var pageSum = 0;
+    idxs.forEach(function(ri){
+      var st = (pages.length === 1) ? (stretchPer[ri] || 0) : 0;
+      body += rowHTML(rows[ri], ri, st);
+      pageSum += rowValue(rows[ri]);
+    });
+    if (pages.length > 1 && !isLast) body += cfRowHTML(pageSum);
+
+    out += '<section class="page">';
+    if (isFirst) out += headerHTML(data);
+    out += tableHTML(body);
+    if (isLast){
+      var sub = rows.reduce(function(s,r){ return s + rowValue(r); }, 0);
+      sub = Math.round(sub * 100) / 100;
+      var grand = Math.round((sub + num(data.freight)) * 100) / 100;
+      out += bottomHTML(data, sub, grand);
+      out += bankHTML(data);
+    }
+    if (pages.length > 1) out += folioHTML(p + 1, pages.length);
+    out += '</section>';
+  }
+
+  host.parentNode.removeChild(host);
+
+  var target = $("pages");
+  target.innerHTML = out;
+
+  /* Safety net: every row in state must have reached the sheet. */
+  var rendered = target.querySelectorAll("tr.item-row").length;
+  if (rendered !== rows.length){
+    console.error("Invoice layout dropped rows: state=" + rows.length + " rendered=" + rendered);
+    layoutWarning = "Layout problem: only " + rendered + " of " + rows.length
+                  + " items fitted the pages. Nothing has been lost from the form, but reduce item sizes before printing.";
+  }
+
+  updateReadout(data, rows);
+  fitScale();
+}
+
+function updateReadout(d, rows){
+  var sub = 0;
+  rows.forEach(function(r){ sub += rowValue(r); });
+  sub = Math.round(sub * 100) / 100;
+  var grand = Math.round((sub + num(d.freight)) * 100) / 100;
+  var ms = splitMoney(sub), mg = splitMoney(grand);
+
+  var h = "";
+  h += '<div><span>Items</span><span>' + rows.length + '</span></div>';
+  h += '<div><span>Sub-total</span><span>' + esc(ms.r) + '.' + esc(ms.p) + '</span></div>';
+  h += '<div><span>Freight</span><span>' + esc(splitMoney(d.freight).r) + '.' + esc(splitMoney(d.freight).p) + '</span></div>';
+  h += '<div class="grand"><span>G. Total INR</span><span>' + esc(mg.r) + '.' + esc(mg.p) + '</span></div>';
+  h += '<span class="words">' + esc(moneyWords(grand)) + '</span>';
+  if (layoutWarning) h += '<div style="color:#b42318;margin-top:6px;font-weight:700">' + esc(layoutWarning) + '</div>';
+  $("readout").innerHTML = h;
+}
+
+/* Scale the A4 sheets down so they fit the available preview width. */
+function fitScale(){
+  var wrap = document.querySelector(".preview-wrap");
+  var holder = $("pagesHolder");
+  var inner = $("pages");
+  inner.style.transform = "";
+  holder.style.height = "";
+
+  var ppm = pxPerMm();
+  var pageW = 210 * ppm;
+  var availW = wrap.clientWidth - 44;
+  var s = Math.min(1, availW / pageW);
+
+  inner.style.transform = "scale(" + s + ")";
+  holder.style.height = Math.ceil(inner.offsetHeight * s) + "px";
+  holder.style.width = Math.ceil(pageW * s) + "px";
+}
+
+function render(){ layout(); }
+
+/* ============================================================
+   PANEL: ITEM ROWS
+============================================================ */
+
+function renderRows(){
+  var host = $("rowList");
+  var html = "";
+
+  if (!state.rows.length){
+    html += '<p class="empty-note">No items yet. Add at least one item.</p>';
+  }
+
+  state.rows.forEach(function(r, i){
+    html += '<details class="row-card"' + (state.rows.length === 1 ? " open" : "") + ' data-i="' + i + '">';
+    html +=   '<summary><span class="sl">' + (i+1) + '.</span>'
+            +   '<span class="nm">' + esc(r.desc || "New item") + '</span>'
+            +   '<span class="amt">' + esc(splitMoney(rowValue(r)).r) + '</span></summary>';
+    html +=   '<div class="rc-body"><div class="grid">';
+    html +=     f("desc", i, "Description of Goods", "text", r.desc, true);
+    html +=     f("hsn", i, "HSN", "text", r.hsn);
+    html +=     f("qty", i, "Quantity", "number", r.qty);
+    html +=     f("unit", i, "Units", "text", r.unit);
+    html +=     f("rate", i, "Rate (INR)", "number", r.rate);
+    html +=     f("packs", i, "Buckets / packages", "text", r.packs);
+    html +=     f("range", i, "Package range", "text", r.range);
+    html +=     f("netWt", i, "Net wt. / package", "text", r.netWt);
+    html +=     f("grossWt", i, "Gross wt. / package", "text", r.grossWt);
+    html +=   '</div></div>';
+    html +=   '<div class="rc-tools">';
+    html +=     '<button class="tiny secondary" type="button" data-act="up" data-i="' + i + '"' + (i===0 ? " disabled" : "") + '>&uarr; Move up</button>';
+    html +=     '<button class="tiny secondary" type="button" data-act="down" data-i="' + i + '"' + (i===state.rows.length-1 ? " disabled" : "") + '>&darr; Move down</button>';
+    html +=     '<button class="tiny secondary" type="button" data-act="dup" data-i="' + i + '">Duplicate</button>';
+    html +=     '<button class="tiny secondary" type="button" data-act="del" data-i="' + i + '"' + (state.rows.length===1 ? " disabled" : "") + '>Remove</button>';
+    html +=   '</div>';
+    html += '</details>';
+  });
+
+  host.innerHTML = html;
+}
+
+function f(key, i, label, type, val, full){
+  return '<div' + (full ? ' class="full"' : '') + '>'
+       + '<label for="r_' + key + '_' + i + '">' + esc(label) + '</label>'
+       + '<input id="r_' + key + '_' + i + '" data-row="' + i + '" data-k="' + key + '"'
+       + (type === "number" ? ' type="number" step="any" min="0"' : ' type="text"')
+       + ' value="' + esc(val) + '"></div>';
+}
+
+/* Update only the summary text, so typing never loses focus. */
+function syncSummaries(){
+  var cards = $("rowList").querySelectorAll(".row-card");
+  Array.prototype.forEach.call(cards, function(card){
+    var i = Number(card.getAttribute("data-i"));
+    var r = state.rows[i];
+    if (!r) return;
+    var nm = card.querySelector(".nm");
+    var amt = card.querySelector(".amt");
+    if (nm) nm.textContent = r.desc || "New item";
+    if (amt) amt.textContent = splitMoney(rowValue(r)).r;
+  });
+}
+
+/* ============================================================
+   PERSISTENCE
+============================================================ */
+
+var saveTimer = null;
+
+function setSaveState(text, warn){
+  var el = $("saveState");
+  el.textContent = text;
+  el.className = "save-state" + (warn ? " warn" : "");
+}
+
+function readStore(key){
+  try {
+    var raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e){ return null; }
+}
+
+function writeStore(key, val){
+  localStorage.setItem(key, JSON.stringify(val));
+}
+
+function collectProfile(){
+  var d = readForm(), o = {};
+  PROFILE_FIELDS.forEach(function(k){ o[k] = d[k]; });
+  return o;
+}
+
+function save(){
+  if (!state.storageOK) return;
+  var d = readForm();
+
+  var draft = { fields: {}, rows: state.rows, sig: state.sigPersist };
+  TEXT_FIELDS.concat(SELECT_FIELDS, ["date"]).forEach(function(k){ draft.fields[k] = d[k]; });
+  var profile = collectProfile();
+
+  setSaveState("Saving…");
+
+  /* Quota ladder: signature image first, then the duplicated profile copy. */
+  var attempts = [
+    function(){ writeStore(K_DRAFT, draft); writeStore(K_PROFILE, profile); },
+    function(){ draft.sig = null; writeStore(K_DRAFT, draft); writeStore(K_PROFILE, profile); },
+    function(){ draft.sig = null; writeStore(K_DRAFT, draft); localStorage.removeItem(K_PROFILE); }
+  ];
+
+  for (var i = 0; i < attempts.length; i++){
+    try {
+      attempts[i]();
+      writeStore(K_SEQ, seq);
+      if (i === 0) setSaveState("Saved");
+      else if (i === 1) setSaveState("Saved (signature image too large to store)", true);
+      else setSaveState("Saved (storage nearly full)", true);
+      return;
+    } catch (e){ /* try the next rung */ }
+  }
+
+  state.storageOK = false;
+  setSaveState("Not saved — browser storage is full", true);
+}
+
+function scheduleSave(){
+  setSaveState("Saving…");
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 400);
+}
+
+function loadAll(){
+  var profile = readStore(K_PROFILE);
+  var draft = readStore(K_DRAFT);
+  var s = readStore(K_SEQ);
+  if (s && typeof s === "object"){
+    seq.last = s.last || {};
+    seq.used = Array.isArray(s.used) ? s.used : [];
+  }
+  if (profile) applyValues(profile);
+  if (draft){
+    if (draft.fields) applyValues(draft.fields);
+    if (Array.isArray(draft.rows) && draft.rows.length){
+      state.rows = draft.rows.map(function(r){
+        var b = blankRow();
+        ROW_FIELDS.forEach(function(k){ if (r && r[k] != null) b[k] = r[k]; });
+        return b;
+      });
+    }
+    if (draft.sig){ state.sig = draft.sig; state.sigPersist = draft.sig; }
+    if (draft.fields && draft.fields.inv) state.invDirty = true;
+  }
+  if (!$("date").value) $("date").value = toISO(new Date());
+  if (!$("inv").value) proposeInvoice(true);
+}
+
+/* ============================================================
+   INVOICE NUMBERING
+============================================================ */
+
+function proposeInvoice(force){
+  var d = readForm();
+  var fy = indianFY(d.date);
+  var code = (d.code || "NP").toUpperCase().replace(/[^A-Z0-9]/g,"") || "NP";
+  var key = fy + "/" + code;
+  var n = num(seq.last[key]) + 1;
+  var cand = key + "/" + n;
+  var guard = 0;
+  while (seq.used.indexOf(cand) !== -1 && guard++ < 5000){
+    n++; cand = key + "/" + n;
+  }
+  if (force || !state.invDirty) $("inv").value = cand;
+  return cand;
+}
+
+function recordInvoice(){
+  var v = String($("inv").value || "").trim();
+  if (!v) return;
+  if (seq.used.indexOf(v) === -1){
+    seq.used.push(v);
+    if (seq.used.length > 500) seq.used = seq.used.slice(-500);
+  }
+  var parts = v.split("/");
+  if (parts.length === 3){
+    var key = parts[0] + "/" + parts[1];
+    var n = parseInt(parts[2], 10);
+    if (isFinite(n) && n > num(seq.last[key])) seq.last[key] = n;
+  }
+  checkDuplicate();
+  save();
+}
+
+function checkDuplicate(){
+  var v = String($("inv").value || "").trim();
+  var el = $("dupWarn");
+  var others = seq.used.filter(function(x){ return x === v; });
+  if (v && others.length){
+    el.textContent = "Invoice number " + v + " has already been printed or downloaded from this browser. Check before reusing it.";
+    el.className = "dupwarn show";
+  } else {
+    el.className = "dupwarn";
+  }
+}
+
+/* ============================================================
+   SIGNATURE IMAGE
+============================================================ */
+
+var SIG_MAX_W = 420;
+var SIG_MAX_BYTES = 300000;
+
+function processSignature(file){
+  return new Promise(function(resolve, reject){
+    if (!file) return reject(new Error("No file chosen"));
+    if (!/^image\/(png|jpeg)$/.test(file.type)) return reject(new Error("Use a PNG or JPG image"));
+
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function(){
+      URL.revokeObjectURL(url);
+      var ladder = [
+        { w: SIG_MAX_W, type: "image/png",  q: 1 },
+        { w: SIG_MAX_W, type: "image/jpeg", q: 0.92 },
+        { w: 320,       type: "image/jpeg", q: 0.85 },
+        { w: 240,       type: "image/jpeg", q: 0.75 }
+      ];
+      var out = null;
+      for (var i = 0; i < ladder.length; i++){
+        var step = ladder[i];
+        var scale = Math.min(1, step.w / img.width);
+        var c = document.createElement("canvas");
+        c.width = Math.max(1, Math.round(img.width * scale));
+        c.height = Math.max(1, Math.round(img.height * scale));
+        var ctx = c.getContext("2d");
+        if (step.type === "image/jpeg"){ ctx.fillStyle = "#fff"; ctx.fillRect(0,0,c.width,c.height); }
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        var du = c.toDataURL(step.type, step.q);
+        out = du;
+        if (du.length <= SIG_MAX_BYTES) break;
+      }
+      if (!out) return reject(new Error("Could not process that image"));
+      resolve({ data: out, storable: out.length <= SIG_MAX_BYTES });
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error("Could not read that image")); };
+    img.src = url;
+  });
+}
+
+/* ============================================================
+   PDF LIBRARIES (lazy, vendored)
+============================================================ */
+
+function injectScript(src){
+  return new Promise(function(resolve, reject){
+    var s = document.createElement("script");
+    s.src = src;
+    s.onload = function(){ resolve(); };
+    s.onerror = function(){ reject(new Error("Could not load " + src)); };
+    document.head.appendChild(s);
+  });
+}
+
+var libsPromise = null;
+function loadPdfLibs(){
+  if (libsPromise) return libsPromise;
+  libsPromise = injectScript("vendor/html2canvas.min.js")
+    .then(function(){ return injectScript("vendor/jspdf.umd.min.js"); })
+    .then(function(){
+      if (!window.html2canvas) throw new Error("html2canvas did not initialise");
+      if (!window.jspdf || !window.jspdf.jsPDF) throw new Error("jsPDF did not initialise");
+    })
+    .catch(function(err){ libsPromise = null; throw err; });
+  return libsPromise;
+}
+
+/* ============================================================
+   EXPORT / IMPORT
+============================================================ */
+
+function exportSettings(){
+  var payload = {
+    app: "usoa-invoice", version: 1,
+    exported: new Date().toISOString(),
+    profile: collectProfile(),
+    draft: { fields: readForm(), rows: state.rows, sig: state.sigPersist },
+    seq: seq
+  };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "usoa-invoice-settings.json";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+function importSettings(file){
+  var fr = new FileReader();
+  fr.onload = function(){
+    try {
+      var o = JSON.parse(String(fr.result));
+      if (!o || o.app !== "usoa-invoice") throw new Error("That is not a USOA invoice settings file");
+      if (o.profile) applyValues(o.profile);
+      if (o.draft && o.draft.fields) applyValues(o.draft.fields);
+      if (o.draft && Array.isArray(o.draft.rows) && o.draft.rows.length){
+        state.rows = o.draft.rows.map(function(r){
+          var b = blankRow();
+          ROW_FIELDS.forEach(function(k){ if (r && r[k] != null) b[k] = r[k]; });
+          return b;
+        });
+      } else {
+        state.rows = [blankRow()];
+      }
+      if (o.draft && o.draft.sig){ state.sig = o.draft.sig; state.sigPersist = o.draft.sig; }
+      if (o.seq){ seq.last = o.seq.last || {}; seq.used = Array.isArray(o.seq.used) ? o.seq.used : []; }
+      state.storageOK = true;
+      renderRows(); render(); checkDuplicate(); save();
+      setSaveState("Settings imported");
+    } catch (e){
+      alert("Import failed: " + (e.message || e));
+    }
+  };
+  fr.onerror = function(){ alert("Could not read that file"); };
+  fr.readAsText(file);
+}
+
+/* ============================================================
+   EVENTS
+============================================================ */
+
+function wire(){
+  /* Any static field: live re-render */
+  TEXT_FIELDS.concat(SELECT_FIELDS).forEach(function(k){
+    var el = $(k);
+    if (!el) return;
+    el.addEventListener("input", function(){
+      if (k === "inv") state.invDirty = true;
+      if (k === "date" && !state.invDirty) proposeInvoice(false);
+      render(); scheduleSave();
+    });
+    el.addEventListener("change", function(){ render(); scheduleSave(); });
+  });
+
+  $("date").addEventListener("input", function(){
+    if (!state.invDirty) proposeInvoice(false);
+    render(); scheduleSave();
+  });
+
+  /* Row inputs: delegated, so focus survives typing */
+  $("rowList").addEventListener("input", function(e){
+    var t = e.target;
+    if (!t || !t.dataset || !t.dataset.k) return;
+    var i = Number(t.dataset.row);
+    if (!state.rows[i]) return;
+    state.rows[i][t.dataset.k] = t.value;
+    syncSummaries();
+    render();
+    scheduleSave();
+  });
+
+  $("rowList").addEventListener("click", function(e){
+    var b = e.target.closest ? e.target.closest("button[data-act]") : null;
+    if (!b || b.disabled) return;
+    var i = Number(b.dataset.i);
+    var act = b.dataset.act;
+    var open = {};
+    $("rowList").querySelectorAll(".row-card").forEach(function(c){ open[c.dataset.i] = c.open; });
+
+    if (act === "del" && state.rows.length > 1) state.rows.splice(i,1);
+    else if (act === "dup"){ state.rows.splice(i+1, 0, JSON.parse(JSON.stringify(state.rows[i]))); open[i+1] = true; }
+    else if (act === "up" && i > 0){ var t = state.rows[i-1]; state.rows[i-1] = state.rows[i]; state.rows[i] = t; open[i-1] = open[i]; }
+    else if (act === "down" && i < state.rows.length-1){ var u = state.rows[i+1]; state.rows[i+1] = state.rows[i]; state.rows[i] = u; open[i+1] = open[i]; }
+    else return;
+
+    renderRows();
+    $("rowList").querySelectorAll(".row-card").forEach(function(c){ if (open[c.dataset.i]) c.open = true; });
+    render(); scheduleSave();
+  });
+
+  $("addRow").addEventListener("click", function(){
+    state.rows.push(blankRow());
+    renderRows();
+    var cards = $("rowList").querySelectorAll(".row-card");
+    if (cards.length) cards[cards.length-1].open = true;
+    render(); scheduleSave();
+  });
+
+  $("sig").addEventListener("change", function(e){
+    var file = e.target.files && e.target.files[0];
+    if (!file){ state.sig = null; state.sigPersist = null; render(); scheduleSave(); return; }
+    processSignature(file).then(function(res){
+      state.sig = res.data;
+      state.sigPersist = res.storable ? res.data : null;
+      render(); scheduleSave();
+      if (!res.storable) setSaveState("Signature kept for this session only", true);
+    }).catch(function(err){
+      alert(err.message || "Could not use that image");
+      e.target.value = "";
+    });
+  });
+
+  $("print").addEventListener("click", function(){
+    recordInvoice();
+    window.print();
+  });
+
+  $("download").addEventListener("click", function(){
+    var btn = $("download"), old = btn.textContent;
+    btn.disabled = true; btn.textContent = "Preparing…";
+    loadPdfLibs().then(function(){
+      btn.textContent = "Rendering…";
+      return makePdf();
+    }).then(function(){
+      recordInvoice();
+      btn.disabled = false; btn.textContent = old;
+    }).catch(function(err){
+      console.error(err);
+      alert((err && err.message ? err.message : "Could not create the PDF")
+            + "\n\nYou can still use Print / Save PDF.");
+      btn.disabled = false; btn.textContent = old;
+    });
+  });
+
+  $("newInv").addEventListener("click", function(){
+    if (!confirm("Start a new invoice? The current items and buyer details will be cleared. Your saved company settings are kept.")) return;
+    state.rows = [blankRow()];
+    state.invDirty = false;
+    ["buyer","buyeraddr","exim","pan","inv"].forEach(function(k){ $(k).value = ""; });
+    $("freight").value = DEFAULTS.freight;
+    $("date").value = toISO(new Date());
+    proposeInvoice(true);
+    renderRows(); render(); checkDuplicate(); save();
+  });
+
+  $("dupInv").addEventListener("click", function(){
+    state.rows = JSON.parse(JSON.stringify(state.rows));
+    state.invDirty = false;
+    proposeInvoice(true);
+    render(); checkDuplicate(); save();
+  });
+
+  $("exportBtn").addEventListener("click", exportSettings);
+  $("importBtn").addEventListener("click", function(){ $("importFile").click(); });
+  $("importFile").addEventListener("change", function(e){
+    var f = e.target.files && e.target.files[0];
+    if (f) importSettings(f);
+    e.target.value = "";
+  });
+
+  $("clearInv").addEventListener("click", function(){
+    if (!confirm("Clear this invoice (buyer, items, number, date)? Company settings are kept.")) return;
+    state.rows = [blankRow()];
+    state.invDirty = false;
+    ["buyer","buyeraddr","exim","pan","inv"].forEach(function(k){ $(k).value = ""; });
+    $("freight").value = DEFAULTS.freight;
+    $("date").value = toISO(new Date());
+    proposeInvoice(true);
+    renderRows(); render(); checkDuplicate(); save();
+  });
+
+  $("resetAll").addEventListener("click", function(){
+    if (!confirm("Erase ALL saved settings in this browser, including company details, bank details and the signature image? This cannot be undone.\n\nTip: use Export settings first if you might want them back.")) return;
+    try {
+      localStorage.removeItem(K_PROFILE);
+      localStorage.removeItem(K_DRAFT);
+      localStorage.removeItem(K_SEQ);
+    } catch (e){}
+    seq = { last: {}, used: [] };
+    state.rows = [blankRow()];
+    state.sig = null; state.sigPersist = null;
+    state.invDirty = false; state.storageOK = true;
+    setDefaults(); proposeInvoice(true);
+    renderRows(); render(); checkDuplicate();
+    setSaveState("Reset to defaults");
+  });
+
+  var rz = null;
+  window.addEventListener("resize", function(){
+    clearTimeout(rz);
+    rz = setTimeout(fitScale, 120);
+  });
+}
+
+/* ============================================================
+   PDF RENDERING
+============================================================ */
+
+function makePdf(){
+  var holder = $("pagesHolder");
+  var inner = $("pages");
+  var pageEls = Array.prototype.slice.call(inner.querySelectorAll(".page"));
+  if (!pageEls.length) return Promise.reject(new Error("Nothing to export"));
+
+  /* Undo the preview scaling so html2canvas sees true A4 size */
+  var prevT = inner.style.transform, prevH = holder.style.height, prevW = holder.style.width;
+  inner.style.transform = "none";
+  holder.style.height = "auto";
+  holder.style.width = "auto";
+
+  var scale = pageEls.length > 4 ? 1.75 : 2;
+
+  var pdf = new window.jspdf.jsPDF({
+    orientation: "portrait", unit: "mm", format: "a4", compress: true
+  });
+
+  var chain = Promise.resolve();
+  pageEls.forEach(function(el, i){
+    chain = chain.then(function(){
+      return window.html2canvas(el, {
+        scale: scale, backgroundColor: "#ffffff", logging: false, useCORS: true
+      }).then(function(canvas){
+        if (i > 0) pdf.addPage("a4", "portrait");
+        /* Guard against aspect drift: never stretch a page taller than A4 */
+        var h = Math.min(297, 297 * canvas.height / canvas.width);
+        pdf.addImage(canvas.toDataURL("image/png"), "PNG", 0, 0, 210, h, undefined, "FAST");
+      });
+    });
+  });
+
+  function restore(){
+    inner.style.transform = prevT;
+    holder.style.height = prevH;
+    holder.style.width = prevW;
+  }
+
+  var inv = String($("inv").value || "invoice").replace(/[^a-z0-9_-]+/gi,"_") || "invoice";
+  return chain.then(function(){
+    pdf.save("USOA_Proforma_" + inv + ".pdf");
+    restore();
+  }).catch(function(err){ restore(); throw err; });
+}
+
+/* ============================================================
+   BOOT
+============================================================ */
+
+function boot(){
+  setDefaults();
+
+  try {
+    localStorage.setItem("usoa.invoice.probe", "1");
+    localStorage.removeItem("usoa.invoice.probe");
+  } catch (e){
+    state.storageOK = false;
+    setSaveState("Browser storage unavailable — nothing will be saved", true);
+  }
+
+  if (state.storageOK) loadAll();
+
+  state.rows = (state.rows && state.rows.length) ? state.rows : [blankRow()];
+
+  renderRows();
+  render();
+  checkDuplicate();
+  wire();
+
+  if (state.storageOK) setSaveState("Saved");
+}
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+else boot();
+
+})();
+</script>
+</body>
+</html>
