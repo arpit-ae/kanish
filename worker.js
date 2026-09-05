@@ -1,5 +1,5 @@
-const PAYTM_ENVIRONMENT = "https://securegw-stage.paytm.in";
-const PAYTM_WEBSITE = "WEBSTAGING";
+const PAYTM_ENVIRONMENT = "https://securegw.paytm.in";
+const PAYTM_WEBSITE = "DEFAULT";
 const PAYTM_IV = "@@@@&&&&####$$$$";
 
 const PAYTM_SALT_CHARS =
