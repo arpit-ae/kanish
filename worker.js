@@ -142,6 +142,70 @@ async function generatePaytmChecksum(
 }
 
 /* =========================================================
+   VERIFY PAYTM CHECKSUM
+   Decrypt AES-128-CBC → last 4 chars = salt →
+   SHA256(decryptedMinusSalt + "|" + salt) should match.
+========================================================= */
+
+async function verifyPaytmChecksum(
+  checksum,
+  merchantKey
+) {
+
+  const keyBytes =
+    new TextEncoder().encode(merchantKey);
+
+  const ivBytes =
+    new TextEncoder().encode(PAYTM_IV);
+
+  if (keyBytes.length !== 16) {
+    return false;
+  }
+
+  try {
+
+    const cryptoKey =
+      await crypto.subtle.importKey(
+        "raw",
+        keyBytes,
+        { name: "AES-CBC" },
+        false,
+        ["decrypt"]
+      );
+
+    const decrypted =
+      await crypto.subtle.decrypt(
+        { name: "AES-CBC", iv: ivBytes },
+        cryptoKey,
+        Uint8Array.from(
+          atob(checksum),
+          c => c.charCodeAt(0)
+        )
+      );
+
+    const decryptedText =
+      new TextDecoder().decode(decrypted);
+
+    const salt =
+      decryptedText.slice(-4);
+
+    const hashPart =
+      decryptedText.slice(0, -4);
+
+    const expected =
+      await sha256Hex(
+        `${hashPart}|${salt}`
+      );
+
+    return hashPart === expected;
+
+  } catch {
+
+    return false;
+  }
+}
+
+/* =========================================================
    MAIN WORKER
 ========================================================= */
 
@@ -540,21 +604,260 @@ export default {
 
     /* =====================================================
        PAYTM CALLBACK
-       Verification will be implemented next.
+       Paytm POSTs here after payment. We verify by calling
+       the Transaction Status API and checking the checksum.
+       Always return 200 so Paytm does not retry.
     ===================================================== */
 
     if (
       url.pathname === "/api/callback"
     ) {
 
-      return jsonResponse(
-        {
+      try {
+
+        if (
+          !env.PAYTM_MID ||
+          !env.PAYTM_MERCHANT_KEY
+        ) {
+
+          console.error(
+            "Callback: Paytm runtime configuration missing"
+          );
+
+          return jsonResponse(
+            {
+              success: false,
+              message:
+                "Payment backend not configured"
+            },
+            200
+          );
+        }
+
+        /* -----------------------------------------------
+           PARSE CALLBACK BODY
+        ------------------------------------------------ */
+
+        let callbackData;
+
+        try {
+
+          callbackData =
+            await request.json();
+
+        } catch {
+
+          return jsonResponse(
+            {
+              success: false,
+              message:
+                "Invalid callback payload"
+            },
+            200
+          );
+        }
+
+        const orderId =
+          callbackData?.ORDERID ||
+          callbackData?.orderId;
+
+        if (!orderId) {
+
+          return jsonResponse(
+            {
+              success: false,
+              message:
+                "No orderId in callback"
+            },
+            200
+          );
+        }
+
+        /* -----------------------------------------------
+           CALL PAYTM TRANSACTION STATUS API
+        ------------------------------------------------ */
+
+        const statusBody = {
+          mid: env.PAYTM_MID,
+          orderId: orderId
+        };
+
+        const statusBodyString =
+          JSON.stringify(statusBody);
+
+        const statusChecksum =
+          await generatePaytmChecksum(
+            statusBodyString,
+            env.PAYTM_MERCHANT_KEY
+          );
+
+        const statusUrl =
+          `${PAYTM_ENVIRONMENT}` +
+          `/theia/api/v1/getTxnStatus` +
+          `?mid=${encodeURIComponent(env.PAYTM_MID)}` +
+          `&orderId=${encodeURIComponent(orderId)}`;
+
+        const statusResponse =
+          await fetch(
+            statusUrl,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json",
+                "Accept":
+                  "application/json"
+              },
+              body:
+                JSON.stringify({
+                  body: statusBody,
+                  head: {
+                    signature:
+                      statusChecksum
+                  }
+                })
+            }
+          );
+
+        const statusText =
+          await statusResponse.text();
+
+        let statusResult;
+
+        try {
+
+          statusResult =
+            JSON.parse(statusText);
+
+        } catch {
+
+          console.error(
+            "Callback: Paytm returned invalid JSON:",
+            statusText
+          );
+
+          return jsonResponse(
+            {
+              success: false,
+              message:
+                "Could not verify payment",
+              orderId: orderId
+            },
+            200
+          );
+        }
+
+        /* -----------------------------------------------
+           VERIFY CHECKSUM
+        ------------------------------------------------ */
+
+        const returnedChecksum =
+          statusResult?.head?.signature;
+
+        let checksumValid = false;
+
+        if (returnedChecksum) {
+
+          checksumValid =
+            await verifyPaytmChecksum(
+              returnedChecksum,
+              env.PAYTM_MERCHANT_KEY
+            );
+        }
+
+        /* -----------------------------------------------
+           EXTRACT RESULT
+        ------------------------------------------------ */
+
+        const body =
+          statusResult?.body;
+
+        const resultInfo =
+          body?.resultInfo;
+
+        const resultStatus =
+          resultInfo?.resultStatus;
+
+        const resultCode =
+          resultInfo?.resultCode;
+
+        const resultMsg =
+          resultInfo?.resultMsg;
+
+        const txnAmount =
+          body?.txnAmount;
+
+        const bankTxnId =
+          body?.bankTxnId;
+
+        console.log(
+          "Payment callback:",
+          JSON.stringify({
+            orderId: orderId,
+            resultStatus: resultStatus,
+            resultCode: resultCode,
+            resultMsg: resultMsg,
+            checksumValid: checksumValid
+          })
+        );
+
+        /* -----------------------------------------------
+           DETERMINE OUTCOME
+        ------------------------------------------------ */
+
+        if (
+          checksumValid &&
+          resultStatus === "TXN_SUCCESS"
+        ) {
+
+          return jsonResponse({
+            success: true,
+            orderId: orderId,
+            amount: txnAmount || null,
+            bankTxnId: bankTxnId || null,
+            message:
+              "Payment verified successfully"
+          });
+        }
+
+        if (resultStatus === "PENDING") {
+
+          return jsonResponse({
+            success: false,
+            orderId: orderId,
+            status: "PENDING",
+            message:
+              resultMsg ||
+              "Payment is pending"
+          });
+        }
+
+        return jsonResponse({
           success: false,
+          orderId: orderId,
+          status: resultStatus || "UNKNOWN",
+          resultCode: resultCode || null,
           message:
-            "Payment callback verification is not configured yet"
-        },
-        501
-      );
+            resultMsg ||
+            "Payment was not successful"
+        });
+
+      } catch (error) {
+
+        console.error(
+          "Callback error:",
+          error?.message || String(error)
+        );
+
+        return jsonResponse(
+          {
+            success: false,
+            message:
+              "Error processing payment callback"
+          },
+          200
+        );
+      }
     }
 
     /* =====================================================
@@ -567,7 +870,7 @@ export default {
 
       const homeUrl =
         new URL(
-          "/Index.html",
+          "/index.html",
           request.url
         );
 
