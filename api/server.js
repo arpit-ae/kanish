@@ -135,8 +135,4 @@ app.post("/api/create-order", async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
-  console.log(
-    `USOA GROUP Cashfree API running on port ${PORT}`
-  );
-});
+export default app;
