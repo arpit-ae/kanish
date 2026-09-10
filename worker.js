@@ -1,889 +1,472 @@
-const PAYTM_ENVIRONMENT = "https://securegw.paytm.in";
-const PAYTM_WEBSITE = "DEFAULT";
-const PAYTM_IV = "@@@@&&&&####$$$$";
+const CASHFREE_API_VERSION = "2025-01-01";
 
-const PAYTM_SALT_CHARS =
-  "9876543210ZYXWVUTSRQPONMLKJIHGFEDCBAabcdefghijklmnopqrstuvwxyz!@#$&_";
+const CASHFREE_SANDBOX = "https://sandbox.cashfree.com/pg";
+const CASHFREE_PRODUCTION = "https://api.cashfree.com/pg";
 
-/* =========================================================
-   BASIC RESPONSE
-========================================================= */
+const PRODUCTS = {
+  honey500: {
+    id: "honey500",
+    name: "Natural Raw Honey - 500g",
+    amount: 399
+  },
+  beeswax1kg: {
+    id: "beeswax1kg",
+    name: "Pure Beeswax - 1kg",
+    amount: 699
+  }
+};
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
-      "Cache-Control": "no-store"
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
     }
   });
 }
 
-/* =========================================================
-   BASE64
-========================================================= */
-
-function toBase64(bytes) {
-  let binary = "";
-
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-
-  return btoa(binary);
+function cashfreeBase(env) {
+  return env.CASHFREE_ENV === "production"
+    ? CASHFREE_PRODUCTION
+    : CASHFREE_SANDBOX;
 }
 
-/* =========================================================
-   SHA-256
-========================================================= */
+function credentialsConfigured(env) {
+  return Boolean(
+    env.CASHFREE_CLIENT_ID &&
+    env.CASHFREE_CLIENT_SECRET
+  );
+}
 
-async function sha256Hex(text) {
-  const data = new TextEncoder().encode(text);
+function cashfreeHeaders(env, extra = {}) {
+  return {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "x-api-version": CASHFREE_API_VERSION,
+    "x-client-id": env.CASHFREE_CLIENT_ID,
+    "x-client-secret": env.CASHFREE_CLIENT_SECRET,
+    ...extra
+  };
+}
 
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
+function makeOrderId() {
+  return `USOA_${Date.now()}_${crypto.randomUUID()
+    .replaceAll("-", "")
+    .slice(0, 12)}`;
+}
+
+function makeCustomerId() {
+  return `CUST_${crypto.randomUUID()
+    .replaceAll("-", "")
+    .slice(0, 20)}`;
+}
+
+function validPhone(phone) {
+  return /^\d{10}$/.test(String(phone || ""));
+}
+
+function validEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ""));
+}
+
+async function createCashfreeOrder(request, env, data) {
+  const product = PRODUCTS[data?.productId];
+
+  if (!product) {
+    return jsonResponse({
+      success: false,
+      message: "Invalid product."
+    }, 400);
+  }
+
+  const customer = data?.customer || {};
+
+  const name = String(customer.name || "")
+    .trim()
+    .slice(0, 100);
+
+  const email = String(customer.email || "")
+    .trim()
+    .toLowerCase();
+
+  const phone = String(customer.phone || "")
+    .replace(/\D/g, "");
+
+  if (name.length < 2) {
+    return jsonResponse({
+      success: false,
+      message: "Enter a valid name."
+    }, 400);
+  }
+
+  if (!validEmail(email)) {
+    return jsonResponse({
+      success: false,
+      message: "Enter a valid email address."
+    }, 400);
+  }
+
+  if (!validPhone(phone)) {
+    return jsonResponse({
+      success: false,
+      message: "Enter a valid 10-digit mobile number."
+    }, 400);
+  }
+
+  const origin = new URL(request.url).origin;
+  const orderId = makeOrderId();
+
+  const payload = {
+    order_id: orderId,
+    order_amount: product.amount,
+    order_currency: "INR",
+
+    customer_details: {
+      customer_id: makeCustomerId(),
+      customer_name: name,
+      customer_email: email,
+      customer_phone: phone
+    },
+
+    order_meta: {
+      return_url:
+        `${origin}/payment-success.html?order_id=${encodeURIComponent(orderId)}`,
+
+      notify_url:
+        `${origin}/api/cashfree-webhook`
+    },
+
+    order_note: product.name,
+
+    order_tags: {
+      product_id: product.id,
+      product_name: product.name
+    }
+  };
+
+  const response = await fetch(
+    `${cashfreeBase(env)}/orders`,
+    {
+      method: "POST",
+
+      headers: cashfreeHeaders(env, {
+        "x-request-id": crypto.randomUUID(),
+        "x-idempotency-key": crypto.randomUUID()
+      }),
+
+      body: JSON.stringify(payload)
+    }
+  );
+
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    console.error(
+      "Cashfree create order failed",
+      response.status,
+      result
+    );
+
+    return jsonResponse({
+      success: false,
+      message:
+        result?.message ||
+        "Unable to create Cashfree order."
+    }, 502);
+  }
+
+  return jsonResponse({
+    success: true,
+    order_id: result.order_id,
+    payment_session_id: result.payment_session_id,
+    product: product.name,
+    amount: product.amount
+  });
+}
+
+async function getOrderStatus(env, orderId) {
+  const response = await fetch(
+    `${cashfreeBase(env)}/orders/${encodeURIComponent(orderId)}`,
+    {
+      method: "GET",
+
+      headers: cashfreeHeaders(env, {
+        "x-request-id": crypto.randomUUID()
+      })
+    }
+  );
+
+  const data = await response.json().catch(() => ({}));
+
+  return {
+    response,
     data
-  );
-
-  return Array.from(new Uint8Array(digest))
-    .map(byte =>
-      byte.toString(16).padStart(2, "0")
-    )
-    .join("");
+  };
 }
 
-/* =========================================================
-   PAYTM SALT
-   Paytm uses a 4-character salt.
-========================================================= */
-
-function generateSalt() {
-  const randomBytes = new Uint8Array(4);
-
-  crypto.getRandomValues(randomBytes);
-
-  let salt = "";
-
-  for (const byte of randomBytes) {
-    salt += PAYTM_SALT_CHARS[
-      byte % PAYTM_SALT_CHARS.length
-    ];
-  }
-
-  return salt;
-}
-
-/* =========================================================
-   PAYTM CHECKSUM
-   SHA256(params + "|" + salt)
-   then hash + salt
-   then AES-128-CBC
-========================================================= */
-
-async function generatePaytmChecksum(
-  paramsString,
-  merchantKey
+async function verifyWebhookSignature(
+  rawBody,
+  timestamp,
+  signature,
+  secret
 ) {
-  if (!merchantKey) {
-    throw new Error(
-      "PAYTM_MERCHANT_KEY is missing"
-    );
-  }
-
-  const keyBytes =
-    new TextEncoder().encode(merchantKey);
-
-  const ivBytes =
-    new TextEncoder().encode(PAYTM_IV);
-
-  /*
-   * Paytm Merchant Key is AES-128 key.
-   * Normally it is 16 bytes.
-   */
-  if (keyBytes.length !== 16) {
-    throw new Error(
-      `PAYTM_MERCHANT_KEY must be exactly 16 bytes. Received ${keyBytes.length} bytes.`
-    );
-  }
-
-  const salt = generateSalt();
-
-  const hash = await sha256Hex(
-    `${paramsString}|${salt}`
-  );
-
-  const hashString =
-    `${hash}${salt}`;
-
-  const cryptoKey =
-    await crypto.subtle.importKey(
-      "raw",
-      keyBytes,
-      {
-        name: "AES-CBC"
-      },
-      false,
-      ["encrypt"]
-    );
-
-  const encrypted =
-    await crypto.subtle.encrypt(
-      {
-        name: "AES-CBC",
-        iv: ivBytes
-      },
-      cryptoKey,
-      new TextEncoder().encode(hashString)
-    );
-
-  return toBase64(
-    new Uint8Array(encrypted)
-  );
-}
-
-/* =========================================================
-   VERIFY PAYTM CHECKSUM
-   Decrypt AES-128-CBC → last 4 chars = salt →
-   SHA256(decryptedMinusSalt + "|" + salt) should match.
-========================================================= */
-
-async function verifyPaytmChecksum(
-  checksum,
-  merchantKey
-) {
-
-  const keyBytes =
-    new TextEncoder().encode(merchantKey);
-
-  const ivBytes =
-    new TextEncoder().encode(PAYTM_IV);
-
-  if (keyBytes.length !== 16) {
+  if (!timestamp || !signature || !secret) {
     return false;
   }
 
-  try {
+  const payload = `${timestamp}${rawBody}`;
 
-    const cryptoKey =
-      await crypto.subtle.importKey(
-        "raw",
-        keyBytes,
-        { name: "AES-CBC" },
-        false,
-        ["decrypt"]
-      );
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    {
+      name: "HMAC",
+      hash: "SHA-256"
+    },
+    false,
+    ["sign"]
+  );
 
-    const decrypted =
-      await crypto.subtle.decrypt(
-        { name: "AES-CBC", iv: ivBytes },
-        cryptoKey,
-        Uint8Array.from(
-          atob(checksum),
-          c => c.charCodeAt(0)
-        )
-      );
+  const digest = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(payload)
+  );
 
-    const decryptedText =
-      new TextDecoder().decode(decrypted);
+  const binary = String.fromCharCode(
+    ...new Uint8Array(digest)
+  );
 
-    const salt =
-      decryptedText.slice(-4);
+  const expected = btoa(binary);
 
-    const hashPart =
-      decryptedText.slice(0, -4);
-
-    const expected =
-      await sha256Hex(
-        `${hashPart}|${salt}`
-      );
-
-    return hashPart === expected;
-
-  } catch {
-
-    return false;
-  }
+  return expected === signature;
 }
-
-/* =========================================================
-   MAIN WORKER
-========================================================= */
 
 export default {
-
   async fetch(request, env) {
+    const url = new URL(request.url);
 
-    const url =
-      new URL(request.url);
+    if (request.method === "OPTIONS") {
+      return jsonResponse({ success: true });
+    }
 
-    /* =====================================================
-       BACKEND TEST
-    ===================================================== */
-
+    // Test API
     if (
-      url.pathname === "/api/test"
+      url.pathname === "/api/test" &&
+      request.method === "GET"
     ) {
       return jsonResponse({
         success: true,
-        message:
-          "USOA GROUP payment backend is working"
+        provider: "Cashfree",
+
+        environment:
+          env.CASHFREE_ENV === "production"
+            ? "production"
+            : "sandbox",
+
+        credentials_configured:
+          credentialsConfigured(env)
       });
     }
 
-    /* =====================================================
-       CREATE PAYTM ORDER
-    ===================================================== */
+    // Products API
+    if (
+      url.pathname === "/api/products" &&
+      request.method === "GET"
+    ) {
+      return jsonResponse({
+        success: true,
+        products: Object.values(PRODUCTS)
+      });
+    }
 
+    // Create Cashfree Order
     if (
       url.pathname === "/api/create-order" &&
       request.method === "POST"
     ) {
+      if (!credentialsConfigured(env)) {
+        return jsonResponse({
+          success: false,
+          message:
+            "Cashfree credentials are not configured."
+        }, 500);
+      }
 
       try {
-
-        /* -----------------------------------------------
-           CHECK RUNTIME SECRETS
-        ------------------------------------------------ */
-
-        if (
-          !env.PAYTM_MID ||
-          !env.PAYTM_MERCHANT_KEY
-        ) {
-
-          return jsonResponse(
-            {
-              success: false,
-              message:
-                "Paytm runtime configuration is missing"
-            },
-            500
-          );
-        }
-
-        /* -----------------------------------------------
-           READ REQUEST
-        ------------------------------------------------ */
-
-        let data;
-
-        try {
-
-          data =
-            await request.json();
-
-        } catch {
-
-          return jsonResponse(
-            {
-              success: false,
-              message:
-                "Invalid JSON request"
-            },
-            400
-          );
-        }
-
-        /* -----------------------------------------------
-           AMOUNT
-        ------------------------------------------------ */
-
-        const amountNumber =
-          Number(data?.amount);
-
-        if (
-          !Number.isFinite(amountNumber) ||
-          amountNumber < 1 ||
-          amountNumber > 1000000
-        ) {
-
-          return jsonResponse(
-            {
-              success: false,
-              message:
-                "Enter amount between ₹1 and ₹10,00,000"
-            },
-            400
-          );
-        }
-
-        const amount =
-          amountNumber.toFixed(2);
-
-        /* -----------------------------------------------
-           ORDER ID
-        ------------------------------------------------ */
-
-        const orderId =
-          `USOA_${Date.now()}_${crypto
-            .randomUUID()
-            .replaceAll("-", "")
-            .slice(0, 12)}`;
-
-        /* -----------------------------------------------
-           CUSTOMER ID
-        ------------------------------------------------ */
-
-        const customerId =
-          `CUST_${crypto
-            .randomUUID()
-            .replaceAll("-", "")
-            .slice(0, 16)}`;
-
-        /* -----------------------------------------------
-           CALLBACK URL
-        ------------------------------------------------ */
-
-        const callbackUrl =
-          `${url.origin}/api/callback`;
-
-        /* -----------------------------------------------
-           PAYTM BODY
-        ------------------------------------------------ */
-
-        const body = {
-
-          requestType: "Payment",
-
-          mid: env.PAYTM_MID,
-
-          websiteName:
-            PAYTM_WEBSITE,
-
-          orderId:
-            orderId,
-
-          callbackUrl:
-            callbackUrl,
-
-          txnAmount: {
-
-            value:
-              amount,
-
-            currency:
-              "INR"
-          },
-
-          userInfo: {
-
-            custId:
-              customerId
-          }
-        };
-
-        /*
-         * IMPORTANT:
-         * Paytm's official Payment Initiation examples
-         * generate checksum from body.toString().
-         */
-        const bodyString =
-          JSON.stringify(body);
-
-        /* -----------------------------------------------
-           GENERATE CHECKSUM
-        ------------------------------------------------ */
-
-        const checksum =
-          await generatePaytmChecksum(
-            bodyString,
-            env.PAYTM_MERCHANT_KEY
-          );
-
-        /* -----------------------------------------------
-           PAYTM REQUEST
-        ------------------------------------------------ */
-
-        const paytmRequest = {
-
-          body:
-
-            body,
-
-          head: {
-
-            signature:
-              checksum
-          }
-        };
-
-        /* -----------------------------------------------
-           PAYTM STAGING URL
-        ------------------------------------------------ */
-
-        const paytmUrl =
-          `${PAYTM_ENVIRONMENT}` +
-          `/theia/api/v1/initiateTransaction` +
-          `?mid=${encodeURIComponent(
-            env.PAYTM_MID
-          )}` +
-          `&orderId=${encodeURIComponent(
-            orderId
-          )}`;
-
-        /* -----------------------------------------------
-           CALL PAYTM
-        ------------------------------------------------ */
-
-        const paytmResponse =
-          await fetch(
-            paytmUrl,
-            {
-
-              method:
-                "POST",
-
-              headers: {
-
-                "Content-Type":
-                  "application/json",
-
-                "Accept":
-                  "application/json"
-              },
-
-              body:
-                JSON.stringify(
-                  paytmRequest
-                )
-            }
-          );
-
-        /* -----------------------------------------------
-           READ RESPONSE
-        ------------------------------------------------ */
-
-        const responseText =
-          await paytmResponse.text();
-
-        let result;
-
-        try {
-
-          result =
-            JSON.parse(
-              responseText
-            );
-
-        } catch {
-
-          console.error(
-            "Paytm non-JSON response:",
-            responseText
-          );
-
-          return jsonResponse(
-            {
-              success: false,
-              message:
-                "Paytm returned an invalid response",
-              httpStatus:
-                paytmResponse.status
-            },
-            502
-          );
-        }
-
-        /* -----------------------------------------------
-           PAYTM RESULT INFO
-        ------------------------------------------------ */
-
-        const resultInfo =
-          result?.body?.resultInfo;
-
-        const resultStatus =
-          resultInfo?.resultStatus;
-
-        const resultCode =
-          resultInfo?.resultCode;
-
-        const resultMsg =
-          resultInfo?.resultMsg;
-
-        const txnToken =
-          result?.body?.txnToken;
-
-        /* -----------------------------------------------
-           LOG SAFE INFORMATION
-           NEVER LOG MERCHANT KEY OR CHECKSUM
-        ------------------------------------------------ */
-
-        console.log(
-          "Paytm response:",
-          JSON.stringify({
-            httpStatus:
-              paytmResponse.status,
-
-            resultStatus:
-              resultStatus,
-
-            resultCode:
-              resultCode,
-
-            resultMsg:
-              resultMsg,
-
-            orderId:
-              orderId
-          })
-        );
-
-        /* -----------------------------------------------
-           FAILURE
-        ------------------------------------------------ */
-
-        if (
-          !paytmResponse.ok ||
-          !txnToken ||
-          resultStatus !== "S"
-        ) {
-
-          return jsonResponse(
-            {
-              success: false,
-
-              message:
-                resultMsg ||
-                "Paytm could not create transaction",
-
-              resultCode:
-                resultCode || null,
-
-              resultStatus:
-                resultStatus || null,
-
-              orderId:
-                orderId
-            },
-            502
-          );
-        }
-
-        /* -----------------------------------------------
-           SUCCESS
-        ------------------------------------------------ */
-
-        return jsonResponse(
-          {
-            success:
-              true,
-
-            orderId:
-              orderId,
-
-            amount:
-              amount,
-
-            mid:
-              env.PAYTM_MID,
-
-            txnToken:
-              txnToken
-          }
+        const data = await request.json();
+
+        return await createCashfreeOrder(
+          request,
+          env,
+          data
         );
 
       } catch (error) {
-
         console.error(
-          "Paytm create-order error:",
-          error?.message ||
-          String(error)
+          "Create order error",
+          error
         );
-
-        return jsonResponse(
-          {
-            success: false,
-
-            message:
-              error?.message ||
-              "Unable to start payment"
-          },
-          500
-        );
-      }
-    }
-
-    /* =====================================================
-       PAYTM CALLBACK
-       Paytm POSTs here after payment. We verify by calling
-       the Transaction Status API and checking the checksum.
-       Always return 200 so Paytm does not retry.
-    ===================================================== */
-
-    if (
-      url.pathname === "/api/callback"
-    ) {
-
-      try {
-
-        if (
-          !env.PAYTM_MID ||
-          !env.PAYTM_MERCHANT_KEY
-        ) {
-
-          console.error(
-            "Callback: Paytm runtime configuration missing"
-          );
-
-          return jsonResponse(
-            {
-              success: false,
-              message:
-                "Payment backend not configured"
-            },
-            200
-          );
-        }
-
-        /* -----------------------------------------------
-           PARSE CALLBACK BODY
-        ------------------------------------------------ */
-
-        let callbackData;
-
-        try {
-
-          callbackData =
-            await request.json();
-
-        } catch {
-
-          return jsonResponse(
-            {
-              success: false,
-              message:
-                "Invalid callback payload"
-            },
-            200
-          );
-        }
-
-        const orderId =
-          callbackData?.ORDERID ||
-          callbackData?.orderId;
-
-        if (!orderId) {
-
-          return jsonResponse(
-            {
-              success: false,
-              message:
-                "No orderId in callback"
-            },
-            200
-          );
-        }
-
-        /* -----------------------------------------------
-           CALL PAYTM TRANSACTION STATUS API
-        ------------------------------------------------ */
-
-        const statusBody = {
-          mid: env.PAYTM_MID,
-          orderId: orderId
-        };
-
-        const statusBodyString =
-          JSON.stringify(statusBody);
-
-        const statusChecksum =
-          await generatePaytmChecksum(
-            statusBodyString,
-            env.PAYTM_MERCHANT_KEY
-          );
-
-        const statusUrl =
-          `${PAYTM_ENVIRONMENT}` +
-          `/theia/api/v1/getTxnStatus` +
-          `?mid=${encodeURIComponent(env.PAYTM_MID)}` +
-          `&orderId=${encodeURIComponent(orderId)}`;
-
-        const statusResponse =
-          await fetch(
-            statusUrl,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type":
-                  "application/json",
-                "Accept":
-                  "application/json"
-              },
-              body:
-                JSON.stringify({
-                  body: statusBody,
-                  head: {
-                    signature:
-                      statusChecksum
-                  }
-                })
-            }
-          );
-
-        const statusText =
-          await statusResponse.text();
-
-        let statusResult;
-
-        try {
-
-          statusResult =
-            JSON.parse(statusText);
-
-        } catch {
-
-          console.error(
-            "Callback: Paytm returned invalid JSON:",
-            statusText
-          );
-
-          return jsonResponse(
-            {
-              success: false,
-              message:
-                "Could not verify payment",
-              orderId: orderId
-            },
-            200
-          );
-        }
-
-        /* -----------------------------------------------
-           VERIFY CHECKSUM
-        ------------------------------------------------ */
-
-        const returnedChecksum =
-          statusResult?.head?.signature;
-
-        let checksumValid = false;
-
-        if (returnedChecksum) {
-
-          checksumValid =
-            await verifyPaytmChecksum(
-              returnedChecksum,
-              env.PAYTM_MERCHANT_KEY
-            );
-        }
-
-        /* -----------------------------------------------
-           EXTRACT RESULT
-        ------------------------------------------------ */
-
-        const body =
-          statusResult?.body;
-
-        const resultInfo =
-          body?.resultInfo;
-
-        const resultStatus =
-          resultInfo?.resultStatus;
-
-        const resultCode =
-          resultInfo?.resultCode;
-
-        const resultMsg =
-          resultInfo?.resultMsg;
-
-        const txnAmount =
-          body?.txnAmount;
-
-        const bankTxnId =
-          body?.bankTxnId;
-
-        console.log(
-          "Payment callback:",
-          JSON.stringify({
-            orderId: orderId,
-            resultStatus: resultStatus,
-            resultCode: resultCode,
-            resultMsg: resultMsg,
-            checksumValid: checksumValid
-          })
-        );
-
-        /* -----------------------------------------------
-           DETERMINE OUTCOME
-        ------------------------------------------------ */
-
-        if (
-          checksumValid &&
-          resultStatus === "TXN_SUCCESS"
-        ) {
-
-          return jsonResponse({
-            success: true,
-            orderId: orderId,
-            amount: txnAmount || null,
-            bankTxnId: bankTxnId || null,
-            message:
-              "Payment verified successfully"
-          });
-        }
-
-        if (resultStatus === "PENDING") {
-
-          return jsonResponse({
-            success: false,
-            orderId: orderId,
-            status: "PENDING",
-            message:
-              resultMsg ||
-              "Payment is pending"
-          });
-        }
 
         return jsonResponse({
           success: false,
-          orderId: orderId,
-          status: resultStatus || "UNKNOWN",
-          resultCode: resultCode || null,
           message:
-            resultMsg ||
-            "Payment was not successful"
-        });
-
-      } catch (error) {
-
-        console.error(
-          "Callback error:",
-          error?.message || String(error)
-        );
-
-        return jsonResponse(
-          {
-            success: false,
-            message:
-              "Error processing payment callback"
-          },
-          200
-        );
+            "Invalid request or payment service error."
+        }, 500);
       }
     }
 
-    /* =====================================================
-       EXISTING WEBSITE
-    ===================================================== */
-
+    // Check Order Status
     if (
-      url.pathname === "/"
+      url.pathname === "/api/order-status" &&
+      request.method === "GET"
     ) {
+      if (!credentialsConfigured(env)) {
+        return jsonResponse({
+          success: false,
+          message:
+            "Cashfree credentials are not configured."
+        }, 500);
+      }
 
-      const homeUrl =
-        new URL(
-          "/index.html",
-          request.url
+      const orderId =
+        url.searchParams.get("order_id");
+
+      if (
+        !orderId ||
+        !/^USOA_[A-Za-z0-9_]+$/.test(orderId)
+      ) {
+        return jsonResponse({
+          success: false,
+          message: "Invalid order_id."
+        }, 400);
+      }
+
+      try {
+        const {
+          response,
+          data
+        } = await getOrderStatus(
+          env,
+          orderId
         );
 
-      return env.ASSETS.fetch(
-        new Request(
-          homeUrl,
-          request
-        )
-      );
+        if (!response.ok) {
+          return jsonResponse({
+            success: false,
+            message:
+              data?.message ||
+              "Unable to fetch order status."
+          }, 502);
+        }
+
+        return jsonResponse({
+          success: true,
+          order_id: orderId,
+          order_status:
+            data.order_status || "UNKNOWN",
+          order_amount:
+            data.order_amount,
+          order_currency:
+            data.order_currency
+        });
+
+      } catch (error) {
+        console.error(
+          "Order status error",
+          error
+        );
+
+        return jsonResponse({
+          success: false,
+          message:
+            "Unable to verify payment status."
+        }, 502);
+      }
     }
 
-    return env.ASSETS.fetch(
-      request
+    // Cashfree Webhook
+    if (
+      url.pathname === "/api/cashfree-webhook" &&
+      request.method === "POST"
+    ) {
+      if (!credentialsConfigured(env)) {
+        return jsonResponse({
+          success: false,
+          message:
+            "Webhook is not configured."
+        }, 500);
+      }
+
+      const rawBody =
+        await request.text();
+
+      const timestamp =
+        request.headers.get(
+          "x-webhook-timestamp"
+        );
+
+      const signature =
+        request.headers.get(
+          "x-webhook-signature"
+        );
+
+      const valid =
+        await verifyWebhookSignature(
+          rawBody,
+          timestamp,
+          signature,
+          env.CASHFREE_CLIENT_SECRET
+        );
+
+      if (!valid) {
+        return jsonResponse({
+          success: false,
+          message:
+            "Invalid webhook signature."
+        }, 401);
+      }
+
+      try {
+        const event =
+          JSON.parse(rawBody);
+
+        console.log(
+          "Verified Cashfree webhook",
+          JSON.stringify({
+            type: event?.type,
+            order_id:
+              event?.data?.order?.order_id,
+            status:
+              event?.data?.payment
+                ?.payment_status
+          })
+        );
+
+      } catch (error) {
+        console.error(
+          "Webhook JSON error",
+          error
+        );
+      }
+
+      return jsonResponse({
+        success: true
+      });
+    }
+
+    // Static website
+    if (env.ASSETS) {
+      return env.ASSETS.fetch(request);
+    }
+
+    return new Response(
+      "Not Found",
+      { status: 404 }
     );
   }
 };
