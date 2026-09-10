@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-
+import { randomUUID } from "crypto";
 dotenv.config();
 
 const app = express();
@@ -76,7 +76,7 @@ app.post("/api/create-order", async (req, res) => {
           "x-api-version": CASHFREE_API_VERSION,
           "x-client-id": process.env.CASHFREE_CLIENT_ID,
           "x-client-secret": process.env.CASHFREE_CLIENT_SECRET,
-          "x-idempotency-key": crypto.randomUUID()
+          "x-idempotency-key": randomUUID()
         },
 
         body: JSON.stringify({
