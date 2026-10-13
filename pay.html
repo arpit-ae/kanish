@@ -315,9 +315,14 @@
         }
 
 
+        const paymentEnvironment =
+          data.payment_environment === "production"
+            ? "production"
+            : "sandbox";
+
         const cashfree =
           Cashfree({
-            mode: "sandbox"
+            mode: paymentEnvironment
           });
 
 
