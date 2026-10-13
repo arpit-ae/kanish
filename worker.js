@@ -184,7 +184,11 @@ async function createCashfreeOrder(request, env, data) {
     order_id: result.order_id,
     payment_session_id: result.payment_session_id,
     product: product.name,
-    amount: product.amount
+    amount: product.amount,
+    payment_environment:
+      env.CASHFREE_ENV === "production"
+        ? "production"
+        : "sandbox"
   });
 }
 
