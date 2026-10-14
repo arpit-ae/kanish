@@ -245,10 +245,7 @@ app.post("/api/create-order", async (req, res) => {
       product: product.name,
       amount: product.amount,
       // Keep the browser checkout mode aligned with the API used to create this session.
-      payment_environment:
-        process.env.CASHFREE_ENV === "production"
-          ? "production"
-          : "sandbox"
+      payment_environment: environment
     });
 
   } catch (error) {
