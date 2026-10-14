@@ -11,10 +11,28 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
 
-const CASHFREE_BASE_URL =
-  process.env.CASHFREE_ENV === "production"
-    ? "https://api.cashfree.com/pg"
-    : "https://sandbox.cashfree.com/pg";
+function cashfreeEnvironment() {
+  const raw = String(process.env.CASHFREE_ENV || "").trim().toLowerCase();
+
+  if (!raw || ["sandbox", "test", "testing"].includes(raw)) {
+    return "sandbox";
+  }
+
+  if (["production", "prod", "live"].includes(raw)) {
+    return "production";
+  }
+
+  return "invalid";
+}
+
+function cashfreeBaseUrl() {
+  const mode = cashfreeEnvironment();
+
+  if (mode === "production") return "https://api.cashfree.com/pg";
+  if (mode === "sandbox") return "https://sandbox.cashfree.com/pg";
+
+  return null;
+}
 
 const CASHFREE_API_VERSION = "2025-01-01";
 
@@ -27,24 +45,81 @@ app.get("/api/health", (req, res) => {
 });
 
 
-app.get("/api/test", (req, res) => {
-  res.json({
+app.get("/api/test", async (req, res) => {
+  const environment = cashfreeEnvironment();
+  const configured = Boolean(
+    process.env.CASHFREE_CLIENT_ID &&
+    process.env.CASHFREE_CLIENT_SECRET
+  );
+
+  const result = {
     success: true,
     provider: "Cashfree",
-    environment:
-      process.env.CASHFREE_ENV === "production"
-        ? "production"
-        : "sandbox",
-    credentials_configured: Boolean(
-      process.env.CASHFREE_CLIENT_ID &&
-      process.env.CASHFREE_CLIENT_SECRET
-    )
-  });
+    environment,
+    api_base: cashfreeBaseUrl(),
+    credentials_configured: configured,
+    authentication_check: "not_run"
+  };
+
+  if (req.query.verify === "1") {
+    if (environment === "invalid") {
+      result.authentication_check = "invalid_environment_setting";
+    } else if (!configured) {
+      result.authentication_check = "credentials_missing";
+    } else {
+      try {
+        const response = await fetch(
+          `${cashfreeBaseUrl()}/orders/USOA_DIAGNOSTIC_ORDER_NOT_REAL_20261014`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "x-api-version": CASHFREE_API_VERSION,
+              "x-client-id": process.env.CASHFREE_CLIENT_ID,
+              "x-client-secret": process.env.CASHFREE_CLIENT_SECRET,
+              "x-request-id": randomUUID()
+            }
+          }
+        );
+
+        const detail = await response.json().catch(() => ({}));
+        result.cashfree_http_status = response.status;
+        result.cashfree_code = detail?.code || detail?.type || null;
+        result.cashfree_message = detail?.message || null;
+
+        if (response.status === 401 || response.status === 403) {
+          result.authentication_check = "rejected";
+        } else if (response.status === 404) {
+          result.authentication_check = "likely_ok_order_not_found";
+        } else if (response.ok) {
+          result.authentication_check = "passed";
+        } else {
+          result.authentication_check = "indeterminate";
+        }
+      } catch (error) {
+        console.error("Cashfree auth diagnostic failed", error);
+        result.authentication_check = "network_error";
+      }
+    }
+  }
+
+  return res.json(result);
 });
 
 
 app.post("/api/create-order", async (req, res) => {
   try {
+    const environment = cashfreeEnvironment();
+    const cashfreeBase = cashfreeBaseUrl();
+
+    if (environment === "invalid" || !cashfreeBase) {
+      return res.status(500).json({
+        success: false,
+        message: "CASHFREE_ENV must be sandbox or production."
+      });
+    }
+
     const { productId, customer } = req.body;
 
     const products = {
@@ -104,7 +179,7 @@ app.post("/api/create-order", async (req, res) => {
     }
 
     const response = await fetch(
-      `${CASHFREE_BASE_URL}/orders`,
+      `${cashfreeBase}/orders`,
       {
         method: "POST",
 
@@ -145,10 +220,21 @@ app.post("/api/create-order", async (req, res) => {
     if (!response.ok) {
       console.error("Cashfree error:", data);
 
+      const upstreamMessage = String(
+        data.message || "Cashfree order creation failed"
+      );
+      const authRelated =
+        response.status === 401 ||
+        response.status === 403 ||
+        /authenticat|credential|client.?id|client.?secret/i.test(upstreamMessage);
+
       return res.status(response.status).json({
         success: false,
-        message: data.message || "Cashfree order creation failed",
-        error: data
+        message: authRelated
+          ? `Cashfree rejected the API credentials for the ${cashfreeEnvironment()} environment. Confirm CASHFREE_CLIENT_ID, CASHFREE_CLIENT_SECRET, and CASHFREE_ENV all belong to the same environment. (HTTP ${response.status})`
+          : `${upstreamMessage} (HTTP ${response.status})`,
+        error_code: data.code || data.type || null,
+        cashfree_http_status: response.status
       });
     }
 
@@ -178,6 +264,16 @@ app.post("/api/create-order", async (req, res) => {
 
 
 app.get("/api/order-status", async (req, res) => {
+  const environment = cashfreeEnvironment();
+  const cashfreeBase = cashfreeBaseUrl();
+
+  if (environment === "invalid" || !cashfreeBase) {
+    return res.status(500).json({
+      success: false,
+      message: "CASHFREE_ENV must be sandbox or production."
+    });
+  }
+
   const orderId = String(req.query.order_id || "");
 
   if (!/^USOA_[A-Za-z0-9_]+$/.test(orderId)) {
@@ -199,7 +295,7 @@ app.get("/api/order-status", async (req, res) => {
 
   try {
     const response = await fetch(
-      `${CASHFREE_BASE_URL}/orders/${encodeURIComponent(orderId)}`,
+      `${cashfreeBase}/orders/${encodeURIComponent(orderId)}`,
       {
         method: "GET",
         headers: {
