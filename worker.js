@@ -29,10 +29,27 @@ function jsonResponse(data, status = 200) {
   });
 }
 
+function cashfreeEnvironment(env) {
+  const raw = String(env.CASHFREE_ENV || "").trim().toLowerCase();
+
+  if (!raw || ["sandbox", "test", "testing"].includes(raw)) {
+    return "sandbox";
+  }
+
+  if (["production", "prod", "live"].includes(raw)) {
+    return "production";
+  }
+
+  return "invalid";
+}
+
 function cashfreeBase(env) {
-  return env.CASHFREE_ENV === "production"
-    ? CASHFREE_PRODUCTION
-    : CASHFREE_SANDBOX;
+  const mode = cashfreeEnvironment(env);
+
+  if (mode === "production") return CASHFREE_PRODUCTION;
+  if (mode === "sandbox") return CASHFREE_SANDBOX;
+
+  return null;
 }
 
 function credentialsConfigured(env) {
@@ -74,6 +91,15 @@ function validEmail(email) {
 }
 
 async function createCashfreeOrder(request, env, data) {
+  const environment = cashfreeEnvironment(env);
+
+  if (environment === "invalid") {
+    return jsonResponse({
+      success: false,
+      message: "CASHFREE_ENV must be sandbox or production."
+    }, 500);
+  }
+
   const product = PRODUCTS[data?.productId];
 
   if (!product) {
@@ -171,11 +197,21 @@ async function createCashfreeOrder(request, env, data) {
       result
     );
 
+    const upstreamMessage = String(
+      result?.message || "Unable to create Cashfree order."
+    );
+    const authRelated =
+      response.status === 401 ||
+      response.status === 403 ||
+      /authenticat|credential|client.?id|client.?secret/i.test(upstreamMessage);
+
     return jsonResponse({
       success: false,
-      message:
-        result?.message ||
-        "Unable to create Cashfree order."
+      message: authRelated
+        ? `Cashfree rejected the API credentials for the ${cashfreeEnvironment(env)} environment. Confirm CASHFREE_CLIENT_ID, CASHFREE_CLIENT_SECRET, and CASHFREE_ENV all belong to the same environment. (HTTP ${response.status})`
+        : `${upstreamMessage} (HTTP ${response.status})`,
+      error_code: result?.code || result?.type || null,
+      cashfree_http_status: response.status
     }, 502);
   }
 
@@ -258,23 +294,61 @@ export default {
       return jsonResponse({ success: true });
     }
 
-    // Test API
+    // Safe configuration check. Add ?verify=1 for a read-only Cashfree auth probe.
     if (
       url.pathname === "/api/test" &&
       request.method === "GET"
     ) {
-      return jsonResponse({
+      const environment = cashfreeEnvironment(env);
+      const configured = credentialsConfigured(env);
+      const result = {
         success: true,
         provider: "Cashfree",
+        environment,
+        api_base: cashfreeBase(env),
+        credentials_configured: configured,
+        authentication_check: "not_run"
+      };
 
-        environment:
-          env.CASHFREE_ENV === "production"
-            ? "production"
-            : "sandbox",
+      if (url.searchParams.get("verify") === "1") {
+        if (environment === "invalid") {
+          result.authentication_check = "invalid_environment_setting";
+        } else if (!configured) {
+          result.authentication_check = "credentials_missing";
+        } else {
+          try {
+            const response = await fetch(
+              `${cashfreeBase(env)}/orders/USOA_DIAGNOSTIC_ORDER_NOT_REAL_20261014`,
+              {
+                method: "GET",
+                headers: cashfreeHeaders(env, {
+                  "x-request-id": crypto.randomUUID()
+                })
+              }
+            );
 
-        credentials_configured:
-          credentialsConfigured(env)
-      });
+            const detail = await response.json().catch(() => ({}));
+            result.cashfree_http_status = response.status;
+            result.cashfree_code = detail?.code || detail?.type || null;
+            result.cashfree_message = detail?.message || null;
+
+            if (response.status === 401 || response.status === 403) {
+              result.authentication_check = "rejected";
+            } else if (response.status === 404) {
+              result.authentication_check = "likely_ok_order_not_found";
+            } else if (response.ok) {
+              result.authentication_check = "passed";
+            } else {
+              result.authentication_check = "indeterminate";
+            }
+          } catch (error) {
+            console.error("Cashfree auth diagnostic failed", error);
+            result.authentication_check = "network_error";
+          }
+        }
+      }
+
+      return jsonResponse(result);
     }
 
     // Products API
@@ -329,6 +403,13 @@ export default {
       url.pathname === "/api/order-status" &&
       request.method === "GET"
     ) {
+      if (cashfreeEnvironment(env) === "invalid") {
+        return jsonResponse({
+          success: false,
+          message: "CASHFREE_ENV must be sandbox or production."
+        }, 500);
+      }
+
       if (!credentialsConfigured(env)) {
         return jsonResponse({
           success: false,
