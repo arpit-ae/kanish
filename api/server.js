@@ -120,7 +120,12 @@ app.post("/api/create-order", async (req, res) => {
       order_id: data.order_id,
       payment_session_id: data.payment_session_id,
       product: product.name,
-      amount: product.amount
+      amount: product.amount,
+      // Keep the browser checkout mode aligned with the API used to create this session.
+      payment_environment:
+        process.env.CASHFREE_ENV === "production"
+          ? "production"
+          : "sandbox"
     });
 
   } catch (error) {
