@@ -129,7 +129,7 @@ async function createCashfreeOrder(request, env, data) {
     addressLine1.length < 5 ||
     city.length < 2 ||
     state.length < 2 ||
-    !/^\\d{6}$/.test(postalCode) ||
+    !/^\d{6}$/.test(postalCode) ||
     country !== "India"
   ) {
     return jsonResponse({
