@@ -315,10 +315,18 @@
         }
 
 
-        const paymentEnvironment =
-          data.payment_environment === "production"
-            ? "production"
-            : "sandbox";
+        const paymentEnvironment = data.payment_environment;
+
+        // Never silently open sandbox checkout for a production payment session,
+        // or production checkout for a sandbox session.
+        if (
+          paymentEnvironment !== "production" &&
+          paymentEnvironment !== "sandbox"
+        ) {
+          throw new Error(
+            "Payment environment is missing. Please contact support."
+          );
+        }
 
         const cashfree =
           Cashfree({
