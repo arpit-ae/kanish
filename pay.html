@@ -62,12 +62,42 @@
       font-weight: bold;
     }
 
-    input {
+    input, textarea {
       width: 100%;
       padding: 13px;
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 85px;
+      resize: vertical;
+    }
+
+    h2 {
+      margin: 26px 0 6px;
+      font-size: 19px;
+    }
+
+    .section-help {
+      color: #666;
+      font-size: 13px;
+      margin: 0 0 8px;
+      line-height: 1.5;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 420px) {
+      .field-row { grid-template-columns: 1fr; gap: 0; }
+      .card { padding: 22px; }
     }
 
     button {
@@ -149,6 +179,48 @@
         pattern="[0-9]{10}"
         placeholder="10-digit mobile number"
       >
+
+      <h2>Delivery Address</h2>
+      <p class="section-help">Enter the address where you want your order delivered.</p>
+
+      <label for="addressLine1">House / Flat, Street, Area</label>
+      <textarea
+        id="addressLine1"
+        required
+        maxlength="180"
+        autocomplete="street-address"
+        placeholder="House number, street, area"
+      ></textarea>
+
+      <label for="landmark">Landmark (optional)</label>
+      <input
+        type="text"
+        id="landmark"
+        maxlength="100"
+        placeholder="Nearby landmark"
+      >
+
+      <div class="field-row">
+        <div>
+          <label for="city">City / Town / Village</label>
+          <input type="text" id="city" required maxlength="80" autocomplete="address-level2" placeholder="City or village">
+        </div>
+        <div>
+          <label for="state">State</label>
+          <input type="text" id="state" required maxlength="80" autocomplete="address-level1" placeholder="State">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div>
+          <label for="postalCode">PIN Code</label>
+          <input type="text" id="postalCode" required inputmode="numeric" maxlength="6" pattern="[0-9]{6}" autocomplete="postal-code" placeholder="6-digit PIN">
+        </div>
+        <div>
+          <label for="country">Country</label>
+          <input type="text" id="country" value="India" readonly>
+        </div>
+      </div>
 
       <button type="submit" id="payButton">
         Pay Securely
@@ -251,6 +323,15 @@
           .value
           .replace(/\D/g, "");
 
+      const shippingAddress = {
+        addressLine1: document.getElementById("addressLine1").value.trim(),
+        landmark: document.getElementById("landmark").value.trim(),
+        city: document.getElementById("city").value.trim(),
+        state: document.getElementById("state").value.trim(),
+        postalCode: document.getElementById("postalCode").value.trim(),
+        country: "India"
+      };
+
       if (name.length < 2) {
         message.textContent =
           "Please enter a valid name.";
@@ -266,6 +347,17 @@
       if (!/^\d{10}$/.test(phone)) {
         message.textContent =
           "Please enter a valid 10-digit mobile number.";
+        return;
+      }
+
+      if (
+        shippingAddress.addressLine1.length < 5 ||
+        shippingAddress.city.length < 2 ||
+        shippingAddress.state.length < 2 ||
+        !/^\d{6}$/.test(shippingAddress.postalCode)
+      ) {
+        message.textContent =
+          "Please enter a complete delivery address and a valid 6-digit PIN code.";
         return;
       }
 
@@ -295,7 +387,9 @@
                 name: name,
                 email: email,
                 phone: phone
-              }
+              },
+
+              shippingAddress: shippingAddress
 
             })
 
