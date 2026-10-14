@@ -117,6 +117,27 @@ async function createCashfreeOrder(request, env, data) {
     }, 400);
   }
 
+  const address = data?.shippingAddress || {};
+  const addressLine1 = String(address.addressLine1 || "").trim().slice(0, 180);
+  const landmark = String(address.landmark || "").trim().slice(0, 100);
+  const city = String(address.city || "").trim().slice(0, 80);
+  const state = String(address.state || "").trim().slice(0, 80);
+  const postalCode = String(address.postalCode || "").trim();
+  const country = String(address.country || "India").trim();
+
+  if (
+    addressLine1.length < 5 ||
+    city.length < 2 ||
+    state.length < 2 ||
+    !/^\\d{6}$/.test(postalCode) ||
+    country !== "India"
+  ) {
+    return jsonResponse({
+      success: false,
+      message: "Enter a complete Indian delivery address with a valid 6-digit PIN code."
+    }, 400);
+  }
+
   const origin = new URL(request.url).origin;
   const orderId = makeOrderId();
 
@@ -144,7 +165,13 @@ async function createCashfreeOrder(request, env, data) {
 
     order_tags: {
       product_id: product.id,
-      product_name: product.name
+      product_name: product.name,
+      shipping_address_line1: addressLine1,
+      shipping_landmark: landmark,
+      shipping_city: city,
+      shipping_state: state,
+      shipping_pin: postalCode,
+      shipping_country: country
     }
   };
 
