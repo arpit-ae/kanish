@@ -32,7 +32,9 @@ function jsonResponse(data, status = 200) {
 function cashfreeEnvironment(env) {
   const raw = String(env.CASHFREE_ENV || "").trim().toLowerCase();
 
-  if (!raw || ["sandbox", "test", "testing"].includes(raw)) {
+  if (!raw) return "invalid";
+
+  if (["sandbox", "test", "testing"].includes(raw)) {
     return "sandbox";
   }
 
@@ -54,8 +56,8 @@ function cashfreeBase(env) {
 
 function credentialsConfigured(env) {
   return Boolean(
-    env.CASHFREE_CLIENT_ID &&
-    env.CASHFREE_CLIENT_SECRET
+    String(env.CASHFREE_CLIENT_ID || "").trim() &&
+    String(env.CASHFREE_CLIENT_SECRET || "").trim()
   );
 }
 
@@ -64,8 +66,8 @@ function cashfreeHeaders(env, extra = {}) {
     "Content-Type": "application/json",
     "Accept": "application/json",
     "x-api-version": CASHFREE_API_VERSION,
-    "x-client-id": env.CASHFREE_CLIENT_ID,
-    "x-client-secret": env.CASHFREE_CLIENT_SECRET,
+    "x-client-id": String(env.CASHFREE_CLIENT_ID || "").trim(),
+    "x-client-secret": String(env.CASHFREE_CLIENT_SECRET || "").trim(),
     ...extra
   };
 }
@@ -502,7 +504,7 @@ export default {
           rawBody,
           timestamp,
           signature,
-          env.CASHFREE_CLIENT_SECRET
+          String(env.CASHFREE_CLIENT_SECRET || "").trim()
         );
 
       if (!valid) {
