@@ -14,7 +14,9 @@ const PORT = process.env.PORT || 3000;
 function cashfreeEnvironment() {
   const raw = String(process.env.CASHFREE_ENV || "").trim().toLowerCase();
 
-  if (!raw || ["sandbox", "test", "testing"].includes(raw)) {
+  if (!raw) return "invalid";
+
+  if (["sandbox", "test", "testing"].includes(raw)) {
     return "sandbox";
   }
 
@@ -48,8 +50,8 @@ app.get("/api/health", (req, res) => {
 app.get("/api/test", async (req, res) => {
   const environment = cashfreeEnvironment();
   const configured = Boolean(
-    process.env.CASHFREE_CLIENT_ID &&
-    process.env.CASHFREE_CLIENT_SECRET
+    String(process.env.CASHFREE_CLIENT_ID || "").trim() &&
+    String(process.env.CASHFREE_CLIENT_SECRET || "").trim()
   );
 
   const result = {
@@ -76,8 +78,8 @@ app.get("/api/test", async (req, res) => {
               "Content-Type": "application/json",
               "Accept": "application/json",
               "x-api-version": CASHFREE_API_VERSION,
-              "x-client-id": process.env.CASHFREE_CLIENT_ID,
-              "x-client-secret": process.env.CASHFREE_CLIENT_SECRET,
+              "x-client-id": String(process.env.CASHFREE_CLIENT_ID || "").trim(),
+              "x-client-secret": String(process.env.CASHFREE_CLIENT_SECRET || "").trim(),
               "x-request-id": randomUUID()
             }
           }
@@ -143,8 +145,8 @@ app.post("/api/create-order", async (req, res) => {
       });
     }
 
-    if (!process.env.CASHFREE_CLIENT_ID ||
-        !process.env.CASHFREE_CLIENT_SECRET) {
+    if (!String(process.env.CASHFREE_CLIENT_ID || "").trim() ||
+        !String(process.env.CASHFREE_CLIENT_SECRET || "").trim()) {
       return res.status(500).json({
         success: false,
         message: "Cashfree API credentials are not configured"
@@ -186,8 +188,8 @@ app.post("/api/create-order", async (req, res) => {
         headers: {
           "Content-Type": "application/json",
           "x-api-version": CASHFREE_API_VERSION,
-          "x-client-id": process.env.CASHFREE_CLIENT_ID,
-          "x-client-secret": process.env.CASHFREE_CLIENT_SECRET,
+          "x-client-id": String(process.env.CASHFREE_CLIENT_ID || "").trim(),
+          "x-client-secret": String(process.env.CASHFREE_CLIENT_SECRET || "").trim(),
           "x-idempotency-key": randomUUID()
         },
 
@@ -281,8 +283,8 @@ app.get("/api/order-status", async (req, res) => {
   }
 
   if (
-    !process.env.CASHFREE_CLIENT_ID ||
-    !process.env.CASHFREE_CLIENT_SECRET
+    !String(process.env.CASHFREE_CLIENT_ID || "").trim() ||
+    !String(process.env.CASHFREE_CLIENT_SECRET || "").trim()
   ) {
     return res.status(500).json({
       success: false,
@@ -299,8 +301,8 @@ app.get("/api/order-status", async (req, res) => {
           "Content-Type": "application/json",
           "Accept": "application/json",
           "x-api-version": CASHFREE_API_VERSION,
-          "x-client-id": process.env.CASHFREE_CLIENT_ID,
-          "x-client-secret": process.env.CASHFREE_CLIENT_SECRET,
+          "x-client-id": String(process.env.CASHFREE_CLIENT_ID || "").trim(),
+          "x-client-secret": String(process.env.CASHFREE_CLIENT_SECRET || "").trim(),
           "x-request-id": randomUUID()
         }
       }
