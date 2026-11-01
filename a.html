@@ -66,6 +66,8 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
 .company{text-align:center;min-height:31.8mm;border-left:1px solid #111;border-right:1px solid #111;border-bottom:1px solid #111;position:relative;padding-top:1mm}
 .company .name{font-family:"Brush Script MT","Segoe Script","Lucida Handwriting","Apple Chancery","Comic Sans MS",cursive;font-size:31px;line-height:34px;font-weight:700}
 .company.plain .name{font-family:Arial,Helvetica,sans-serif;font-size:22px;line-height:26px;letter-spacing:.5px}
+.company .website{position:absolute;top:2.5mm;right:3mm;font-size:10px;line-height:12px;font-weight:700}
+.company .website.is-empty{display:none}
 .company .addr{font-size:10px}
 .company .cols{display:flex;justify-content:space-between;padding:1px 8px 0;align-items:flex-start}
 .company .col,.company .mid,.company .right{line-height:14px}
@@ -184,6 +186,7 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
     <div><label for="phone">Phone</label><input id="phone"></div>
     <div><label for="mobile">Mobile</label><input id="mobile"></div>
     <div class="full"><label for="email">Email</label><input id="email"></div>
+    <div class="full"><label for="website">Website</label><input id="website" placeholder="www.usoagroup.in"></div>
   </div>
   <p class="help">Blank credential lines are hidden on the invoice automatically. Fill APEDA / MANDI / NBB once and they are remembered in this browser.</p>
   </div>
@@ -306,7 +309,7 @@ var SAFETY_MM    = 2;
 var TEXT_FIELDS = ["title","company","address","ie","gst","fssai","uam","apeda","mandi",
   "nbb","nbbreg","phone","mobile","email","buyer","buyeraddr","exim","pan","supply",
   "inv","code","freight","payment","incoterms","loading","discharge","shipment",
-  "contact","contactno","bankname","account","branch","ifsc","adcode","swift","jurisdiction","supplyType","exportTax"];
+  "contact","contactno","bankname","account","branch","ifsc","adcode","swift","jurisdiction","website","supplyType","exportTax"];
 
 var SELECT_FIELDS = ["nameFont","supplyType","exportTax"];
 
@@ -314,7 +317,7 @@ var SELECT_FIELDS = ["nameFont","supplyType","exportTax"];
 var PROFILE_FIELDS = ["title","nameFont","company","address","ie","gst","fssai","uam",
   "apeda","mandi","nbb","nbbreg","phone","mobile","email","payment","incoterms",
   "loading","discharge","shipment","contact","contactno","code",
-  "bankname","account","branch","ifsc","adcode","swift","jurisdiction"];
+  "bankname","account","branch","ifsc","adcode","swift","jurisdiction","website"];
 
 var ROW_FIELDS = ["desc","hsn","qty","unit","rate","gst","packs","range","netWt","grossWt"];
 
@@ -335,6 +338,7 @@ var DEFAULTS = {
   phone:"+919142703535",
   mobile:"+919934946176",
   email:"usoagroup@gmail.com",
+  website:"www.usoagroup.in",
   buyer:"", buyeraddr:"", exim:"", pan:"",
   supply:"Nepal",
   inv:"", code:"NP",
@@ -528,6 +532,7 @@ function headerHTML(d){
   var html = "";
   html += '<div class="pi-title">' + esc(d.title || "INVOICE") + '</div>';
   html += '<div class="' + nameClass + '">';
+  html +=   '<div class="website' + (String(d.website || "").trim() ? "" : " is-empty") + '">Website: ' + esc(d.website) + '</div>';
   html +=   '<div class="name">' + esc(d.company) + '</div>';
   html +=   '<div class="addr">' + esc(d.address) + '</div>';
   html +=   '<div class="cols">';
