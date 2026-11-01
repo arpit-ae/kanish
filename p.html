@@ -79,11 +79,11 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
 
 .invoice-head{display:grid;grid-template-columns:53% 47%;min-height:28.05mm;border-left:1px solid #111;border-bottom:1px solid #111}
 .box{border-right:1px solid #111;min-height:28.05mm;padding:4px}
-.box:last-child{border-right:0}
+.box:last-child{border-right:1px solid #111}
 .box .head{font-weight:700;font-size:10px;margin-bottom:4px}
 .buyer{line-height:14px}
-.meta{text-align:center;padding:0}
-.meta .row{min-height:9.35mm;border-bottom:1px solid #111;padding:3px 2px}
+.meta{text-align:left;padding:0}
+.meta .row{min-height:9.35mm;border-bottom:1px solid #111;padding:3px 12px}
 .meta .row:last-child{border-bottom:0}
 .meta strong{display:block}
 
@@ -592,9 +592,9 @@ function headerHTML(d){
           + '</div>';
   html +=   '<div class="meta"><div class="row"><strong>Proforma Invoice No.</strong>'
           +   '<span>' + esc(d.inv) + '</span></div>'
-          +   '<div class="row"><strong>Proforma Date</strong>'
+          +   '<div class="row"><strong>Proforma Invoice Date</strong>'
           +   '<span>' + esc(dispDate(d.date)) + '</span></div>'
-          +   '<div class="row"><strong>Proforma Invoice Valid Till</strong>'
+          +   '<div class="row"><strong>Valid Until</strong>'
           +   '<span>' + esc(d.validUntil ? dispDate(d.validUntil) : "") + '</span></div></div>';
   html += '</div>';
   return html;
