@@ -1,13 +1,90 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { randomUUID } from "crypto";
+import { randomUUID, createHmac, timingSafeEqual } from "crypto";
 dotenv.config();
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+
+function cashfreeCredentialsConfigured() {
+  return Boolean(
+    String(process.env.CASHFREE_CLIENT_ID || "").trim() &&
+    String(process.env.CASHFREE_CLIENT_SECRET || "").trim()
+  );
+}
+
+function validCashfreeWebhookSignature(rawBody, timestamp, signature) {
+  const secret = String(process.env.CASHFREE_CLIENT_SECRET || "").trim();
+
+  if (!rawBody || !timestamp || !signature || !secret) {
+    return false;
+  }
+
+  const expected = createHmac("sha256", secret)
+    .update(`${timestamp}${rawBody}`, "utf8")
+    .digest("base64");
+
+  const expectedBuffer = Buffer.from(expected);
+  const receivedBuffer = Buffer.from(String(signature));
+
+  return (
+    expectedBuffer.length === receivedBuffer.length &&
+    timingSafeEqual(expectedBuffer, receivedBuffer)
+  );
+}
+
+// The signature is calculated over the unmodified request body, so this route
+// must run before the JSON parser.
+app.post(
+  "/api/cashfree-webhook",
+  express.raw({ type: "application/json", limit: "256kb" }),
+  (req, res) => {
+    if (!cashfreeCredentialsConfigured()) {
+      return res.status(500).json({
+        success: false,
+        message: "Webhook is not configured."
+      });
+    }
+
+    const rawBody = Buffer.isBuffer(req.body)
+      ? req.body.toString("utf8")
+      : "";
+
+    const valid = validCashfreeWebhookSignature(
+      rawBody,
+      req.get("x-webhook-timestamp"),
+      req.get("x-webhook-signature")
+    );
+
+    if (!valid) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid webhook signature."
+      });
+    }
+
+    try {
+      const event = JSON.parse(rawBody);
+      console.log("Verified Cashfree webhook", JSON.stringify({
+        type: event?.type,
+        order_id: event?.data?.order?.order_id,
+        status: event?.data?.payment?.payment_status
+      }));
+    } catch (error) {
+      console.error("Webhook JSON error", error);
+      return res.status(400).json({
+        success: false,
+        message: "Invalid webhook payload."
+      });
+    }
+
+    return res.json({ success: true });
+  }
+);
+
+app.use(express.json({ limit: "256kb" }));
 
 const PORT = process.env.PORT || 3000;
 
@@ -49,10 +126,7 @@ app.get("/api/health", (req, res) => {
 
 app.get("/api/test", async (req, res) => {
   const environment = cashfreeEnvironment();
-  const configured = Boolean(
-    String(process.env.CASHFREE_CLIENT_ID || "").trim() &&
-    String(process.env.CASHFREE_CLIENT_SECRET || "").trim()
-  );
+  const configured = cashfreeCredentialsConfigured();
 
   const result = {
     success: true,
