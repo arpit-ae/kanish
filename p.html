@@ -77,8 +77,8 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
 .cl{display:block}
 .cl.is-empty{display:none}
 
-.invoice-head{display:grid;grid-template-columns:53% 18% 29%;min-height:18.8mm;border-left:1px solid #111;border-bottom:1px solid #111}
-.box{border-right:1px solid #111;min-height:18.8mm;padding:4px}
+.invoice-head{display:grid;grid-template-columns:53% 47%;min-height:28.05mm;border-left:1px solid #111;border-bottom:1px solid #111}
+.box{border-right:1px solid #111;min-height:28.05mm;padding:4px}
 .box:last-child{border-right:0}
 .box .head{font-weight:700;font-size:10px;margin-bottom:4px}
 .buyer{line-height:14px}
@@ -590,11 +590,11 @@ function headerHTML(d){
                 ? '<span class="cl"><b>Place of Supply:</b> ' + esc(d.supply) + '</span>'
                   + '<span class="cl"><b>Country of Destination:</b> ' + esc(d.supply) + '</span>' : "")
           + '</div>';
-  html +=   '<div class="meta"><div class="row"><strong>PROFORMA NO</strong>'
-          +   '<span>' + esc(d.inv) + '</span></div></div>';
-  html +=   '<div class="meta"><div class="row"><strong>Proforma Date</strong>'
+  html +=   '<div class="meta"><div class="row"><strong>Proforma Invoice No.</strong>'
+          +   '<span>' + esc(d.inv) + '</span></div>'
+          +   '<div class="row"><strong>Proforma Date</strong>'
           +   '<span>' + esc(dispDate(d.date)) + '</span></div>'
-          +   '<div class="row"><strong>Valid Until</strong>'
+          +   '<div class="row"><strong>Proforma Invoice Valid Till</strong>'
           +   '<span>' + esc(d.validUntil ? dispDate(d.validUntil) : "") + '</span></div></div>';
   html += '</div>';
   return html;
