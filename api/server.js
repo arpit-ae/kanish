@@ -204,9 +204,39 @@ app.post("/api/create-order", async (req, res) => {
         amount: 399
       },
 
+      apisCeranaColony: {
+        name: "Apis Cerana Bee Colonies",
+        amount: 8000
+      },
+
+      beeHivesBoxes: {
+        name: "Bee Hives & Boxes",
+        amount: 1000
+      },
+
+      honeyExtractor: {
+        name: "Honey Extractor",
+        amount: 8000
+      },
+
+      beekeepingGloves: {
+        name: "Beekeeping Gloves & Equipment",
+        amount: 100
+      },
+
       beeswax1kg: {
         name: "Pure Beeswax - 1kg",
         amount: 699
+      },
+
+      beekeepingToolkits: {
+        name: "Beekeeping Toolkits (all)",
+        amount: 8000
+      },
+
+      melipheraCeranaColony: {
+        name: "Meliphera Cerana Bee Colonies",
+        amount: 10000
       }
     };
 

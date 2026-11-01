@@ -9,10 +9,40 @@ const PRODUCTS = {
     name: "Natural Raw Honey - 500g",
     amount: 399
   },
+  apisCeranaColony: {
+    id: "apisCeranaColony",
+    name: "Apis Cerana Bee Colonies",
+    amount: 8000
+  },
+  beeHivesBoxes: {
+    id: "beeHivesBoxes",
+    name: "Bee Hives & Boxes",
+    amount: 1000
+  },
+  honeyExtractor: {
+    id: "honeyExtractor",
+    name: "Honey Extractor",
+    amount: 8000
+  },
+  beekeepingGloves: {
+    id: "beekeepingGloves",
+    name: "Beekeeping Gloves & Equipment",
+    amount: 100
+  },
   beeswax1kg: {
     id: "beeswax1kg",
     name: "Pure Beeswax - 1kg",
     amount: 699
+  },
+  beekeepingToolkits: {
+    id: "beekeepingToolkits",
+    name: "Beekeeping Toolkits (all)",
+    amount: 8000
+  },
+  melipheraCeranaColony: {
+    id: "melipheraCeranaColony",
+    name: "Meliphera Cerana Bee Colonies",
+    amount: 10000
   }
 };
 
