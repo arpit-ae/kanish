@@ -147,13 +147,27 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
   .measure-host{display:none !important}
 }
 
-/* ALL-CAPS + BOLD INVOICE OUTPUT */
-.page,
-.page * {
-  text-transform: uppercase !important;
-  font-weight: 700 !important;
-}
-.page .company .website { text-transform:none !important; }
+/* Professional hierarchy: headings stay prominent; entered details keep their natural case. */
+.page { text-transform:none; font-weight:400; }
+.page .pi-title,
+.page .items th,
+.page .meta strong,
+.page .box .head,
+.page .totalbox .gtotal > div:first-child,
+.page .freight,
+.page .sign .for { text-transform:uppercase; font-weight:700; }
+.page .company .name { text-transform:uppercase; font-weight:700; }
+.page .company .website { text-transform:none; font-weight:600; }
+.page .company .addr { text-transform:none; font-weight:600; }
+.page .company .cols,
+.page .buyer,
+.page .items td,
+.page .conditions,
+.page .bank,
+.page .folio { text-transform:none; font-weight:400; }
+.page .items td.value,
+.page .items .cf td,
+.page .gtotal .right { font-weight:700; }
 </style>
 </head>
 <body>
