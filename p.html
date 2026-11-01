@@ -591,11 +591,11 @@ function headerHTML(d){
                 ? '<span class="cl"><b>Place of Supply:</b> ' + esc(d.supply) + '</span>'
                   + '<span class="cl"><b>Country of Destination:</b> ' + esc(d.supply) + '</span>' : "")
           + '</div>';
-  html +=   '<div class="meta"><div class="row"><strong>Proforma Invoice No.</strong>'
+  html +=   '<div class="meta"><div class="row"><strong>Proforma Invoice No :</strong>'
           +   '<span>' + esc(d.inv) + '</span></div>'
-          +   '<div class="row"><strong>Proforma Invoice Date</strong>'
+          +   '<div class="row"><strong>Proforma Invoice Date :</strong>'
           +   '<span>' + esc(dispDate(d.date)) + '</span></div>'
-          +   '<div class="row"><strong>Valid Until</strong>'
+          +   '<div class="row"><strong>Valid Until :</strong>'
           +   '<span>' + esc(d.validUntil ? dispDate(d.validUntil) : "") + '</span></div></div>';
   html += '</div>';
   return html;
