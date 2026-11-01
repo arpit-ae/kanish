@@ -153,6 +153,7 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
   text-transform: uppercase !important;
   font-weight: 700 !important;
 }
+.page .company .website { text-transform:none !important; }
 </style>
 </head>
 <body>
@@ -167,9 +168,10 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
   <p class="muted">USOA GROUP &mdash; A4 proforma invoice builder. Fill the form, then Print or Download PDF.</p>
 
   <div class="group"><h2>Document</h2><div class="grid">
-    <div class="full"><label for="title">Invoice title</label><input id="title"></div>
+    <div class="full"><label for="title">Proforma Invoice title</label><input id="title"></div>
     <div><label for="nameFont">Company name style</label><select id="nameFont"><option value="script">Script (handwritten)</option><option value="plain">Plain bold</option></select></div>
-    <div><label for="date">Date</label><input id="date" type="date"></div>
+    <div><label for="date">Proforma Invoice Date</label><input id="date" type="date"></div>
+    <div><label for="validUntil">Valid Until</label><input id="validUntil" type="date"></div>
   </div></div>
 
   <div class="group"><h2>Exporter / Supplier</h2><div class="grid">
@@ -186,13 +188,13 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
     <div><label for="phone">Phone</label><input id="phone"></div>
     <div><label for="mobile">Mobile</label><input id="mobile"></div>
     <div class="full"><label for="email">Email</label><input id="email"></div>
-    <div class="full"><label for="website">Website</label><input id="website" placeholder="www.usoagroup.in"></div>
+    <div class="full"><label for="website">Website</label><input id="website" placeholder="https://www.usoagroup.in"></div>
   </div>
-  <p class="help">Blank credential lines are hidden on the invoice automatically. Fill APEDA / MANDI / NBB once and they are remembered in this browser.</p>
+  <p class="help">Blank credential lines are hidden on the proforma automatically. Fill APEDA / MANDI / NBB once and they are remembered in this browser.</p>
   </div>
 
   <div class="group"><h2>Buyer</h2><div class="grid">
-    <div class="full"><label for="buyer">Invoice To</label><input id="buyer"></div>
+    <div class="full"><label for="buyer">Proforma Invoice To</label><input id="buyer"></div>
     <div class="full"><label for="buyeraddr">Buyer address</label><textarea id="buyeraddr"></textarea></div>
     <div><label for="exim">EXIM Code</label><input id="exim"></div>
     <div><label for="pan">PAN No.</label><input id="pan"></div>
@@ -216,15 +218,14 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
       </select>
     </div>
   </div>
-  <p class="help">Set the supply type for the invoice. Each item has its own GST rate. Within State splits the rate into CGST + SGST; Other State uses IGST; Export defaults to 0% under LUT.</p>
+  <p class="help">Set the supply type for the proforma invoice. Each item has its own GST rate. Within State splits the rate into CGST + SGST; Other State uses IGST; Export defaults to 0% under LUT.</p>
   </div>
 
-  <div class="group"><h2>Invoice number</h2><div class="grid">
-    <div><label for="inv">Invoice No.</label><input id="inv"></div>
-    <div><label for="code">Destination code</label><input id="code" maxlength="4"></div>
+  <div class="group"><h2>Proforma number</h2><div class="grid">
+    <div class="full"><label for="inv">Proforma Invoice No.</label><input id="inv"></div>
   </div>
   <div class="dupwarn" id="dupWarn"></div>
-  <p class="help">Format is <b>YY-YY/CODE/number</b>, e.g. 25-26/NP/122. The financial year follows the invoice date.</p>
+  <p class="help">Format is <b>PI/YYYY-YY/001</b>, e.g. <b>PI/2026-27/001</b>. The financial year follows the proforma invoice date.</p>
   </div>
 
   <div class="group"><h2>Items</h2>
@@ -263,8 +264,8 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
       <button class="good" id="download" type="button">Download PDF</button>
     </div>
     <div class="actions">
-      <button class="secondary" id="newInv" type="button">+ New invoice</button>
-      <button class="secondary" id="dupInv" type="button">Duplicate invoice</button>
+      <button class="secondary" id="newInv" type="button">+ New proforma</button>
+      <button class="secondary" id="dupInv" type="button">Duplicate proforma</button>
     </div>
     <div class="actions">
       <button class="secondary" id="exportBtn" type="button">Export settings</button>
@@ -272,7 +273,7 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
       <input id="importFile" type="file" accept="application/json,.json" style="display:none">
     </div>
     <div class="actions">
-      <button class="secondary" id="clearInv" type="button">Clear this invoice</button>
+      <button class="secondary" id="clearInv" type="button">Clear this proforma</button>
       <button class="secondary" id="resetAll" type="button">Reset all saved settings</button>
     </div>
     <p class="help"><b>Print / Save PDF</b> gives the sharpest result: choose A4, Margins <b>None</b>, Scale <b>100%</b>, and switch <b>Background graphics</b> on.<br><br>
@@ -308,7 +309,7 @@ var SAFETY_MM    = 2;
 
 var TEXT_FIELDS = ["title","company","address","ie","gst","fssai","uam","apeda","mandi",
   "nbb","nbbreg","phone","mobile","email","buyer","buyeraddr","exim","pan","supply",
-  "inv","code","freight","payment","incoterms","loading","discharge","shipment",
+  "inv","code","freight","payment","incoterms","loading","discharge","shipment","validUntil",
   "contact","contactno","bankname","account","branch","ifsc","adcode","swift","jurisdiction","website","supplyType","exportTax"];
 
 var SELECT_FIELDS = ["nameFont","supplyType","exportTax"];
@@ -338,7 +339,7 @@ var DEFAULTS = {
   phone:"+919142703535",
   mobile:"+919934946176",
   email:"usoagroup@gmail.com",
-  website:"www.usoagroup.in",
+  website:"https://www.usoagroup.in",
   buyer:"", buyeraddr:"", exim:"", pan:"",
   supply:"Nepal",
   inv:"", code:"NP",
@@ -513,6 +514,13 @@ function applyValues(obj){
 function setDefaults(){
   applyValues(DEFAULTS);
   $("date").value = toISO(new Date());
+  $("validUntil").value = validUntilFor($("date").value);
+}
+
+function validUntilFor(iso){
+  var d = parseISO(iso);
+  d.setUTCDate(d.getUTCDate() + 30);
+  return toISO(d);
 }
 
 /* ============================================================
@@ -530,7 +538,7 @@ function headerHTML(d){
   var nameClass = "company" + (d.nameFont === "plain" ? " plain" : "");
 
   var html = "";
-  html += '<div class="pi-title">' + esc(d.title || "INVOICE") + '</div>';
+  html += '<div class="pi-title">' + esc(d.title || "PROFORMA INVOICE") + '</div>';
   html += '<div class="' + nameClass + '">';
   html +=   '<div class="website' + (String(d.website || "").trim() ? "" : " is-empty") + '">Website: ' + esc(d.website) + '</div>';
   html +=   '<div class="name">' + esc(d.company) + '</div>';
@@ -557,7 +565,7 @@ function headerHTML(d){
 
   html += '<div class="invoice-head">';
   html +=   '<div class="box buyer">'
-          +   '<div class="head">Invoice To: ' + esc(d.buyer) + '</div>'
+          +   '<div class="head">Proforma Invoice To: ' + esc(d.buyer) + '</div>'
           +   '<span class="cl">' + esc(d.buyeraddr).replace(/\n/g,"<br>") + '</span>'
           +   cl("Exim Code : ", d.exim)
           +   cl("PAN No. : ", d.pan)
@@ -565,10 +573,12 @@ function headerHTML(d){
                 ? '<span class="cl"><b>Place of Supply:</b> ' + esc(d.supply) + '</span>'
                   + '<span class="cl"><b>Country of Destination:</b> ' + esc(d.supply) + '</span>' : "")
           + '</div>';
-  html +=   '<div class="meta"><div class="row"><strong>INVOICE NO</strong>'
+  html +=   '<div class="meta"><div class="row"><strong>PROFORMA NO</strong>'
           +   '<span>' + esc(d.inv) + '</span></div></div>';
-  html +=   '<div class="meta"><div class="row"><strong>Dated</strong>'
-          +   '<span>' + esc(dispDate(d.date)) + '</span></div></div>';
+  html +=   '<div class="meta"><div class="row"><strong>Proforma Date</strong>'
+          +   '<span>' + esc(dispDate(d.date)) + '</span></div>'
+          +   '<div class="row"><strong>Valid Until</strong>'
+          +   '<span>' + esc(d.validUntil ? dispDate(d.validUntil) : "") + '</span></div></div>';
   html += '</div>';
   return html;
 }
@@ -1114,6 +1124,7 @@ function loadAll(){
     if (draft.fields && draft.fields.inv) state.invDirty = true;
   }
   if (!$("date").value) $("date").value = toISO(new Date());
+  if (!$("validUntil").value) $("validUntil").value = validUntilFor($("date").value);
   if (!$("inv").value) proposeInvoice(true);
 }
 
@@ -1123,14 +1134,14 @@ function loadAll(){
 
 function proposeInvoice(force){
   var d = readForm();
-  var fy = indianFY(d.date);
-  var code = (d.code || "NP").toUpperCase().replace(/[^A-Z0-9]/g,"") || "NP";
-  var key = fy + "/" + code;
+  var invoiceDate = parseISO(d.date);
+  var fyStart = invoiceDate.getUTCMonth() >= 3 ? invoiceDate.getUTCFullYear() : invoiceDate.getUTCFullYear() - 1;
+  var key = "PI/" + fyStart + "-" + String(fyStart + 1).slice(-2);
   var n = num(seq.last[key]) + 1;
-  var cand = key + "/" + n;
+  var cand = key + "/" + String(n).padStart(3, "0");
   var guard = 0;
   while (seq.used.indexOf(cand) !== -1 && guard++ < 5000){
-    n++; cand = key + "/" + n;
+    n++; cand = key + "/" + String(n).padStart(3, "0");
   }
   if (force || !state.invDirty) $("inv").value = cand;
   return cand;
@@ -1158,7 +1169,7 @@ function checkDuplicate(){
   var el = $("dupWarn");
   var others = seq.used.filter(function(x){ return x === v; });
   if (v && others.length){
-    el.textContent = "Invoice number " + v + " has already been printed or downloaded from this browser. Check before reusing it.";
+    el.textContent = "Proforma number " + v + " has already been printed or downloaded from this browser. Check before reusing it.";
     el.className = "dupwarn show";
   } else {
     el.className = "dupwarn";
@@ -1242,7 +1253,7 @@ function loadPdfLibs(){
 
 function exportSettings(){
   var payload = {
-    app: "usoa-invoice", version: 1,
+    app: "usoa-proforma", version: 1,
     exported: new Date().toISOString(),
     profile: collectProfile(),
     draft: { fields: readForm(), rows: state.rows, sig: state.sigPersist },
@@ -1251,7 +1262,7 @@ function exportSettings(){
   var blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
   var a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "usoa-invoice-settings.json";
+  a.download = "usoa-proforma-settings.json";
   document.body.appendChild(a);
   a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
@@ -1262,7 +1273,7 @@ function importSettings(file){
   fr.onload = function(){
     try {
       var o = JSON.parse(String(fr.result));
-      if (!o || o.app !== "usoa-invoice") throw new Error("That is not a USOA invoice settings file");
+      if (!o || o.app !== "usoa-proforma") throw new Error("That is not a USOA proforma settings file");
       if (o.profile) applyValues(o.profile);
       if (o.draft && o.draft.fields) applyValues(o.draft.fields);
       if (o.draft && Array.isArray(o.draft.rows) && o.draft.rows.length){
@@ -1386,12 +1397,13 @@ function wire(){
   });
 
   $("newInv").addEventListener("click", function(){
-    if (!confirm("Start a new invoice? The current items and buyer details will be cleared. Your saved company settings are kept.")) return;
+    if (!confirm("Start a new proforma? The current items and buyer details will be cleared. Your saved company settings are kept.")) return;
     state.rows = [blankRow()];
     state.invDirty = false;
     ["buyer","buyeraddr","exim","pan","inv"].forEach(function(k){ $(k).value = ""; });
     $("freight").value = DEFAULTS.freight;
     $("date").value = toISO(new Date());
+    $("validUntil").value = validUntilFor($("date").value);
     proposeInvoice(true);
     renderRows(); render(); checkDuplicate(); save();
   });
@@ -1412,12 +1424,13 @@ function wire(){
   });
 
   $("clearInv").addEventListener("click", function(){
-    if (!confirm("Clear this invoice (buyer, items, number, date)? Company settings are kept.")) return;
+    if (!confirm("Clear this proforma (buyer, items, number, date)? Company settings are kept.")) return;
     state.rows = [blankRow()];
     state.invDirty = false;
     ["buyer","buyeraddr","exim","pan","inv"].forEach(function(k){ $(k).value = ""; });
     $("freight").value = DEFAULTS.freight;
     $("date").value = toISO(new Date());
+    $("validUntil").value = validUntilFor($("date").value);
     proposeInvoice(true);
     renderRows(); render(); checkDuplicate(); save();
   });
@@ -1502,8 +1515,8 @@ function boot(){
   setDefaults();
 
   try {
-    localStorage.setItem("usoa.invoice.probe", "1");
-    localStorage.removeItem("usoa.invoice.probe");
+    localStorage.setItem("usoa.proforma.probe", "1");
+    localStorage.removeItem("usoa.proforma.probe");
   } catch (e){
     state.storageOK = false;
     setSaveState("Browser storage unavailable — nothing will be saved", true);
