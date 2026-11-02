@@ -7,6 +7,9 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "CASHFREE_ENV": "production"
+    "CASHFREE_ENV": "production",
+    "SUPABASE_URL": "https://jpettksywgsptjnidhqw.supabase.co"
   }
 }
+
+

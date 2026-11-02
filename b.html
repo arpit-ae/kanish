@@ -173,6 +173,7 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
 /* Keep every printed detail bold without forcing it into uppercase. */
 .page,
 .page * { font-weight:700 !important; }
+dialog{border:1px solid #ccd5d0;border-radius:12px;padding:24px;width:min(680px,calc(100vw - 32px));max-height:85vh;overflow:auto;color:#17261e;background:#fff;box-sizing:border-box}dialog::backdrop{background:rgba(15,30,22,.55)}dialog h2{margin:0 0 16px}dialog .actions{display:flex;gap:8px;flex-wrap:wrap}dialog input{width:100%;box-sizing:border-box;padding:10px;margin:8px 0}dialog button{padding:10px 14px;cursor:pointer}.saved-card{padding:16px 0;border-bottom:1px solid #ddd}.saved-card p{margin:8px 0}.dialog-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}#accessError{color:#a61b1b}@media print{dialog,#cloudStatus{display:none!important}}
 </style>
 </head>
 <body>
@@ -187,10 +188,9 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
   <p class="muted">USOA GROUP &mdash; A4 invoice builder. Fill the form, then Print or Download PDF.</p>
 
   <div class="group"><h2>Document</h2><div class="grid">
-    <div class="full"><label for="title">Invoice title</label><input id="title"></div>
+    <div class="full"><label for="title">Invoice title</label><input id="title" value="INVOICE" readonly></div>
     <div><label for="nameFont">Company name style</label><select id="nameFont"><option value="script">Script (handwritten)</option><option value="plain">Plain bold</option></select></div>
     <div><label for="date">Invoice Date</label><input id="date" type="date"></div>
-    <div><label for="validUntil">Valid Until</label><input id="validUntil" type="date"></div>
   </div></div>
 
   <div class="group"><h2>Exporter / Supplier</h2><div class="grid">
@@ -244,7 +244,7 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
     <div class="full"><label for="inv">Invoice No.</label><input id="inv"></div>
   </div>
   <div class="dupwarn" id="dupWarn"></div>
-  <p class="help">Format is <b>PI/YYYY-YY/001</b>, e.g. <b>PI/2026-27/001</b>. The financial year follows the invoice date.</p>
+  <p class="help">Format is <b>INV/YYYY-YY/001</b>, e.g. <b>INV/2026-27/001</b>. The financial year follows the invoice date.</p>
   </div>
 
   <div class="group"><h2>Items</h2>
@@ -283,7 +283,9 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
       <button class="good" id="download" type="button">Download PDF</button>
       <button class="good" id="cloudSave" type="button">Save Invoice</button>
       <button class="secondary" id="cloudLoad" type="button">Open Saved Invoice</button>
+      <button class="secondary" id="cloudLock" type="button">Lock cloud access</button>
     </div>
+    <p id="cloudStatus" class="help" role="status" aria-live="polite"></p>
     <div class="actions">
       <button class="secondary" id="newInv" type="button">+ New invoice</button>
       <button class="secondary" id="dupInv" type="button">Duplicate invoice</button>
@@ -298,7 +300,7 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
       <button class="secondary" id="resetAll" type="button">Reset all saved settings</button>
     </div>
     <p class="help"><b>Print / Save PDF</b> gives the sharpest result: choose A4, Margins <b>None</b>, Scale <b>100%</b>, and switch <b>Background graphics</b> on.<br><br>
-    <b>Export settings</b> is your backup. Everything is stored only in this browser &mdash; clearing site data, switching browser or using another device will lose it.</p>
+    <b>Export settings</b> is your backup. Draft changes are saved in this browser. Use <b>Save Invoice</b> to save the invoice data and signature securely to the cloud. Later choose <b>Open Saved Invoice</b>, search by number or buyer, and open it to edit or download its PDF. PDFs are generated from the saved data when you download them; a separate PDF file is not stored in the cloud.</p>
   </div>
 </aside>
 
@@ -310,6 +312,8 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
 
 </div>
 
+<dialog id="accessDialog" aria-labelledby="accessHeading"><h2 id="accessHeading">Invoice cloud access</h2><form id="accessForm"><label for="accessCode">Access code</label><input id="accessCode" type="password" autocomplete="current-password" required><p id="accessError" role="alert"></p><div class="actions"><button type="submit">Unlock</button><button id="accessCancel" type="button">Cancel</button></div></form><p class="help">The code stays in this tab until you lock cloud access or close the tab.</p></dialog>
+<dialog id="savedDialog" aria-labelledby="savedHeading"><div class="dialog-heading"><h2 id="savedHeading">Saved Invoices</h2><button id="savedClose" type="button">Close</button></div><form id="savedSearchForm"><label for="invoiceSearch">Search invoice number or buyer</label><input id="invoiceSearch" type="search" placeholder="INV/2026-27/001 or buyer name"><button type="submit">Search / Refresh</button></form><p id="savedStatus" role="status" aria-live="polite"></p><div id="savedResults"></div><div class="actions"><button id="savedPrev" type="button" disabled>Previous</button><button id="savedNext" type="button" disabled>Next</button></div></dialog>
 <script>
 (function () {
 "use strict";
@@ -330,7 +334,7 @@ var SAFETY_MM    = 2;
 
 var TEXT_FIELDS = ["title","company","address","ie","gst","fssai","uam","apeda","mandi",
   "nbb","nbbreg","phone","mobile","email","buyer","buyeraddr","exim","pan","supply",
-  "inv","code","freight","payment","incoterms","loading","discharge","shipment","validUntil",
+  "inv","code","freight","payment","incoterms","loading","discharge","shipment",
   "contact","contactno","bankname","account","branch","ifsc","adcode","swift","jurisdiction","website","supplyType","exportTax"];
 
 var SELECT_FIELDS = ["nameFont","supplyType","exportTax"];
@@ -397,6 +401,7 @@ var state = {
   sig: null,            /* data URL in use this session */
   sigPersist: null,     /* data URL small enough for localStorage */
   invDirty: false,
+  cloudRef: null,
   storageOK: true
 };
 
@@ -535,14 +540,8 @@ function applyValues(obj){
 function setDefaults(){
   applyValues(DEFAULTS);
   $("date").value = toISO(new Date());
-  $("validUntil").value = validUntilFor($("date").value);
 }
 
-function validUntilFor(iso){
-  var d = parseISO(iso);
-  d.setUTCDate(d.getUTCDate() + 30);
-  return toISO(d);
-}
 
 /* ============================================================
    SHEET HTML BUILDERS  (single source of truth: used for both
@@ -597,9 +596,7 @@ function headerHTML(d){
   html +=   '<div class="meta"><div class="row"><strong>Invoice No</strong><b class="label-sep">:</b>'
           +   '<span>' + esc(d.inv) + '</span></div>'
           +   '<div class="row"><strong>Invoice Date</strong><b class="label-sep">:</b>'
-          +   '<span>' + esc(dispDate(d.date)) + '</span></div>'
-          +   '<div class="row"><strong>Valid Until</strong><b class="label-sep">:</b>'
-          +   '<span>' + esc(d.validUntil ? dispDate(d.validUntil) : "") + '</span></div></div>';
+          +   '<span>' + esc(dispDate(d.date)) + '</span></div></div>';
   html += '</div>';
   return html;
 }
@@ -1085,10 +1082,11 @@ function collectProfile(){
 }
 
 function save(){
+  refreshCloudStatus();
   if (!state.storageOK) return;
   var d = readForm();
 
-  var draft = { fields: {}, rows: state.rows, sig: state.sigPersist };
+  var draft = { fields: {}, rows: state.rows, sig: state.sigPersist, cloudRef: state.cloudRef };
   TEXT_FIELDS.concat(SELECT_FIELDS, ["date"]).forEach(function(k){ draft.fields[k] = d[k]; });
   var profile = collectProfile();
 
@@ -1105,7 +1103,7 @@ function save(){
     try {
       attempts[i]();
       writeStore(K_SEQ, seq);
-      if (i === 0) setSaveState("Saved");
+      if (i === 0) setSaveState("Draft saved in browser");
       else if (i === 1) setSaveState("Saved (signature image too large to store)", true);
       else setSaveState("Saved (storage nearly full)", true);
       return;
@@ -1117,6 +1115,7 @@ function save(){
 }
 
 function scheduleSave(){
+  refreshCloudStatus();
   setSaveState("Saving…");
   clearTimeout(saveTimer);
   saveTimer = setTimeout(save, 400);
@@ -1132,6 +1131,7 @@ function loadAll(){
   }
   if (profile) applyValues(profile);
   if (draft){
+    state.cloudRef=draft.cloudRef || null;
     if (draft.fields) applyValues(draft.fields);
     if (Array.isArray(draft.rows) && draft.rows.length){
       state.rows = draft.rows.map(function(r){
@@ -1145,7 +1145,6 @@ function loadAll(){
     if (draft.fields && draft.fields.inv) state.invDirty = true;
   }
   if (!$("date").value) $("date").value = toISO(new Date());
-  if (!$("validUntil").value) $("validUntil").value = validUntilFor($("date").value);
   if (!$("inv").value) proposeInvoice(true);
 }
 
@@ -1294,7 +1293,8 @@ function importSettings(file){
   fr.onload = function(){
     try {
       var o = JSON.parse(String(fr.result));
-      if (!o || o.app !== "usoa-invoice") throw new Error("That is not a USOA invoice settings file");
+      if (!o || o.app !== "usoa-final-invoice") throw new Error("That is not a USOA invoice settings file");
+      resetCloudReference();
       if (o.profile) applyValues(o.profile);
       if (o.draft && o.draft.fields) applyValues(o.draft.fields);
       if (o.draft && Array.isArray(o.draft.rows) && o.draft.rows.length){
@@ -1307,7 +1307,8 @@ function importSettings(file){
       } else {
         state.rows = [blankRow()];
       }
-      if (o.draft && o.draft.sig){ state.sig = o.draft.sig; state.sigPersist = o.draft.sig; }
+      state.sig = (o.draft && o.draft.sig) || null; state.sigPersist = state.sig;
+      $("title").value="INVOICE";
       if (o.seq){ seq.last = o.seq.last || {}; seq.used = Array.isArray(o.seq.used) ? o.seq.used : []; }
       state.storageOK = true;
       renderRows(); render(); checkDuplicate(); save();
@@ -1323,53 +1324,130 @@ function importSettings(file){
 /* ============================================================
    CLOUD SAVE / EDIT
 ============================================================ */
+var cloudKey = 'usoa.final-invoice.b.access-code';
+var cloudCode = '', authResolve = null, listOffset = 0, listRequest = 0;
+try { cloudCode = sessionStorage.getItem(cloudKey) || ''; } catch(e) {}
+function currentDocument(){ return {fields:readForm(),rows:state.rows,sig:state.sig || null}; }
+function fingerprint(doc){
+  var str=JSON.stringify(doc), hash=2166136261;
+  for(var i=0;i<str.length;i++) hash=Math.imul(hash ^ str.charCodeAt(i),16777619);
+  return hash >>> 0;
+}
+function cloudStatus(message, error){
+  $('cloudStatus').textContent=message; $('cloudStatus').style.color=error ? '#a61b1b' : '#355443';
+}
+function refreshCloudStatus(){
+  var ref=state.cloudRef;
+  $('cloudSave').textContent=ref ? 'Save Changes' : 'Save Invoice';
+  cloudStatus(ref ? (ref.fingerprint===fingerprint(currentDocument()) ? 'Saved to cloud · '+$('inv').value : 'Changes not yet saved to cloud') : 'Draft in this browser · use Save Invoice for cloud backup');
+}
+function resetCloudReference(){ state.cloudRef=null; refreshCloudStatus(); }
 function invoiceAccessCode(){
-  var code = sessionStorage.getItem("usoa.final-invoice.b.access-code") || "";
-  if (!code) {
-    code = window.prompt("Enter the Invoice access code");
-    if (!code) return null;
-    sessionStorage.setItem("usoa.final-invoice.b.access-code", code);
-  }
-  return code;
+  if(cloudCode) return Promise.resolve(cloudCode);
+  $('accessError').textContent=''; $('accessCode').value=''; $('accessDialog').showModal(); $('accessCode').focus();
+  return new Promise(function(resolve){ authResolve=resolve; });
+}
+function finishAccess(code){
+  cloudCode=code || ''; try { if(code) sessionStorage.setItem(cloudKey,code); else sessionStorage.removeItem(cloudKey); } catch(e) {}
+  if($('accessDialog').open) $('accessDialog').close();
+  if(authResolve){ var resolve=authResolve; authResolve=null; resolve(cloudCode); }
 }
 function cloudRequest(method, suffix, body){
-  var code = invoiceAccessCode();
-  if (!code) return Promise.reject(new Error("Invoice access code is required."));
-  return fetch("/api/invoices" + (suffix || ""), {
-    method: method,
-    headers: {"Content-Type":"application/json","X-Invoice-Access-Code":code},
-    body: body ? JSON.stringify(body) : undefined
-  }).then(function(res){ return res.json().then(function(data){ if(!res.ok || !data.success) throw new Error(data.message || "Invoice storage failed."); return data; }); });
+  return invoiceAccessCode().then(function(code){
+    if(!code) throw new Error('Enter your invoice access code to use cloud storage.');
+    return fetch('/api/invoices'+(suffix||''),{
+      method:method, headers:{'Content-Type':'application/json','X-Invoice-Access-Code':code},
+      body:body ? JSON.stringify(body) : undefined, cache:'no-store', signal:AbortSignal.timeout(20000)
+    });
+  }).then(function(res){
+    if(res.status===401) { cloudCode=''; try{sessionStorage.removeItem(cloudKey);}catch(e){} }
+    return res.json().then(function(data){ if(!res.ok || !data.success) throw new Error(data.message||'Invoice storage failed. Please retry.'); return data; });
+  });
 }
+function validationError(){
+  var d=readForm();
+  if(!d.inv.trim() || d.inv.length>100) return 'Enter an invoice number (up to 100 characters).';
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(d.date) || !Number.isFinite(Date.parse(d.date)) || new Date(d.date).toISOString().slice(0,10)!==d.date) return 'Enter a valid invoice date.';
+  if(!d.buyer.trim() || !d.buyeraddr.trim()) return 'Enter the buyer name and address.';
+  if(!state.rows.length || state.rows.length>200) return 'Add between 1 and 200 items.';
+  for(var i=0;i<state.rows.length;i++){
+    var r=state.rows[i];
+    if(!String(r.desc||'').trim() || String(r.qty).trim()==='' || !Number.isFinite(Number(r.qty)) || Number(r.qty)<=0 || String(r.rate).trim()==='' || !Number.isFinite(Number(r.rate)) || Number(r.rate)<0 || !Number.isFinite(Number(r.gst)) || Number(r.gst)<0 || Number(r.gst)>100) return 'Item '+(i+1)+': enter a description, positive quantity, non-negative rate and valid GST.';
+  }
+  if(d.freight && (!Number.isFinite(Number(d.freight)) || Number(d.freight)<0)) return 'Freight must be a non-negative amount.';
+  return '';
+}
+function validateForOutput(){ var error=validationError(); if(error){ cloudStatus(error,true); alert(error); return false; } return true; }
 function saveInvoiceToCloud(){
-  var btn = $("cloudSave"), old = btn.textContent, d = readForm();
-  btn.disabled = true; btn.textContent = "Saving…";
-  cloudRequest("POST", "", { invoice_number:d.inv, invoice_date:d.date, buyer_name:d.buyer, document:{fields:d, rows:state.rows, sig:state.sigPersist} })
-    .then(function(){ setSaveState("Saved to cloud"); })
-    .catch(function(err){ alert(err.message || "Could not save invoice"); })
-    .then(function(){ btn.disabled=false; btn.textContent=old; });
+  if(!validateForOutput()) return;
+  var btn=$('cloudSave'), doc=currentDocument(), ref=state.cloudRef, stamp=fingerprint(doc);
+  btn.disabled=true; btn.textContent='Saving…'; cloudStatus('Saving invoice to cloud…');
+  var payload={invoice_number:doc.fields.inv,invoice_date:doc.fields.date,buyer_name:doc.fields.buyer,document:doc};
+  if(ref){payload.id=ref.id;payload.updated_at=ref.updated_at;}
+  return cloudRequest(ref ? 'PATCH':'POST','',payload).then(function(data){
+    state.cloudRef={id:data.invoice.id,updated_at:data.invoice.updated_at,fingerprint:stamp};
+    recordInvoice(); save(); refreshCloudStatus();
+  }).catch(function(err){ cloudStatus(err.message || 'Save failed. Please retry.',true); })
+    .finally(function(){ btn.disabled=false; btn.textContent=state.cloudRef ? 'Save Changes':'Save Invoice'; });
 }
 function loadInvoiceFromCloud(){
-  var number = window.prompt("Enter the Invoice Number to open");
-  if (!number) return;
-  cloudRequest("GET", "?number=" + encodeURIComponent(number))
-    .then(function(data){
-      var inv = data.invoices && data.invoices[0];
-      if (!inv) throw new Error("No saved invoice found with that number.");
-      var doc = inv.document || {};
-      if (doc.fields) applyValues(doc.fields);
-      if (Array.isArray(doc.rows) && doc.rows.length) state.rows = doc.rows;
-      state.sig = doc.sig || null; state.sigPersist = doc.sig || null; state.invDirty = true;
-      renderRows(); render(); checkDuplicate(); save(); setSaveState("Loaded from cloud");
-    })
-    .catch(function(err){ alert(err.message || "Could not load invoice"); });
+  listOffset=0; $('invoiceSearch').value=''; $('savedDialog').showModal(); searchInvoices();
 }
+function searchInvoices(){
+  var requestId=++listRequest;
+  $('savedStatus').textContent='Loading saved invoices…'; $('savedResults').replaceChildren();
+  $('savedPrev').disabled=true; $('savedNext').disabled=true;
+  cloudRequest('GET','?q='+encodeURIComponent($('invoiceSearch').value.trim())+'&offset='+listOffset).then(function(data){
+    if(requestId!==listRequest) return;
+    var rows=data.invoices||[];
+    $('savedStatus').textContent=rows.length ? 'Showing '+(listOffset+1)+'–'+(listOffset+rows.length)+' · most recently updated first' : 'No saved invoices found.';
+    rows.forEach(function(inv){
+      var card=document.createElement('article'); card.className='saved-card';
+      var heading=document.createElement('strong'); heading.textContent=inv.invoice_number; card.appendChild(heading);
+      var details=document.createElement('p'); details.textContent=(inv.buyer_name||'Buyer not recorded')+' · '+inv.invoice_date; card.appendChild(details);
+      var actions=document.createElement('div'); actions.className='actions';
+      [['Open / Edit',false],['Download PDF',true]].forEach(function(item){
+        var btn=document.createElement('button'); btn.type='button'; btn.className='secondary'; btn.textContent=item[0];
+        btn.addEventListener('click',function(){ btn.disabled=true; openCloudInvoice(inv.id,item[1]).finally(function(){btn.disabled=false;}); }); actions.appendChild(btn);
+      }); card.appendChild(actions); $('savedResults').appendChild(card);
+    });
+    $('savedPrev').disabled=listOffset===0; $('savedNext').disabled=!data.has_more;
+  }).catch(function(err){if(requestId===listRequest) $('savedStatus').textContent=err.message||'Could not load invoices. Please retry.';});
+}
+function openCloudInvoice(id, download){
+  var ref=state.cloudRef, hasDetails=readForm().buyer.trim() || state.rows.some(function(r){return String(r.desc||'').trim();});
+  if(hasDetails && (!ref || ref.fingerprint!==fingerprint(currentDocument())) && !confirm('This will replace the current draft with the saved invoice. Save your changes first if you want to keep them. Continue?')) return Promise.resolve();
+  $('savedStatus').textContent='Opening invoice…';
+  return cloudRequest('GET','?id='+encodeURIComponent(id)).then(function(data){
+    var inv=data.invoices[0]; if(!inv) throw new Error('This invoice could not be found. Refresh the list.');
+    var doc=inv.document; setDefaults(); applyValues(doc.fields);
+    $('title').value='INVOICE'; $('inv').value=inv.invoice_number; $('date').value=inv.invoice_date;
+    state.rows=doc.rows.map(function(r){var b=blankRow();ROW_FIELDS.forEach(function(k){if(r[k]!=null)b[k]=r[k];});return b;});
+    state.sig=doc.sig||null; state.sigPersist=doc.sig||null; state.invDirty=true;
+    state.cloudRef={id:inv.id,updated_at:inv.updated_at,fingerprint:fingerprint(currentDocument())};
+    renderRows(); render(); checkDuplicate(); save(); refreshCloudStatus(); $('savedDialog').close();
+    if(download) {cloudStatus('Preparing PDF…'); return loadPdfLibs().then(makePdf).then(function(){refreshCloudStatus();});}
+  }).catch(function(err){ $('savedStatus').textContent=err.message; cloudStatus(err.message,true); });
+}
+function wireCloud(){
+  $('accessForm').addEventListener('submit',function(e){e.preventDefault(); var code=$('accessCode').value.trim(); if(!code){$('accessError').textContent='Enter your access code.';return;} finishAccess(code);});
+  $('accessCancel').addEventListener('click',function(){finishAccess('');});
+  $('accessDialog').addEventListener('cancel',function(e){e.preventDefault();finishAccess('');});
+  $('savedClose').addEventListener('click',function(){$('savedDialog').close();});
+  $('savedSearchForm').addEventListener('submit',function(e){e.preventDefault();listOffset=0;searchInvoices();});
+  $('savedPrev').addEventListener('click',function(){listOffset=Math.max(0,listOffset-30);searchInvoices();});
+  $('savedNext').addEventListener('click',function(){listOffset+=30;searchInvoices();});
+  $('cloudLock').addEventListener('click',function(){finishAccess('');cloudStatus('Cloud storage locked. Enter the access code next time you save or open an invoice.');});
+  refreshCloudStatus();
+}
+
 
 /* ============================================================
    EVENTS
 ============================================================ */
 
 function wire(){
+  wireCloud();
   /* Any static field: live re-render */
   TEXT_FIELDS.concat(SELECT_FIELDS).forEach(function(k){
     var el = $(k);
@@ -1444,11 +1522,13 @@ function wire(){
   $("cloudLoad").addEventListener("click", loadInvoiceFromCloud);
 
   $("print").addEventListener("click", function(){
+    if (!validateForOutput()) return;
     recordInvoice();
     window.print();
   });
 
   $("download").addEventListener("click", function(){
+    if (!validateForOutput()) return;
     var btn = $("download"), old = btn.textContent;
     btn.disabled = true; btn.textContent = "Preparing…";
     loadPdfLibs().then(function(){
@@ -1468,17 +1548,19 @@ function wire(){
   $("newInv").addEventListener("click", function(){
     if (!confirm("Start a new invoice? The current items and buyer details will be cleared. Your saved company settings are kept.")) return;
     state.rows = [blankRow()];
+    state.cloudRef = null;
     state.invDirty = false;
     ["buyer","buyeraddr","exim","pan","inv"].forEach(function(k){ $(k).value = ""; });
     $("freight").value = DEFAULTS.freight;
     $("date").value = toISO(new Date());
-    $("validUntil").value = validUntilFor($("date").value);
     proposeInvoice(true);
     renderRows(); render(); checkDuplicate(); save();
   });
 
   $("dupInv").addEventListener("click", function(){
+    recordInvoice();
     state.rows = JSON.parse(JSON.stringify(state.rows));
+    state.cloudRef = null;
     state.invDirty = false;
     proposeInvoice(true);
     render(); checkDuplicate(); save();
@@ -1495,11 +1577,11 @@ function wire(){
   $("clearInv").addEventListener("click", function(){
     if (!confirm("Clear this invoice (buyer, items, number, date)? Company settings are kept.")) return;
     state.rows = [blankRow()];
+    state.cloudRef = null;
     state.invDirty = false;
     ["buyer","buyeraddr","exim","pan","inv"].forEach(function(k){ $(k).value = ""; });
     $("freight").value = DEFAULTS.freight;
     $("date").value = toISO(new Date());
-    $("validUntil").value = validUntilFor($("date").value);
     proposeInvoice(true);
     renderRows(); render(); checkDuplicate(); save();
   });
@@ -1514,6 +1596,7 @@ function wire(){
     seq = { last: {}, used: [] };
     state.rows = [blankRow()];
     state.sig = null; state.sigPersist = null;
+    state.cloudRef = null;
     state.invDirty = false; state.storageOK = true;
     setDefaults(); proposeInvoice(true);
     renderRows(); render(); checkDuplicate();
@@ -1592,6 +1675,7 @@ function boot(){
   }
 
   if (state.storageOK) loadAll();
+  $("title").value="INVOICE";
 
   state.rows = (state.rows && state.rows.length) ? state.rows : [blankRow()];
 
@@ -1600,7 +1684,7 @@ function boot(){
   checkDuplicate();
   wire();
 
-  if (state.storageOK) setSaveState("Saved");
+  if (state.storageOK) setSaveState("Draft saved in browser");
 }
 
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
@@ -1610,3 +1694,5 @@ else boot();
 </script>
 </body>
 </html>
+
+
