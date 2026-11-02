@@ -281,6 +281,8 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
     <div class="actions">
       <button id="print" type="button">Print / Save PDF</button>
       <button class="good" id="download" type="button">Download PDF</button>
+      <button class="good" id="cloudSave" type="button">Save Invoice</button>
+      <button class="secondary" id="cloudLoad" type="button">Open Saved Invoice</button>
     </div>
     <div class="actions">
       <button class="secondary" id="newInv" type="button">+ New invoice</button>
@@ -1319,6 +1321,51 @@ function importSettings(file){
 }
 
 /* ============================================================
+   CLOUD SAVE / EDIT
+============================================================ */
+function invoiceAccessCode(){
+  var code = sessionStorage.getItem("usoa.final-invoice.b.access-code") || "";
+  if (!code) {
+    code = window.prompt("Enter the Invoice access code");
+    if (!code) return null;
+    sessionStorage.setItem("usoa.final-invoice.b.access-code", code);
+  }
+  return code;
+}
+function cloudRequest(method, suffix, body){
+  var code = invoiceAccessCode();
+  if (!code) return Promise.reject(new Error("Invoice access code is required."));
+  return fetch("/api/invoices" + (suffix || ""), {
+    method: method,
+    headers: {"Content-Type":"application/json","X-Invoice-Access-Code":code},
+    body: body ? JSON.stringify(body) : undefined
+  }).then(function(res){ return res.json().then(function(data){ if(!res.ok || !data.success) throw new Error(data.message || "Invoice storage failed."); return data; }); });
+}
+function saveInvoiceToCloud(){
+  var btn = $("cloudSave"), old = btn.textContent, d = readForm();
+  btn.disabled = true; btn.textContent = "Saving…";
+  cloudRequest("POST", "", { invoice_number:d.inv, invoice_date:d.date, buyer_name:d.buyer, document:{fields:d, rows:state.rows, sig:state.sigPersist} })
+    .then(function(){ setSaveState("Saved to cloud"); })
+    .catch(function(err){ alert(err.message || "Could not save invoice"); })
+    .then(function(){ btn.disabled=false; btn.textContent=old; });
+}
+function loadInvoiceFromCloud(){
+  var number = window.prompt("Enter the Invoice Number to open");
+  if (!number) return;
+  cloudRequest("GET", "?number=" + encodeURIComponent(number))
+    .then(function(data){
+      var inv = data.invoices && data.invoices[0];
+      if (!inv) throw new Error("No saved invoice found with that number.");
+      var doc = inv.document || {};
+      if (doc.fields) applyValues(doc.fields);
+      if (Array.isArray(doc.rows) && doc.rows.length) state.rows = doc.rows;
+      state.sig = doc.sig || null; state.sigPersist = doc.sig || null; state.invDirty = true;
+      renderRows(); render(); checkDuplicate(); save(); setSaveState("Loaded from cloud");
+    })
+    .catch(function(err){ alert(err.message || "Could not load invoice"); });
+}
+
+/* ============================================================
    EVENTS
 ============================================================ */
 
@@ -1392,6 +1439,9 @@ function wire(){
       e.target.value = "";
     });
   });
+
+  $("cloudSave").addEventListener("click", saveInvoiceToCloud);
+  $("cloudLoad").addEventListener("click", loadInvoiceFromCloud);
 
   $("print").addEventListener("click", function(){
     recordInvoice();
