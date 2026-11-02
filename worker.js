@@ -315,6 +315,33 @@ async function verifyWebhookSignature(
   return expected === signature;
 }
 
+
+function invoiceApiConfigured(env) {
+  return Boolean(String(env.SUPABASE_URL || "").trim() && String(env.SUPABASE_SECRET_KEY || "").trim() && String(env.INVOICE_ACCESS_CODE || "").trim());
+}
+function invoiceAuthorized(request, env) {
+  return request.headers.get("x-invoice-access-code") === String(env.INVOICE_ACCESS_CODE || "");
+}
+async function invoiceDb(env, path, init = {}) {
+  const response = await fetch(String(env.SUPABASE_URL).replace(/\/$/, "") + "/rest/v1/" + path, {
+    ...init,
+    headers: {
+      apikey: String(env.SUPABASE_SECRET_KEY),
+      Authorization: "Bearer " + String(env.SUPABASE_SECRET_KEY),
+      "Content-Type": "application/json",
+      ...(init.headers || {})
+    }
+  });
+  const body = await response.json().catch(() => ({}));
+  return { response, body };
+}
+function invoicePayload(data) {
+  const invoiceNumber = String(data?.invoice_number || "").trim().slice(0, 100);
+  const invoiceDate = String(data?.invoice_date || "").trim();
+  if (!invoiceNumber || !/^\\d{4}-\\d{2}-\\d{2}$/.test(invoiceDate) || !data?.document || typeof data.document !== "object") return null;
+  return { invoice_number: invoiceNumber, invoice_date: invoiceDate, buyer_name: String(data.buyer_name || "").trim().slice(0, 300) || null, document: data.document };
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -571,6 +598,28 @@ export default {
       return jsonResponse({
         success: true
       });
+    }
+
+
+    // Secure final-invoice storage API. Secrets remain only in this Worker.
+    if (url.pathname === "/api/invoices") {
+      if (!invoiceApiConfigured(env)) return jsonResponse({ success:false, message:"Invoice storage is not configured." }, 503);
+      if (!invoiceAuthorized(request, env)) return jsonResponse({ success:false, message:"Invoice access code is required." }, 401);
+      try {
+        if (request.method === "GET") {
+          const number = String(url.searchParams.get("number") || "").trim();
+          const path = number ? "invoices?select=*&invoice_number=eq." + encodeURIComponent(number) + "&limit=1" : "invoices?select=id,invoice_number,invoice_date,buyer_name,updated_at&order=updated_at.desc&limit=100";
+          const {response, body} = await invoiceDb(env, path, {method:"GET"});
+          return jsonResponse({success:response.ok, invoices:body}, response.ok ? 200 : 502);
+        }
+        if (request.method === "POST") {
+          const payload = invoicePayload(await request.json());
+          if (!payload) return jsonResponse({success:false,message:"Invoice number, date and document are required."},400);
+          const {response, body} = await invoiceDb(env, "invoices?on_conflict=invoice_number", {method:"POST", headers:{"Prefer":"resolution=merge-duplicates,return=representation"}, body:JSON.stringify(payload)});
+          return jsonResponse({success:response.ok, invoice:Array.isArray(body)?body[0]:body}, response.ok ? 200 : 502);
+        }
+      } catch (error) { console.error("Invoice storage error", error); return jsonResponse({success:false,message:"Invoice storage request failed."},500); }
+      return jsonResponse({success:false,message:"Method not allowed."},405);
     }
 
     // Static website
