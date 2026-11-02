@@ -317,13 +317,13 @@ async function verifyWebhookSignature(
 
 
 function invoiceApiConfigured(env) {
-  return Boolean(String(env.SUPABASE_URL || "").trim() && String(env.SUPABASE_SECRET_KEY || "").trim() && String(env.INVOICE_ACCESS_CODE || "").trim());
+  return Boolean(String(env.SUPABASE_URL || "https://jpettksywgsptjnidhqw.supabase.co").trim() && String(env.SUPABASE_SECRET_KEY || "").trim() && String(env.INVOICE_ACCESS_CODE || "").trim());
 }
 function invoiceAuthorized(request, env) {
   return request.headers.get("x-invoice-access-code") === String(env.INVOICE_ACCESS_CODE || "");
 }
 async function invoiceDb(env, path, init = {}) {
-  const response = await fetch(String(env.SUPABASE_URL).replace(/\/$/, "") + "/rest/v1/" + path, {
+  const response = await fetch(String(env.SUPABASE_URL || "https://jpettksywgsptjnidhqw.supabase.co").replace(/\/$/, "") + "/rest/v1/" + path, {
     ...init,
     headers: {
       apikey: String(env.SUPABASE_SECRET_KEY),
