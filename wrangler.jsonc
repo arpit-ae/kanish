@@ -10,6 +10,7 @@
   "vars": {
     "CASHFREE_ENV": "production",
     "SUPABASE_URL": "https://jpettksywgsptjnidhqw.supabase.co",
+    "DOCS_SUPABASE_URL": "https://eamrwaqgbjrddhkzittb.supabase.co",
     "DOCS_SUPABASE_BUCKET": "private-documents",
     "DOCS_MAX_UPLOAD_BYTES": "10485760"
   }
