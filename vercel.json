@@ -1,6 +1,18 @@
 {
   "rewrites": [
     {
+      "source": "/documents",
+      "destination": "/documents.html"
+    },
+    {
+      "source": "/upload",
+      "destination": "/upload.html"
+    },
+    {
+      "source": "/verify",
+      "destination": "/verify.html"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/server.js"
     }

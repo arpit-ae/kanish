@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Verify document | USOA GROUP</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="documents.css">
+</head>
+<body>
+  <div class="top"><div class="container"><span><strong>USOA GROUP</strong> · Secure document access</span><a href="/documents">Document centre</a></div></div>
+  <header><nav class="container"><a class="brand" href="/"><span class="mark">🐝</span>USOA <span>GROUP</span></a><div class="links"><a href="/">Home</a><a href="/documents">Documents</a><a class="cta" href="/upload">Upload document</a></div></nav></header>
+  <main class="documents-shell narrow">
+    <a class="back" href="/documents">← Document centre</a>
+    <section class="document-panel" id="verify-panel">
+      <p class="eyebrow">Secure verification</p>
+      <h1>Verify your document</h1>
+      <p class="panel-lead">Enter the document VPIN. Your document will open within this website; downloading is optional.</p>
+      <form id="verify-form" class="documents-form" novalidate>
+        <label>Document VPIN<input name="vpin" type="password" autocomplete="off" minlength="8" maxlength="64" required></label>
+        <button class="btn dark" type="submit">Verify and view document</button>
+        <p id="form-message" class="form-message" aria-live="polite"></p>
+      </form>
+    </section>
+    <section id="document-viewer" class="document-viewer" hidden aria-live="polite">
+      <div class="viewer-heading"><div><p class="eyebrow">Verified document</p><h2 id="document-name">Document</h2></div><a id="download-link" class="btn gold" href="#" download>Download document</a></div>
+      <div id="pdf-viewer" class="pdf-pages" aria-label="Verified PDF document" hidden></div>
+      <p id="preview-status" role="status"></p>
+      <img id="image-viewer" alt="Verified document preview" hidden>
+    </section>
+  </main>
+  <script type="module" src="documents.js"></script>
+</body>
+</html>

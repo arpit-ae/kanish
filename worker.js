@@ -1,4 +1,5 @@
 import { handleInvoices } from './invoices.js';
+import { handleDocuments, documentPage } from './documents-api.js';
 const CASHFREE_API_VERSION = "2025-01-01";
 
 const CASHFREE_SANDBOX = "https://sandbox.cashfree.com/pg";
@@ -316,14 +317,17 @@ async function verifyWebhookSignature(
   return expected === signature;
 }
 
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname.startsWith('/api/documents/')) return handleDocuments(request, env);
+    const page = documentPage(request, env);
+    if (page) return page;
 
     if (request.method === "OPTIONS") {
       return jsonResponse({ success: true });
     }
+
 
     // Safe configuration check. Add ?verify=1 for a read-only Cashfree auth probe.
     if (
@@ -574,7 +578,6 @@ export default {
         success: true
       });
     }
-
 
     // Supabase access is restricted to this authenticated server endpoint.
     if (url.pathname === '/api/invoices') return handleInvoices(request, env);

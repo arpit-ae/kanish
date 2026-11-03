@@ -2,9 +2,23 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { randomUUID, createHmac, timingSafeEqual } from "crypto";
+import { handleDocuments } from "../documents-api.js";
 dotenv.config();
 
 const app = express();
+
+// Keep document requests isolated from the payment parsers and permissive payment CORS.
+app.all('/api/documents/*', express.raw({type:()=>true,limit:10485760+65536}),async(req,res)=>{
+  const headers=new Headers();
+  for(const [key,value]of Object.entries(req.headers))if(typeof value==='string'&&!['host','content-length','cf-connecting-ip'].includes(key))headers.set(key,value);
+  if(process.env.VERCEL)headers.set('CF-Connecting-IP',String(req.headers['x-vercel-forwarded-for']||'unknown').split(',')[0].trim());
+  else headers.set('CF-Connecting-IP',req.socket.remoteAddress||'unknown');
+  const origin=process.env.SITE_URL||'https://'+req.get('host');
+  const request=new Request(new URL(req.originalUrl,origin),{method:req.method,headers,...(!['GET','HEAD'].includes(req.method)?{body:req.body}: {})});
+  const response=await handleDocuments(request,process.env);
+  res.status(response.status);for(const [key,value]of response.headers)res.setHeader(key,value);
+  res.send(Buffer.from(await response.arrayBuffer()));
+});
 
 app.use(cors());
 

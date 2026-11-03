@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Upload document | USOA GROUP</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="documents.css">
+</head>
+<body>
+  <div class="top"><div class="container"><span><strong>USOA GROUP</strong> · Secure document access</span><a href="/documents">Document centre</a></div></div>
+  <header><nav class="container"><a class="brand" href="/"><span class="mark">🐝</span>USOA <span>GROUP</span></a><div class="links"><a href="/">Home</a><a href="/documents">Documents</a><a class="cta" href="/verify">Verify document</a></div></nav></header>
+  <main class="documents-shell narrow">
+    <a class="back" href="/documents">← Document centre</a>
+    <section class="document-panel">
+      <p class="eyebrow">Authorized upload</p>
+      <h1>Upload a protected document</h1>
+      <p class="panel-lead">The UPIN is only for authorized upload. Create a strong, unique VPIN and share it only with the person who should access this document.</p>
+      <form id="upload-form" class="documents-form" enctype="multipart/form-data" novalidate>
+        <label>Admin UPIN<input name="upin" type="password" autocomplete="off" minlength="8" maxlength="64" required></label>
+        <label>Create a unique VPIN<input name="vpin" type="password" autocomplete="new-password" minlength="8" maxlength="64" required><small>8–64 characters. Use a strong code with letters and numbers; do not reuse it.</small></label>
+        <label>Document file<input name="document" type="file" accept="application/pdf,image/jpeg,image/png" required><small>PDF, JPG or PNG only · maximum 10 MB</small></label>
+        <button class="btn dark" type="submit">Upload document</button>
+        <p id="form-message" class="form-message" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+  <script type="module" src="documents.js"></script>
+</body>
+</html>

@@ -1,5 +1,9 @@
 worker.js
 invoices.js
+documents-api.js
+scripts/
+work/
+outputs/
 wrangler.jsonc
 node_modules/
 tests/
