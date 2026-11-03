@@ -11,6 +11,7 @@ let records,objects,requests,allow,failStore;
 beforeEach(()=>{
   records=[];objects=new Map();requests=[];allow=true;failStore=false;
   globalThis.fetch=async(url,init={})=>{
+    assert.equal(init.redirect,'manual','Workerd requires supported redirect mode; credentials must not follow redirects');
     const u=new URL(url);requests.push({url:String(url),init});
     if(u.pathname.startsWith('/rest/')||u.pathname.startsWith('/storage/')&&!u.search){
       assert.equal(init.headers.apikey,env.DOCS_SUPABASE_SERVICE_ROLE_KEY);assert.equal(init.headers.Authorization,undefined);

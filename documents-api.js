@@ -38,7 +38,8 @@ function config(env) {
 async function api(c,path,init={}) {
   const headers={apikey:c.key,...init.headers};
   if(!c.key.startsWith('sb_secret_')) headers.Authorization='Bearer '+c.key;
-  return fetch(c.base+path,{...init,headers,signal:AbortSignal.timeout(20000),redirect:'error'});
+  // Workerd supports manual/follow, not redirect:error. Never forward secrets to redirects.
+  return fetch(c.base+path,{...init,headers,signal:AbortSignal.timeout(20000),redirect:'manual'});
 }
 async function limitedBody(request,limit) {
   if(Number(request.headers.get('content-length'))>limit) throw error('Request is too large.',413);
@@ -135,7 +136,7 @@ async function view(request,c) {
   if(typeof path!=='string'||!path.startsWith('/object/sign/'))throw error('Unable to open the document.',502);
   const range=request.headers.get('Range');
   if(range&&!/^bytes=\d+-\d*$/.test(range))throw error('Invalid document range.',416);
-  const file=await fetch(c.base+'/storage/v1'+path,{headers:range?{Range:range}:{},signal:AbortSignal.timeout(20000),redirect:'error'});
+  const file=await fetch(c.base+'/storage/v1'+path,{headers:range?{Range:range}:{},signal:AbortSignal.timeout(20000),redirect:'manual'});
   if(![200,206,416].includes(file.status))throw error('Unable to open the document.',502);
   const headers=new Headers({...commonHeaders,'Content-Type':doc.content_type,'Content-Disposition':`${url.searchParams.get('download')==='1'?'attachment':'inline'}; filename="${safeName(doc.original_name,doc.content_type)}"`,'Cross-Origin-Resource-Policy':'same-origin','Content-Security-Policy':"default-src 'none'; frame-ancestors 'self'; sandbox"});
   for(const key of ['Content-Length','Content-Range','Accept-Ranges'])if(file.headers.has(key))headers.set(key,file.headers.get(key));
