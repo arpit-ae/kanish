@@ -124,7 +124,8 @@ async function view(request,c) {
   const [payload,signature,...rest]=token.split('.');
   const session=request.headers.get('cookie')?.split(';').map(v=>v.trim()).find(v=>v.startsWith(cookieName+'='))?.slice(cookieName.length+1);
   let data;try{data=JSON.parse(new TextDecoder().decode(unb64(payload)));}catch{throw error('Verify the VPIN to view this document.',401);}
-  if(rest.length||!session||!uuid.test(data.id)||!Number.isFinite(data.expires)||data.expires<Date.now()||data.expires>Date.now()+300000||!equal(await hmac('view:'+payload,c.pepper),unb64(signature||''))||data.session!==b64(await hmac('session:'+session,c.pepper)))throw error('Document access has expired. Verify the VPIN again.',401);
+  let signatureBytes;try{signatureBytes=unb64(signature||'');}catch{throw error('Verify the VPIN again.',401);}
+  if(rest.length||!session||!uuid.test(data.id)||!Number.isFinite(data.expires)||data.expires<Date.now()||data.expires>Date.now()+300000||!equal(await hmac('view:'+payload,c.pepper),signatureBytes)||data.session!==b64(await hmac('session:'+session,c.pepper)))throw error('Document access has expired. Verify the VPIN again.',401);
   const r=await api(c,'/rest/v1/documents?select=storage_path,original_name,content_type&id=eq.'+data.id+'&ready=eq.true&limit=1');
   if(!r.ok)throw error('Unable to open the document.',502);
   const [doc]=await r.json();if(!doc||!TYPES.includes(doc.content_type))throw error('Document unavailable.',404);
@@ -157,13 +158,12 @@ export async function handleDocuments(request,env) {
 }
 export function documentPage(request,env) {
   const url=new URL(request.url),pages={'/documents':'/documents.html','/upload':'/upload.html','/verify':'/verify.html'};
-  if(!pages[url.pathname])return null;
+  if(!pages[url.pathname]&&!Object.values(pages).includes(url.pathname))return null;
   return (async()=>{
-    url.pathname=pages[url.pathname];
     const asset=await env.ASSETS.fetch(new Request(url,{method:request.method,headers:request.headers}));
     const headers=new Headers(asset.headers);
     for(const [k,v]of Object.entries(commonHeaders))headers.set(k,v);
-    headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob:; frame-src 'self'; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'");
+    headers.set('Content-Security-Policy',"default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' blob:; frame-src 'self'; connect-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'self'");
     return new Response(asset.body,{status:asset.status,headers});
   })();
 }
