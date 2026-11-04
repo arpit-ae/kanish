@@ -40,7 +40,7 @@ begin
   insert into public.docs_attempts values (p_action||':'||case when p_action='pin' then p_pin else p_ip end,bucket_time,1)
   on conflict(scope,bucket) do update set attempts=public.docs_attempts.attempts+1 returning attempts into counter;
   delete from public.docs_attempts where bucket < now()-interval '1 day';
-  limit_count := case when p_action='upload' then 5 when p_action='pin' then 6 else 10 end;
+  limit_count := case when p_action='upload' then 100 when p_action='pin' then 6 else 10 end;
   return counter<=limit_count and global_counter<=120;
 end;
 $$;
