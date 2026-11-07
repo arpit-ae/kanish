@@ -69,11 +69,12 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
 .company .website{position:absolute;top:2.5mm;right:3mm;font-size:10px;line-height:12px;font-weight:700}
 .company .website.is-empty{display:none}
 .company .addr{font-size:10px}
-.company .cols{display:flex;justify-content:space-between;padding:1px 8px 0;align-items:flex-start}
-.company .col,.company .mid,.company .right{line-height:14px}
+.company .cols{display:flex;flex-wrap:wrap;justify-content:space-between;padding:1px 8px 0;align-items:flex-start}
+.company .col,.company .mid,.company .right,.company .certificate-lines{line-height:14px}
 .company .col{text-align:left;width:32%}
 .company .mid{text-align:center;width:36%}
 .company .right{text-align:right;width:32%}
+.company .certificate-lines{flex:0 0 100%;text-align:left;white-space:nowrap}
 .cl{display:block}
 .cl.is-empty{display:none}
 
@@ -201,8 +202,8 @@ dialog{border:1px solid #ccd5d0;border-radius:12px;padding:24px;width:min(680px,
     <div><label for="fssai">FSSAI L. No.</label><input id="fssai"></div>
     <div><label for="uam">Udyam / UAM No.</label><input id="uam"></div>
     <div><label for="apeda">APEDA RCMC No.</label><input id="apeda" placeholder="not set"></div>
-    <div><label for="mandi">NBB Training Certificate Regd. No.</label><input id="mandi" placeholder="not set"></div>
     <div><label for="nbb">NBB Certificate No.</label><input id="nbb" placeholder="not set"></div>
+    <div><label for="mandi">NBB Training Certificate Regd. No.</label><input id="mandi" placeholder="not set"></div>
     <div><label for="nbbreg">NBB Regd. No.</label><input id="nbbreg" placeholder="not set"></div>
     <div><label for="phone">Phone</label><input id="phone"></div>
     <div><label for="mobile">Mobile</label><input id="mobile"></div>
@@ -574,8 +575,6 @@ function headerHTML(d){
   html +=     '<div class="col">'
             +   cl("IE CODE: ", d.ie)
             +   cl("APEDA RCMC No: ", d.apeda)
-            +   cl("NBB Training Certificate Regd. No. ", d.mandi)
-            +   cl("NBB Certificate No: ", d.nbb)
             + '</div>';
   html +=     '<div class="mid">'
             +   '<span class="cl">Ph. : ' + esc(d.phone) + ' &nbsp;Mob.: ' + esc(d.mobile) + '</span>'
@@ -586,6 +585,10 @@ function headerHTML(d){
             +   cl("UAM No: ", d.uam)
             +   cl("FSSAI L. No: ", d.fssai)
             +   cl("Regd. No: ", d.nbbreg)
+            + '</div>';
+  html +=     '<div class="certificate-lines">'
+            +   cl("NBB Certificate No: ", d.nbb)
+            +   cl("NBB Training Certificate Regd. No. ", d.mandi)
             + '</div>';
   html +=   '</div>';
   html += '</div>';
