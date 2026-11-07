@@ -201,7 +201,7 @@ dialog{border:1px solid #ccd5d0;border-radius:12px;padding:24px;width:min(680px,
     <div><label for="fssai">FSSAI L. No.</label><input id="fssai"></div>
     <div><label for="uam">Udyam / UAM No.</label><input id="uam"></div>
     <div><label for="apeda">APEDA RCMC No.</label><input id="apeda" placeholder="not set"></div>
-    <div><label for="mandi">MANDI L. No.</label><input id="mandi" placeholder="not set"></div>
+    <div><label for="mandi">NBB Training Certificate Regd. No.</label><input id="mandi" placeholder="not set"></div>
     <div><label for="nbb">NBB Certificate No.</label><input id="nbb" placeholder="not set"></div>
     <div><label for="nbbreg">NBB Regd. No.</label><input id="nbbreg" placeholder="not set"></div>
     <div><label for="phone">Phone</label><input id="phone"></div>
@@ -209,7 +209,7 @@ dialog{border:1px solid #ccd5d0;border-radius:12px;padding:24px;width:min(680px,
     <div class="full"><label for="email">Email</label><input id="email"></div>
     <div class="full"><label for="website">Website</label><input id="website" placeholder="https://www.usoagroup.in"></div>
   </div>
-  <p class="help">Blank credential lines are hidden on the invoice automatically. Fill APEDA / MANDI / NBB once and they are remembered in this browser.</p>
+  <p class="help">Blank credential lines are hidden on the invoice automatically. Fill APEDA / NBB details once and they are remembered in this browser.</p>
   </div>
 
   <div class="group"><h2>Buyer</h2><div class="grid">
@@ -358,7 +358,7 @@ var DEFAULTS = {
   "fssai": "10426999000397",
   "uam": "UDYAM-BR-23-0085469",
   "apeda": "34331/2026-2027",
-  "mandi": "",
+  "mandi": "622/SAB&RM/RPCAU, Pusa",
   "nbb": "20260813225",
   "nbbreg": "DE5/6/11X/Nov26/NBB",
   "phone": "+919142703535",
@@ -574,7 +574,7 @@ function headerHTML(d){
   html +=     '<div class="col">'
             +   cl("IE CODE: ", d.ie)
             +   cl("APEDA RCMC No: ", d.apeda)
-            +   cl("MANDI L.No: ", d.mandi)
+            +   cl("NBB Training Certificate Regd. No. ", d.mandi)
             +   cl("NBB Certificate No: ", d.nbb)
             + '</div>';
   html +=     '<div class="mid">'
