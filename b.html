@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Invoice | USOA GROUP</title>
+<title>Commercial Invoice | USOA GROUP</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef1f5;color:#111}
@@ -184,11 +184,11 @@ dialog{border:1px solid #ccd5d0;border-radius:12px;padding:24px;width:min(680px,
     <a class="back" href="/">&larr; Back to USOA GROUP</a>
     <span class="save-state" id="saveState">Ready</span>
   </div>
-  <h1>Invoice</h1>
+  <h1>Commercial Invoice</h1>
   <p class="muted">USOA GROUP &mdash; A4 invoice builder. Fill the form, then Print or Download PDF.</p>
 
   <div class="group"><h2>Document</h2><div class="grid">
-    <div class="full"><label for="title">Invoice title</label><input id="title" value="INVOICE" readonly></div>
+    <div class="full"><label for="title">Invoice title</label><input id="title" value="COMMERCIAL INVOICE" readonly></div>
     <div><label for="nameFont">Company name style</label><select id="nameFont"><option value="script">Script (handwritten)</option><option value="plain">Plain bold</option></select></div>
     <div><label for="date">Invoice Date</label><input id="date" type="date"></div>
   </div></div>
@@ -352,7 +352,7 @@ var ROW_FIELDS = ["desc","hsn","qty","unit","rate","gst","packs","range","netWt"
    invoice carried another company's values for these and they could not be
    verified, so they must be filled in by the business before use. */
 var DEFAULTS = {
-  title:"INVOICE",
+  title:"COMMERCIAL INVOICE",
   nameFont:"script",
   company:"USOA GROUP",
   address:"SHIVRAHA CHATURBHUJ, JHAPAHA, 842004, MUZAFFARPUR, BIHAR",
@@ -558,7 +558,7 @@ function headerHTML(d){
   var nameClass = "company" + (d.nameFont === "plain" ? " plain" : "");
 
   var html = "";
-  html += '<div class="pi-title">' + esc(d.title || "INVOICE") + '</div>';
+  html += '<div class="pi-title">' + esc(d.title || "COMMERCIAL INVOICE") + '</div>';
   html += '<div class="' + nameClass + '">';
   html +=   '<div class="website' + (String(d.website || "").trim() ? "" : " is-empty") + '">Website: ' + esc(d.website) + '</div>';
   html +=   '<div class="name">' + esc(d.company) + '</div>';
@@ -1308,7 +1308,7 @@ function importSettings(file){
         state.rows = [blankRow()];
       }
       state.sig = (o.draft && o.draft.sig) || null; state.sigPersist = state.sig;
-      $("title").value="INVOICE";
+      $("title").value="COMMERCIAL INVOICE";
       if (o.seq){ seq.last = o.seq.last || {}; seq.used = Array.isArray(o.seq.used) ? o.seq.used : []; }
       state.storageOK = true;
       renderRows(); render(); checkDuplicate(); save();
@@ -1421,7 +1421,7 @@ function openCloudInvoice(id, download){
   return cloudRequest('GET','?id='+encodeURIComponent(id)).then(function(data){
     var inv=data.invoices[0]; if(!inv) throw new Error('This invoice could not be found. Refresh the list.');
     var doc=inv.document; setDefaults(); applyValues(doc.fields);
-    $('title').value='INVOICE'; $('inv').value=inv.invoice_number; $('date').value=inv.invoice_date;
+    $('title').value='COMMERCIAL INVOICE'; $('inv').value=inv.invoice_number; $('date').value=inv.invoice_date;
     state.rows=doc.rows.map(function(r){var b=blankRow();ROW_FIELDS.forEach(function(k){if(r[k]!=null)b[k]=r[k];});return b;});
     state.sig=doc.sig||null; state.sigPersist=doc.sig||null; state.invDirty=true;
     state.cloudRef={id:inv.id,updated_at:inv.updated_at,fingerprint:fingerprint(currentDocument())};
@@ -1675,7 +1675,7 @@ function boot(){
   }
 
   if (state.storageOK) loadAll();
-  $("title").value="INVOICE";
+  $("title").value="COMMERCIAL INVOICE";
 
   state.rows = (state.rows && state.rows.length) ? state.rows : [blankRow()];
 
