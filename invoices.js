@@ -1,7 +1,7 @@
 // Final invoices use a server-only Supabase key. No credential is sent to browsers.
 const MAX_BODY = 3 * 1024 * 1024;
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const fieldNames = ('title company address ie gst fssai uam apeda mandi nbb nbbreg phone mobile email buyer buyeraddr exim pan supply inv code freight payment incoterms loading discharge shipment contact contactno bankname account branch ifsc adcode swift jurisdiction website supplyType exportTax nameFont date').split(' ');
+const fieldNames = ('title company address ie gst fssai uam apeda mandi nbb nbbreg phone mobile email buyer buyeraddr exim pan supply inv code dispatchThrough vehicleNo freight payment incoterms loading discharge shipment contact contactno bankname account branch ifsc adcode swift jurisdiction website supplyType exportTax nameFont date').split(' ');
 const rowNames = 'desc hsn qty unit rate gst packs range netWt grossWt'.split(' ');
 function reply(data, status = 200) {
   return Response.json(data, {status, headers:{'Cache-Control':'no-store', 'X-Content-Type-Options':'nosniff'}});
@@ -29,7 +29,7 @@ export function validateInvoice(data) {
   if (fields.freight && (!Number.isFinite(Number(fields.freight)) || Number(fields.freight) < 0)) throw new Error('Freight must be a non-negative amount.');
   const sig = doc.sig || null;
   if (sig && (typeof sig !== 'string' || sig.length > 2800000 || !/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(sig))) throw new Error('Use a smaller PNG or JPG signature.');
-  fields.inv = number; fields.date = date; fields.title = 'INVOICE';
+  fields.inv = number; fields.date = date; fields.title = fields.title || 'COMMERCIAL INVOICE';
   return {invoice_number:number, invoice_date:date, buyer_name:fields.buyer, document:{fields,rows,sig}};
 }
 async function database(env, query, init = {}) {

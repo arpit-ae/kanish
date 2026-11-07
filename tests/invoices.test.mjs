@@ -9,7 +9,32 @@ const good=()=>({invoice_number:'INV/2026-27/001',invoice_date:'2026-11-02',docu
 const request=(method='POST',body=good(),query='',code='test-code')=>new Request('https://example.com/api/invoices'+query,{method,headers:{'X-Invoice-Access-Code':code,'Content-Type':'application/json'},body:method==='GET'?undefined:JSON.stringify(body)});
 const realFetch=globalThis.fetch;
 afterEach(()=>{globalThis.fetch=realFetch;});
-test('accept valid date and item; normalize stored invoice labels',()=>{const p=validateInvoice(good());assert.equal(p.document.fields.title,'INVOICE');assert.equal(p.invoice_date,'2026-11-02');});
+test('accept valid date and item; preserve editable invoice title', () => {
+ const normalized = validateInvoice(good());
+ assert.equal(normalized.document.fields.title, 'COMMERCIAL INVOICE');
+ assert.equal(normalized.invoice_date, '2026-11-02');
+ const custom = good();
+ custom.document.fields.title = 'CUSTOM INVOICE';
+ assert.equal(validateInvoice(custom).document.fields.title, 'CUSTOM INVOICE');
+});
+test('dispatch details survive validation and saving, with blanks for older invoices', async () => {
+ const payload = good();
+ payload.document.fields.dispatchThrough = 'Road transport';
+ payload.document.fields.vehicleNo = 'BR 06 AB 1234';
+ const fields = validateInvoice(payload).document.fields;
+ assert.equal(fields.dispatchThrough, 'Road transport');
+ assert.equal(fields.vehicleNo, 'BR 06 AB 1234');
+ globalThis.fetch = async (url, init) => {
+  const saved = JSON.parse(init.body);
+  assert.equal(saved.document.fields.dispatchThrough, 'Road transport');
+  assert.equal(saved.document.fields.vehicleNo, 'BR 06 AB 1234');
+  return Response.json([{id, ...saved}], {status: 201});
+ };
+ assert.equal((await handleInvoices(request('POST', payload), env)).status, 201);
+ const olderFields = validateInvoice(good()).document.fields;
+ assert.equal(olderFields.dispatchThrough, '');
+ assert.equal(olderFields.vehicleNo, '');
+});
 test('reject impossible dates, blank buyer/address/items, invalid numeric amounts',()=>{
  for(const change of [p=>p.invoice_date='2026-02-30',p=>p.document.fields.buyer='',p=>p.document.fields.buyeraddr='',p=>p.document.rows=[],p=>p.document.rows[0].desc='',p=>p.document.rows[0].qty='0',p=>p.document.rows[0].qty='NaN',p=>p.document.rows[0].rate='',p=>p.document.rows[0].rate='-2',p=>p.document.rows[0].gst='101']){const p=good();change(p);assert.throws(()=>validateInvoice(p));}
 });
