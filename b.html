@@ -71,10 +71,11 @@ button.tiny{padding:4px 8px;font-size:11px;border-radius:5px}
 .company .addr{font-size:10px}
 .company .cols{display:flex;flex-wrap:wrap;justify-content:space-between;padding:1px 8px 0;align-items:flex-start}
 .company .col,.company .mid,.company .right,.company .certificate-lines{line-height:14px}
-.company .col{text-align:left;width:32%}
-.company .mid{text-align:center;width:36%}
-.company .right{text-align:right;width:32%}
-.company .certificate-lines{flex:0 0 100%;text-align:left;white-space:nowrap}
+.company .details-left{flex:1 1 68%;min-width:max-content;display:grid;grid-template-columns:minmax(0,32fr) minmax(0,36fr);align-content:start}
+.company .col{text-align:left}
+.company .mid{text-align:center}
+.company .right{text-align:right;flex:0 0 32%;margin-left:auto}
+.company .certificate-lines{grid-column:1/-1;text-align:left;white-space:nowrap}
 .cl{display:block}
 .cl.is-empty{display:none}
 
@@ -572,23 +573,25 @@ function headerHTML(d){
   html +=   '<div class="name">' + esc(d.company) + '</div>';
   html +=   '<div class="addr">' + esc(d.address) + '</div>';
   html +=   '<div class="cols">';
-  html +=     '<div class="col">'
-            +   cl("IE CODE: ", d.ie)
-            +   cl("APEDA RCMC No: ", d.apeda)
-            + '</div>';
-  html +=     '<div class="mid">'
-            +   '<span class="cl">Ph. : ' + esc(d.phone) + ' &nbsp;Mob.: ' + esc(d.mobile) + '</span>'
-            +   cl("Mail ID: ", d.email)
-            + '</div>';
+  html +=     '<div class="details-left">';
+  html +=       '<div class="col">'
+            +     cl("IE CODE: ", d.ie)
+            +     cl("APEDA RCMC No: ", d.apeda)
+            +   '</div>';
+  html +=       '<div class="mid">'
+            +     '<span class="cl">Ph. : ' + esc(d.phone) + ' &nbsp;Mob.: ' + esc(d.mobile) + '</span>'
+            +     cl("Mail ID: ", d.email)
+            +   '</div>';
+  html +=       '<div class="certificate-lines">'
+            +     cl("NBB Certificate No: ", d.nbb)
+            +     cl("NBB Training Certificate Regd. No. ", d.mandi)
+            +   '</div>';
+  html +=     '</div>';
   html +=     '<div class="right">'
             +   cl("GSTIN: ", d.gst)
             +   cl("UAM No: ", d.uam)
             +   cl("FSSAI L. No: ", d.fssai)
             +   cl("Regd. No: ", d.nbbreg)
-            + '</div>';
-  html +=     '<div class="certificate-lines">'
-            +   cl("NBB Certificate No: ", d.nbb)
-            +   cl("NBB Training Certificate Regd. No. ", d.mandi)
             + '</div>';
   html +=   '</div>';
   html += '</div>';
