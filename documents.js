@@ -66,6 +66,22 @@
 
   const verifyForm = document.querySelector("#verify-form");
   if (verifyForm) {
+    function prefillVpin() {
+      const vpin = new URLSearchParams(window.location.hash.slice(1)).get("vpin");
+      if (vpin === null) return;
+
+      // A QR carries the VPIN in a fragment, which is omitted from HTTP requests.
+      const verifyUrl = new URL(window.location.href);
+      verifyUrl.hash = "";
+      window.history.replaceState(window.history.state, "", verifyUrl);
+      if (/^[A-Za-z0-9!@#$%^&*_-]{8,64}$/.test(vpin)) {
+        verifyForm.elements.namedItem("vpin").value = vpin;
+        setMessage("VPIN filled from the QR link. Select Verify and view document to continue.");
+      }
+    }
+    prefillVpin();
+    window.addEventListener("hashchange", prefillVpin);
+
     verifyForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       if(!verifyForm.reportValidity())return;
