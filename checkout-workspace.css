@@ -1,0 +1,55 @@
+.checkout-workspace {
+  background: #edf2e9;
+  color: #173d32;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.checkout-workspace .card {
+  border: 1px solid #d6e0d4;
+  border-radius: 20px;
+  background: #fffefa;
+  box-shadow: 0 14px 42px #173d321c;
+}
+.checkout-workspace h1 {
+  color: #173d32;
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: -.03em;
+  font-weight: 600;
+}
+.checkout-back {
+  display: inline-block;
+  margin-bottom: 13px;
+  color: #895319;
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+.checkout-label {
+  color: #895319;
+  font-size: .75rem;
+  letter-spacing: .12em;
+  font-weight: 800;
+}
+.checkout-workspace .product,
+.checkout-workspace .order {
+  background: #edf2e9;
+  border-color: #d6e0d4;
+  color: #173d32;
+}
+.checkout-workspace .price { color: #287150; }
+.checkout-workspace input {
+  border-color: #bfcfc1;
+  border-radius: 8px;
+  background: #fff;
+  color: #173d32;
+}
+.checkout-workspace button, .checkout-workspace .button {
+  border-radius: 9px;
+  background: #173d32;
+  color: #fff;
+}
+.checkout-workspace button:hover, .checkout-workspace .button:hover {
+  background: #235044;
+}
+.checkout-workspace :focus-visible {
+  outline: 3px solid #b16b21;
+  outline-offset: 3px;
+}

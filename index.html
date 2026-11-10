@@ -1,909 +1,254 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>USOA GROUP | Honey, Beekeeping, Bee Colonies & Equipment</title>
-<meta name="description" content="USOA GROUP - Honey, beekeeping, bee colonies, bee equipment and bee products. Wholesale and export-import business enquiries from Muzaffarpur, Bihar, India.">
-<meta name="keywords" content="USOA GROUP, honey, bee keeping, beekeeping, bee colony, bee colonies, bee equipment, bee products, honey wholesale, honey export, honey import, Muzaffarpur Bihar, Arpit Kumar">
-<meta name="author" content="USOA GROUP">
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="https://usoagroup.shop/">
-
-<meta property="og:type" content="website">
-<meta property="og:title" content="USOA GROUP | Honey & Beekeeping">
-<meta property="og:description" content="Honey, bee colonies, beekeeping equipment and bee products. Wholesale and export-import enquiries.">
-<meta property="og:url" content="https://usoagroup.shop/">
-
-<style>
-:root{
-  --ink:#152015;
-  --ink2:#1e3020;
-  --honey:#e8a91b;
-  --honey2:#ffc94f;
-  --amber:#a96e00;
-  --cream:#fffaf0;
-  --cream2:#f5ead0;
-  --paper:#ffffff;
-  --soft:#f7f4eb;
-  --muted:#687267;
-  --line:#e8dec8;
-  --green:#246b3d;
-  --wa:#168a43;
-  --shadow:0 18px 60px rgba(30,42,27,.10);
-  --shadow2:0 30px 90px rgba(28,38,24,.16);
-  --radius:24px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
-  color:var(--ink);background:var(--cream);line-height:1.65;overflow-x:hidden
-}
-a{text-decoration:none;color:inherit}
-button,input,textarea,select{font:inherit}
-.container{width:min(1220px,92%);margin:auto}
-.section{padding:105px 0}
-.white{background:var(--paper)}
-.dark{background:var(--ink);color:#fff}
-.muted-bg{background:var(--soft)}
-.kicker{
-  color:var(--amber);font-size:.76rem;font-weight:950;
-  letter-spacing:2px;text-transform:uppercase
-}
-.dark .kicker{color:var(--honey2)}
-.section-title{
-  max-width:800px;margin:0 auto 55px;text-align:center
-}
-.section-title h2{
-  font-size:clamp(2.25rem,4.5vw,4rem);
-  line-height:1.03;letter-spacing:-2px;margin:10px 0 16px
-}
-.section-title h2 span{color:var(--honey)}
-.section-title p{color:var(--muted)}
-.dark .section-title p{color:#c5cec4}
-
-/* top bar */
-.topbar{
-  background:var(--ink);color:#e8eee6;
-  font-size:.82rem;padding:9px 0;border-bottom:1px solid #304032
-}
-.topbar .container{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
-.topbar strong{color:var(--honey2)}
-.topbar a:hover{color:var(--honey2)}
-
-/* header */
-header{
-  position:sticky;top:0;z-index:1000;
-  background:rgba(255,250,240,.94);backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--line)
-}
-.nav{
-  min-height:80px;display:flex;align-items:center;justify-content:space-between;gap:25px
-}
-.logo{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.6px;font-size:1.35rem}
-.logo-mark{
-  width:46px;height:46px;border-radius:15px;background:var(--ink);
-  display:grid;place-items:center;font-size:1.5rem;box-shadow:0 8px 25px rgba(0,0,0,.14)
-}
-.logo-text span{color:var(--amber)}
-.navlinks{display:flex;align-items:center;gap:20px;font-size:.9rem;font-weight:800}
-.navlinks a:hover{color:var(--amber)}
-.navlinks .navbtn{background:var(--ink);color:#fff;padding:11px 17px;border-radius:11px}
-.menu{display:none;border:0;background:var(--ink);color:#fff;border-radius:11px;width:45px;height:45px;cursor:pointer;font-size:1.25rem}
-
-/* document shortcuts */
-.doc-shortcuts{padding:17px 0 21px;background:#fffdf7;border-bottom:1px solid var(--line)}
-.doc-shortcuts h2{color:var(--amber);font-size:.75rem;font-weight:950;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
-.doc-shortcut-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-.doc-shortcut{display:flex;align-items:center;gap:13px;padding:14px 17px;background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 5px 18px rgba(30,42,27,.04);transition:transform .2s,border-color .2s}
-.doc-shortcut:hover{transform:translateY(-2px);border-color:var(--honey)}
-.doc-shortcut:focus-visible{outline:3px solid var(--amber);outline-offset:3px}
-.doc-shortcut-icon{display:grid;place-items:center;flex-shrink:0;width:43px;height:43px;background:#fff0c9;border-radius:12px;color:#865700}
-.doc-shortcut-icon svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.doc-shortcut strong{display:block;font-size:.97rem;line-height:1.35}
-.doc-shortcut small{display:block;margin-top:3px;color:var(--muted);font-size:.77rem}
-@media(max-width:600px){
-  .doc-shortcuts{padding:13px 0 16px}
-  .doc-shortcut-grid{gap:8px}
-  .doc-shortcut{flex-direction:column;gap:8px;padding:12px 7px;text-align:center}
-  .doc-shortcut strong{font-size:.84rem}
-  .doc-shortcut small{display:none}
-  .doc-shortcut-icon{width:37px;height:37px;border-radius:10px}
-  .doc-shortcut-icon svg{width:23px;height:23px}
-}
-
-/* hero */
-.hero{
-  min-height:760px;display:flex;align-items:center;position:relative;overflow:hidden;
-  background:
-    radial-gradient(circle at 90% 18%,rgba(255,198,69,.35),transparent 27%),
-    radial-gradient(circle at 4% 90%,rgba(218,165,39,.15),transparent 25%),
-    linear-gradient(135deg,#fffdf6 0%,#f5e6bd 100%)
-}
-.hero:after{
-  content:"";position:absolute;right:-130px;bottom:-170px;width:430px;height:430px;
-  border:70px solid rgba(232,169,27,.12);border-radius:50%
-}
-.hero-grid{
-  display:grid;grid-template-columns:1.04fr .96fr;gap:65px;align-items:center;position:relative;z-index:2
-}
-.badge{
-  display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:100px;
-  background:#f4df9f;border:1px solid #e2c46b;color:#72500b;font-size:.75rem;font-weight:950
-}
-.hero h1{
-  font-size:clamp(3.1rem,6.7vw,6.4rem);line-height:.92;letter-spacing:-5px;margin:24px 0 27px
-}
-.hero h1 span{color:var(--amber)}
-.hero-lead{font-size:1.14rem;color:var(--muted);max-width:720px}
-.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:9px;
-  padding:14px 20px;border:2px solid var(--ink);border-radius:13px;font-weight:900;transition:.22s
-}
-.btn-primary{background:var(--ink);color:#fff}
-.btn-primary:hover{transform:translateY(-3px);box-shadow:0 13px 30px rgba(21,32,21,.18)}
-.btn-light{background:#fff}
-.btn-gold{background:var(--honey);border-color:var(--honey);color:var(--ink)}
-.btn-gold:hover{transform:translateY(-3px)}
-.hero-note{margin-top:22px;font-size:.8rem;color:#697365}
-.hero-art{
-  min-height:555px;border-radius:38px;position:relative;overflow:hidden;
-  background:
-    radial-gradient(circle at 35% 30%,rgba(255,255,255,.45),transparent 20%),
-    linear-gradient(145deg,#f6cd61 0%,#c57d07 100%);
-  box-shadow:var(--shadow2);display:grid;place-items:center
-}
-.hero-bee{font-size:9rem;filter:drop-shadow(0 22px 20px rgba(61,38,0,.22))}
-.art-label{
-  position:absolute;background:rgba(255,255,255,.95);border:1px solid rgba(0,0,0,.05);
-  border-radius:17px;padding:14px 17px;box-shadow:var(--shadow);font-weight:900
-}
-.art-a{top:27px;left:27px}.art-b{right:27px;top:145px}.art-c{left:27px;bottom:30px}.art-d{right:27px;bottom:30px}
-.honey-dots{position:absolute;inset:0;pointer-events:none}
-.honey-dots i{position:absolute;width:8px;height:8px;background:rgba(255,255,255,.45);border-radius:50%}
-.honey-dots i:nth-child(1){left:12%;top:22%}.honey-dots i:nth-child(2){left:73%;top:18%;width:13px;height:13px}
-.honey-dots i:nth-child(3){left:82%;top:70%}.honey-dots i:nth-child(4){left:18%;top:76%;width:12px;height:12px}
-
-/* trust */
-.trust{background:var(--ink);color:#fff;padding:23px 0}
-.trust-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;text-align:center}
-.trust-item{padding:7px;border-right:1px solid #314033}
-.trust-item:last-child{border-right:0}
-.trust-item strong{display:block;color:var(--honey2);font-size:.98rem}
-.trust-item span{font-size:.76rem;color:#bbc5ba}
-
-/* intro */
-.intro-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:60px;align-items:center}
-.intro-card{
-  min-height:450px;border-radius:30px;background:var(--ink);color:#fff;
-  padding:38px;position:relative;overflow:hidden;box-shadow:var(--shadow2)
-}
-.intro-card:before{
-  content:"";position:absolute;width:300px;height:300px;border-radius:50%;
-  background:var(--honey);right:-120px;top:-120px;opacity:.9
-}
-.intro-card:after{
-  content:"";position:absolute;width:180px;height:180px;border-radius:50%;
-  border:35px solid rgba(255,255,255,.07);left:-75px;bottom:-70px
-}
-.intro-stat{position:relative;z-index:2;max-width:320px}
-.intro-stat h3{font-size:2.2rem;line-height:1.05;margin:12px 0}
-.intro-stat p{color:#cbd4c9}
-.intro-emoji{position:absolute;z-index:2;bottom:24px;right:35px;font-size:7rem}
-.intro-copy h3{font-size:2.35rem;line-height:1.1;margin:9px 0 18px}
-.intro-copy>p{color:var(--muted);margin-bottom:14px}
-.checks{display:grid;gap:12px;margin-top:24px}
-.checks div{display:flex;gap:11px;align-items:flex-start}
-.checks b{color:var(--amber)}
-
-/* product */
-.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.product{
-  background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;
-  transition:.25s;box-shadow:0 8px 30px rgba(45,50,31,.05)
-}
-.product:hover{transform:translateY(-7px);box-shadow:var(--shadow)}
-.product-image{
-  min-height:205px;display:grid;place-items:center;
-  background:linear-gradient(135deg,#fff1bd,#edc34f);font-size:5.2rem
-}
-.product-body{padding:25px}
-.product-body .tag{
-  display:inline-block;font-size:.7rem;font-weight:900;color:var(--amber);
-  text-transform:uppercase;letter-spacing:1px;margin-bottom:7px
-}
-.product-body h3{font-size:1.38rem;margin-bottom:8px}
-.product-body p{color:var(--muted);font-size:.91rem}
-.product-link{display:inline-block;margin-top:17px;color:var(--amber);font-weight:950}
-
-/* services */
-.service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.service{
-  padding:29px;border:1px solid #304133;background:#1b2a1c;border-radius:20px
-}
-.service-icon{font-size:2rem}.service h3{margin:11px 0 7px}
-.service p{color:#c2ccc1;font-size:.91rem}
-
-/* capability */
-.cap-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
-.cap{
-  padding:28px;background:#fff;border:1px solid var(--line);border-radius:20px
-}
-.cap-top{display:flex;justify-content:space-between;gap:15px;align-items:center}
-.cap-icon{font-size:2rem}.cap h3{margin:7px 0}
-.cap p{color:var(--muted);font-size:.91rem}
-
-/* process */
-.process{display:grid;grid-template-columns:repeat(4,1fr);gap:17px}
-.step{background:#fff;border:1px solid var(--line);border-radius:19px;padding:26px}
-.step-num{font-size:2rem;font-weight:950;color:var(--amber)}
-.step h3{margin:5px 0 7px}.step p{color:var(--muted);font-size:.88rem}
-
-/* compliance */
-.compliance{
-  background:linear-gradient(135deg,#152015,#243826);color:#fff;border-radius:30px;padding:45px
-}
-.compliance-grid{display:grid;grid-template-columns:1fr 1fr;gap:25px;align-items:start}
-.compliance h2{font-size:clamp(2rem,4vw,3.4rem);line-height:1.05}
-.compliance h2 span{color:var(--honey2)}
-.compliance p{color:#c7d0c5;margin-top:14px}
-.credential-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.credential{
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
-  border-radius:15px;padding:17px
-}
-.credential small{display:block;color:#aeb8ad;font-size:.72rem;text-transform:uppercase;letter-spacing:1px;font-weight:900}
-.credential strong{display:block;color:#fff;margin-top:4px;font-size:.9rem;word-break:break-word}
-
-/* business scope */
-.scope-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.scope{
-  text-align:center;padding:26px 18px;background:#fff;border:1px solid var(--line);border-radius:20px
-}
-.scope .big{font-size:2.4rem}.scope h3{margin:7px 0}.scope p{font-size:.82rem;color:var(--muted)}
-
-/* testimonials-ish facts */
-.fact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.fact{
-  background:var(--ink);color:#fff;border-radius:22px;padding:31px
-}
-.fact .quote{font-size:2rem;color:var(--honey2)}
-.fact h3{margin:9px 0}.fact p{color:#c3cdc1;font-size:.9rem}
-
-/* faq */
-.faq{max-width:900px;margin:auto}
-details{background:#fff;border:1px solid var(--line);border-radius:15px;margin:11px 0;padding:19px 22px}
-summary{cursor:pointer;font-weight:900}
-details p{color:var(--muted);padding-top:11px}
-
-/* contact */
-.contact-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:22px}
-.contact-card{background:#fff;border:1px solid var(--line);border-radius:23px;padding:31px}
-.contact-card h3{font-size:1.5rem;margin-bottom:12px}
-.contact-row{display:flex;gap:15px;padding:16px 0;border-bottom:1px solid #eee6d7}
-.contact-row:last-child{border-bottom:0}
-.contact-icon{font-size:1.45rem}
-.contact-row strong{display:block}.contact-row span{color:var(--muted);font-size:.88rem}
-.form{display:grid;gap:12px}
-.form input,.form select,.form textarea{
-  width:100%;border:1px solid var(--line);background:#fffdf7;border-radius:11px;padding:13px 14px;outline:none
-}
-.form input:focus,.form select:focus,.form textarea:focus{border-color:var(--honey)}
-.form textarea{min-height:135px;resize:vertical}
-.form-note{font-size:.75rem;color:var(--muted)}
-
-/* CTA */
-.cta{
-  background:
-    radial-gradient(circle at 90% 20%,rgba(255,196,61,.28),transparent 27%),
-    var(--ink);color:#fff;padding:90px 0
-}
-.cta-grid{display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center}
-.cta h2{font-size:clamp(2.2rem,4.5vw,4rem);line-height:1.02;letter-spacing:-2px}
-.cta h2 span{color:var(--honey2)}
-.cta p{color:#c6d0c5;max-width:760px;margin-top:13px}
-
-/* footer */
-footer{background:#0d150e;color:#dbe3d9;padding:58px 0 25px}
-.footer-grid{display:grid;grid-template-columns:1.55fr 1fr 1fr 1.2fr;gap:35px}
-.footer-brand{font-size:1.45rem;font-weight:950;color:#fff}
-.footer-brand span{color:var(--honey2)}
-.footer-grid p{color:#98a397;font-size:.86rem;margin-top:11px}
-.footer-col h4{color:#fff;margin-bottom:12px}
-.footer-col a{display:block;color:#aab4a9;font-size:.86rem;margin:7px 0}
-.footer-col a:hover{color:var(--honey2)}
-.legal{margin-top:35px;padding-top:20px;border-top:1px solid #263126;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;color:#748074;font-size:.76rem}
-
-/* floating buttons */
-.float-wa{
-  position:fixed;right:20px;bottom:20px;z-index:1100;background:var(--wa);color:#fff;
-  border-radius:50px;padding:13px 18px;font-weight:950;box-shadow:0 14px 35px rgba(0,0,0,.25)
-}
-.float-wa:hover{transform:translateY(-3px)}
-.to-top{
-  position:fixed;right:20px;bottom:79px;z-index:1099;width:43px;height:43px;border:0;border-radius:50%;
-  background:#fff;color:var(--ink);box-shadow:var(--shadow);cursor:pointer;display:none;font-weight:950
-}
-
-/* responsive */
-@media(max-width:1000px){
-  .navlinks{display:none;position:absolute;top:80px;left:0;right:0;background:var(--cream);
-    padding:20px 5%;border-bottom:1px solid var(--line);flex-direction:column;align-items:flex-start}
-  .navlinks.open{display:flex}.menu{display:block}
-  .hero{min-height:auto;padding:75px 0}.hero-grid,.intro-grid,.contact-grid,.compliance-grid,.cta-grid{grid-template-columns:1fr}
-  .hero-art{min-height:420px}.product-grid,.service-grid{grid-template-columns:1fr 1fr}
-  .process{grid-template-columns:1fr 1fr}.scope-grid{grid-template-columns:1fr 1fr}
-  .trust-grid{grid-template-columns:1fr 1fr}.trust-item:nth-child(2){border-right:0}
-  .footer-grid{grid-template-columns:1fr 1fr}
-}
-@media(max-width:600px){
-  .section{padding:70px 0}.topbar .container{justify-content:center;text-align:center}
-  .hero h1{letter-spacing:-3px}.hero-art{min-height:320px;border-radius:27px}.hero-bee{font-size:6rem}
-  .art-b{top:105px}.art-a,.art-c{left:16px}.art-b,.art-d{right:16px}
-  .product-grid,.service-grid,.cap-grid,.fact-grid,.scope-grid,.process,.credential-grid,.trust-grid,.footer-grid{grid-template-columns:1fr}
-  .trust-item{border-right:0;border-bottom:1px solid #304033}.trust-item:last-child{border-bottom:0}
-  .intro-card,.compliance{padding:28px}.intro-emoji{font-size:5rem}
-  .actions .btn{width:100%}.cta .btn{width:100%}
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>USOA GROUP | Honey, Beekeeping Equipment &amp; Trade Enquiries</title>
+  <meta name="description" content="Enquire about honey, bee colonies, hive equipment, wholesale supply and trade with USOA GROUP in Muzaffarpur, Bihar.">
+  <link rel="canonical" href="https://usoagroup.shop/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="USOA GROUP | Honey &amp; Beekeeping">
+  <meta property="og:description" content="Honey, beekeeping supplies, wholesale and trade enquiries from Bihar, India.">
+  <meta property="og:url" content="https://usoagroup.shop/">
+  <meta name="theme-color" content="#173d32">
+  <link rel="stylesheet" href="styles.css">
+  <script src="site.js" defer></script>
 </head>
-
 <body>
-
-<div class="topbar">
-  <div class="container">
-    <div>🐝 <strong>USOA GROUP</strong> — Honey • Beekeeping • Bee Products • Equipment</div>
-    <div>📞 <a href="tel:+919142703535">+91 91427 03535</a> &nbsp; | &nbsp; ✉️ <a href="mailto:usoagroup@gmail.com">usoagroup@gmail.com</a></div>
-  </div>
-</div>
-
+<a class="skip-link" href="#main-content">Skip to content</a>
+<div class="top"><div class="container">
+  <span>USOA GROUP · Muzaffarpur, Bihar, India</span>
+  <div class="top-links"><a href="tel:+919142703535">+91 91427 03535</a><a href="mailto:usoagroup@gmail.com">usoagroup@gmail.com</a></div>
+</div></div>
 <header>
-  <div class="container">
-    <nav class="nav">
-      <a class="logo" href="index.html" aria-label="USOA GROUP Home">
-        <div class="logo-mark">🐝</div>
-        <div class="logo-text">USOA <span>GROUP</span></div>
-      </a>
-
-      <button class="menu" id="menuBtn" aria-label="Open navigation">☰</button>
-
-      <div class="navlinks" id="navLinks">
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#products">Products</a>
-        <a href="#services">Services</a>
-        <a href="#business">Business</a>
-        <a href="#credentials">Credentials</a>
-        <a href="#faq">FAQ</a>
-        <a href="#contact" class="navbtn">Contact Us</a>
-      </div>
-    </nav>
-  </div>
+  <nav class="container" aria-label="Main navigation">
+    <a class="brand" href="index.html" aria-label="USOA GROUP home"><span class="mark"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="24" cy="29" rx="8" ry="11"/><path d="M18 24c-11-1-13-11-7-13 5-2 9 5 10 8m9 5c11-1 13-11 7-13-5-2-9 5-10 8M17 29h14m-12 6h10M21 17l-3-5m9 5 3-5"/></svg></span><span class="wordmark">USOA <span>GROUP</span></span></a>
+    <button class="menu" id="menuBtn" type="button" aria-label="Open navigation" aria-controls="navLinks" aria-expanded="false">☰</button>
+    <div class="links" id="navLinks">
+      <a href="index.html" aria-current="page">Home</a><a href="about.html">About</a><a href="products.html">Products</a><a href="services.html">Services</a><a href="/documents">Documents</a><a class="cta" href="#contact">Contact</a>
+    </div>
+  </nav>
 </header>
-
-<main>
-
-<section class="doc-shortcuts" aria-labelledby="document-services-title">
-  <div class="container">
-    <h2 id="document-services-title">Document Services</h2>
-    <div class="doc-shortcut-grid">
-      <a class="doc-shortcut" href="/documents">
-        <span class="doc-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></span>
-        <span><strong>Documents</strong><small>All document services</small></span>
-      </a>
-      <a class="doc-shortcut" href="/verify">
-        <span class="doc-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6z"/><path d="m8 12 3 3 5-6"/></svg></span>
-        <span><strong>Verify / Download</strong><small>View and download with VPIN</small></span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- HERO -->
-<section class="hero" id="home">
-  <div class="container hero-grid">
-    <div>
-      <span class="badge">🍯 HONEY • BEEKEEPING • TRADE</span>
-      <h1>Nature's <span>Honey.</span><br>Business's<br>Right Partner.</h1>
-      <p class="hero-lead">
-        <strong>USOA GROUP</strong> deals in honey, bee keeping, bee colonies,
-        bee equipment and bee products, with wholesale and export-import
-        business enquiries.
-      </p>
-
-      <div class="actions">
-        <a class="btn btn-primary" href="https://wa.me/919142703535?text=Namaste%20USOA%20GROUP%2C%20I%20want%20to%20make%20a%20business%20enquiry.">💬 WhatsApp Enquiry</a>
-        <a class="btn btn-gold" href="#products">🍯 Explore Products</a>
-        <a class="btn btn-light" href="#contact">📞 Contact Business</a>
+<main id="main-content">
+  <section class="hero" id="home" aria-labelledby="hero-title">
+    <div class="container hero-grid">
+      <div>
+        <p class="eyebrow">Honey · Beekeeping · Wholesale</p>
+        <h1 id="hero-title">Honey and equipment for <span>the business of beekeeping.</span></h1>
+        <p class="lead">From honey and bee colonies to hive boxes and extractors, discuss what you need with USOA GROUP in Muzaffarpur, Bihar.</p>
+        <div class="buttons"><a class="btn dark" href="products.html">Explore products <span aria-hidden="true">→</span></a><a class="btn" href="#contact">Request a quote</a></div>
+        <p class="hero-caption">Enquiries welcome for wholesale supply and export-import trade.</p>
       </div>
-
-      <p class="hero-note">
-        Proprietor: <strong>Arpit Kumar</strong> • Muzaffarpur, Bihar, India
-      </p>
+      <svg class="hero-artwork" viewBox="0 0 570 505" role="img" aria-label="Illustration of a honey jar, stacked hive boxes and honeycomb">
+  <defs>
+    <pattern id="comb" x="0" y="0" width="58" height="50" patternUnits="userSpaceOnUse">
+      <path d="m0 0 14 8v17L0 33m29-17 14-8 15 8v17l-15 8-14-8zM0 33l14 8v9m44-17-15 8" fill="none" stroke="#b3c8a2" stroke-opacity=".22"/>
+    </pattern>
+    <linearGradient id="art-bg" x2="1" y2="1"><stop stop-color="#244f40"/><stop offset="1" stop-color="#122f27"/></linearGradient>
+    <linearGradient id="honey-jar" x2="1" y2="1"><stop stop-color="#ffe4a0"/><stop offset=".58" stop-color="#e2a843"/><stop offset="1" stop-color="#b96c25"/></linearGradient>
+    <linearGradient id="box-wood" x2="1" y2="1"><stop stop-color="#e1bc77"/><stop offset="1" stop-color="#b7814a"/></linearGradient>
+  </defs>
+  <rect width="570" height="505" fill="url(#art-bg)"/>
+  <path d="M0 0h570v505H0z" fill="url(#comb)"/>
+  <circle cx="424" cy="120" r="78" fill="#d9aa55" opacity=".92"/>
+  <circle cx="424" cy="120" r="63" fill="none" stroke="#f7d38d" stroke-opacity=".55"/>
+  <path d="M0 396c100-20 188-15 276 4s196 27 294-14v119H0z" fill="#0d281e" opacity=".7"/>
+  <ellipse cx="286" cy="433" rx="208" ry="32" fill="#081f17" opacity=".55"/>
+  <g stroke="#573d29" stroke-width="2.5" stroke-linejoin="round">
+    <path d="M254 264 378 214 498 249 375 302z" fill="#f2d6a0"/>
+    <path d="M254 264v103l121 49V302z" fill="url(#box-wood)"/>
+    <path d="M375 302v114l123-51V249z" fill="#9e6839"/>
+    <path d="M249 306 375 356 503 302v16l-128 53-126-49z" fill="#d8a768"/>
+    <path d="M249 353 375 405 503 350v16l-128 56-126-52z" fill="#e0b57a"/>
+    <path d="m279 299 38 15 10 15-39-16zM409 312l43-18-7 15-42 17zM279 350l38 15 10 15-39-16zM409 365l43-18-7 15-42 17z" fill="#5b442e"/>
+    <path d="m243 251 131-52 137 42-134 57z" fill="#f3dba9"/>
+    <path d="m243 251 134 47v13l-134-48zm134 47 134-57v13l-134 57z" fill="#d0a76f"/>
+    <path d="m272 253 103-41 106 33-104 43z" fill="none" stroke="#c0955f" stroke-width="1.5"/>
+  </g>
+  <g stroke="#653d22" stroke-width="2.5">
+    <path d="M105 273h101v18c0 10 13 21 17 36v73c0 13-10 21-23 22h-88c-13-1-23-9-23-22v-73c4-15 16-26 16-36z" fill="url(#honey-jar)"/>
+    <rect x="98" y="260" width="115" height="23" rx="7" fill="#986a36"/>
+    <path d="M108 266h95" stroke="#e9bc73"/>
+    <path d="M99 333h114v49H99z" fill="#fff0ce"/>
+    <path d="M105 310c2-7 5-11 10-15m-13 98v7c0 6 5 10 12 11" stroke="#ffedb2" stroke-width="4" stroke-linecap="round" fill="none"/>
+    <path d="M156 344c6 10 10 13 10 17a10 10 0 0 1-20 0c0-4 4-7 10-17z" fill="#e2a843" stroke-width="1.5"/>
+  </g>
+  <g fill="none" stroke="#f9d892" stroke-width="2" opacity=".8"><path d="M113 183c47-62 112-62 151-17s79 8 89-10" stroke-dasharray="4 8"/><path d="M357 151c-10-10 2-20 9-9 2-13 17-9 14 1"/><ellipse cx="371" cy="153" rx="13" ry="7" transform="rotate(-18 371 153)"/></g>
+  <path d="M40 54h45M40 62h27M485 453h44M502 461h27" fill="none" stroke="#e9c781" stroke-width="2" opacity=".8"/>
+</svg>
     </div>
+  </section>
 
-    <div class="hero-art">
-      <div class="honey-dots"><i></i><i></i><i></i><i></i></div>
-      <div class="hero-bee">🐝🍯</div>
-      <div class="art-label art-a">🍯 Honey</div>
-      <div class="art-label art-b">🐝 Bee Colonies</div>
-      <div class="art-label art-c">📦 Bee Equipment</div>
-      <div class="art-label art-d">🌍 Wholesale & Export</div>
+  <section class="quick-links" aria-label="Business and document services">
+    <div class="container quick-grid">
+      <a class="quick-link" href="/documents"><span class="quick-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6h16l8 8v28H12zM28 6v9h8M18 23h12M18 29h12M18 35h7"/></svg></span><span><strong>Document centre</strong><small>Find USOA document services</small></span></a>
+      <a class="quick-link" href="/verify"><span class="quick-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M24 5 39 11v12c0 9-6 15-15 20C15 38 9 32 9 23V11zM17 24l5 5 10-11"/></svg></span><span><strong>Verify or download</strong><small>Open a document with your VPIN</small></span></a>
+      <a class="quick-link" href="#credentials"><span class="quick-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 20h29m-7-7 7 7-7 7M40 31H11m7-7-7 7 7 7"/></svg></span><span><strong>Business registrations</strong><small>See official reference numbers</small></span></a>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- TRUST -->
-<section class="trust">
-  <div class="container trust-grid">
-    <div class="trust-item"><strong>🍯 Honey</strong><span>Supply & enquiries</span></div>
-    <div class="trust-item"><strong>🐝 Colonies</strong><span>Buy & sell enquiries</span></div>
-    <div class="trust-item"><strong>🧰 Equipment</strong><span>Beekeeping supplies</span></div>
-    <div class="trust-item"><strong>📦 Wholesale</strong><span>Business enquiries</span></div>
-    <div class="trust-item"><strong>🌍 Export / Import</strong><span>Trade enquiries</span></div>
-  </div>
-</section>
-
-<!-- ABOUT -->
-<section class="section white" id="about">
-  <div class="container intro-grid">
-    <div class="intro-card">
-      <div class="intro-stat">
-        <div class="kicker">USOA GROUP</div>
-        <h3>Built around honey, bees & beekeeping.</h3>
-        <p>
-          A business platform for product enquiries, beekeeping requirements,
-          wholesale and trade opportunities.
-        </p>
-      </div>
-      <div class="intro-emoji">🐝</div>
-    </div>
-
-    <div class="intro-copy">
-      <div class="kicker">About The Business</div>
-      <h3>From honey products to the equipment behind the hive.</h3>
-      <p>
-        <strong>USOA GROUP</strong> is a proprietorship business operated by
-        <strong>Arpit Kumar</strong>. The business scope includes honey,
-        bee keeping, bee colonies buy and sell, bee equipment and bee products.
-      </p>
-      <p>
-        USOA GROUP also welcomes <strong>wholesale</strong> and
-        <strong>export-import</strong> enquiries for suitable products and
-        commercial requirements.
-      </p>
-
-      <div class="checks">
-        <div><b>✓</b><span>Honey and honey-related business enquiries</span></div>
-        <div><b>✓</b><span>Bee keeping and bee colony buy/sell enquiries</span></div>
-        <div><b>✓</b><span>Bee boxes, extractors and other bee equipment</span></div>
-        <div><b>✓</b><span>Bee products and beekeeping supplies</span></div>
-        <div><b>✓</b><span>Wholesale and export-import enquiries</span></div>
+  <section class="section white" id="about">
+    <div class="container grid2">
+      <div class="title left"><p class="eyebrow">About USOA GROUP</p><h2>A business built around the hive</h2><p>Based in Muzaffarpur, Bihar, USOA GROUP handles enquiries for honey, bee colonies, equipment and related bee products.</p><div class="buttons"><a class="btn" href="about.html">About our business</a></div></div>
+      <div class="grid2">
+        <div class="fact"><strong>Honey and bee products</strong><span>Discuss product, pack size and quantity.</span></div>
+        <div class="fact"><strong>Hive equipment</strong><span>Enquire about boxes, extractors and accessories.</span></div>
+        <div class="fact"><strong>Commercial quantities</strong><span>Share volume and delivery requirements.</span></div>
+        <div class="fact"><strong>Trade enquiries</strong><span>Discuss destination and documentation.</span></div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- PRODUCTS -->
-<section class="section muted-bg" id="products">
-  <div class="container">
-    <div class="section-title">
-      <div class="kicker">Our Product Categories</div>
-      <h2>Everything Around the <span>Hive</span></h2>
-      <p>
-        Explore the main categories covered by USOA GROUP.
-        Contact us to discuss availability, quantity and commercial requirements.
-      </p>
-    </div>
-
-    <div class="product-grid">
-
-      <article class="product">
-        <div class="product-image">🍯</div>
-        <div class="product-body">
-          <div class="tag">Category 01</div>
-          <h3>Honey</h3>
-          <p>Honey products and honey-related supply enquiries for suitable customer and business requirements.</p>
-          <a class="product-link" href="products.html">View Products →</a>
-        </div>
-      </article>
-
-      <article class="product">
-        <div class="product-image">🐝</div>
-        <div class="product-body">
-          <div class="tag">Category 02</div>
-          <h3>Bee Colonies</h3>
-          <p>Buy and sell enquiries for bee colonies and related beekeeping requirements.</p>
-          <a class="product-link" href="products.html">Enquire Now →</a>
-        </div>
-      </article>
-
-      <article class="product">
-        <div class="product-image">📦</div>
-        <div class="product-body">
-          <div class="tag">Category 03</div>
-          <h3>Bee Boxes</h3>
-          <p>Bee boxes and hive-related equipment for beekeeping requirements.</p>
-          <a class="product-link" href="products.html">Enquire Now →</a>
-        </div>
-      </article>
-
-      <article class="product">
-        <div class="product-image">⚙️</div>
-        <div class="product-body">
-          <div class="tag">Category 04</div>
-          <h3>Honey Extractors</h3>
-          <p>Honey extraction equipment and related beekeeping equipment enquiries.</p>
-          <a class="product-link" href="products.html">View Equipment →</a>
-        </div>
-      </article>
-
-      <article class="product">
-        <div class="product-image">🧤</div>
-        <div class="product-body">
-          <div class="tag">Category 05</div>
-          <h3>Bee Equipment</h3>
-          <p>Beekeeping equipment, protective gear and other bee-related supplies.</p>
-          <a class="product-link" href="products.html">Explore →</a>
-        </div>
-      </article>
-
-      <article class="product">
-        <div class="product-image">🌍</div>
-        <div class="product-body">
-          <div class="tag">Category 06</div>
-          <h3>Wholesale & Trade</h3>
-          <p>Wholesale, export-import and commercial sourcing enquiries for suitable products.</p>
-          <a class="product-link" href="#contact">Business Enquiry →</a>
-        </div>
-      </article>
-
-    </div>
-  </div>
-</section>
-
-<!-- SERVICES -->
-<section class="section dark" id="services">
-  <div class="container">
-    <div class="section-title">
-      <div class="kicker">What We Offer</div>
-      <h2>Business <span>Services</span></h2>
-      <p>Connect with USOA GROUP for product, beekeeping and trade requirements.</p>
-    </div>
-
-    <div class="service-grid">
-      <div class="service"><div class="service-icon">🍯</div><h3>Honey Business</h3><p>Honey product enquiries, supply discussions and commercial requirements.</p></div>
-      <div class="service"><div class="service-icon">🐝</div><h3>Bee Colony Buy & Sell</h3><p>Enquiries related to buying and selling bee colonies and beekeeping requirements.</p></div>
-      <div class="service"><div class="service-icon">📦</div><h3>Bee Boxes</h3><p>Bee boxes and hive-related equipment enquiries for beekeeping operations.</p></div>
-      <div class="service"><div class="service-icon">⚙️</div><h3>Bee Equipment</h3><p>Honey extractors, gloves and other beekeeping equipment enquiries.</p></div>
-      <div class="service"><div class="service-icon">📈</div><h3>Wholesale</h3><p>Commercial quantity enquiries and wholesale business discussions.</p></div>
-      <div class="service"><div class="service-icon">🌍</div><h3>Export / Import</h3><p>Trade enquiries involving products, quantities, destinations and commercial requirements.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- BUSINESS SCOPE -->
-<section class="section white" id="business">
-  <div class="container">
-    <div class="section-title">
-      <div class="kicker">Business Scope</div>
-      <h2>One Business, <span>Many Possibilities</span></h2>
-      <p>
-        USOA GROUP covers the following business areas as provided in its business profile.
-      </p>
-    </div>
-
-    <div class="scope-grid">
-      <div class="scope"><div class="big">🍯</div><h3>Honey</h3><p>Honey products and related enquiries</p></div>
-      <div class="scope"><div class="big">🐝</div><h3>Bee Keeping</h3><p>Beekeeping activities and supplies</p></div>
-      <div class="scope"><div class="big">🐝</div><h3>Bee Colonies</h3><p>Buy and sell enquiries</p></div>
-      <div class="scope"><div class="big">🧰</div><h3>Bee Equipment</h3><p>Equipment and bee products</p></div>
-      <div class="scope"><div class="big">📦</div><h3>Wholesale</h3><p>Commercial quantity enquiries</p></div>
-      <div class="scope"><div class="big">🌍</div><h3>Export</h3><p>Export-related business enquiries</p></div>
-      <div class="scope"><div class="big">🚢</div><h3>Import</h3><p>Import-related business enquiries</p></div>
-      <div class="scope"><div class="big">🤝</div><h3>Trade</h3><p>Business-to-business discussions</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- PROCESS -->
-<section class="section muted-bg">
-  <div class="container">
-    <div class="section-title">
-      <div class="kicker">Simple & Direct</div>
-      <h2>How to Make a <span>Business Enquiry</span></h2>
-      <p>Give us the key details so your requirement can be discussed efficiently.</p>
-    </div>
-
-    <div class="process">
-      <div class="step"><div class="step-num">01</div><h3>Choose Product</h3><p>Tell us whether you need honey, colonies, boxes, equipment or another bee product.</p></div>
-      <div class="step"><div class="step-num">02</div><h3>Share Quantity</h3><p>Mention approximate quantity or the scale of your requirement.</p></div>
-      <div class="step"><div class="step-num">03</div><h3>Share Location</h3><p>Tell us your delivery location or destination for the enquiry.</p></div>
-      <div class="step"><div class="step-num">04</div><h3>Discuss Order</h3><p>Discuss availability, pricing, packaging, delivery and applicable terms.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- CREDENTIALS -->
-<section class="section white" id="credentials">
-  <div class="container">
-    <div class="compliance">
-      <div class="compliance-grid">
-        <div>
-          <div class="kicker">Business Identification</div>
-          <h2>Official <span>Business Details</span></h2>
-          <p>
-            The following identification and registration details are displayed
-            as supplied for USOA GROUP.
-          </p>
-          <div class="actions">
-            <a class="btn btn-gold" href="#contact">Contact USOA GROUP</a>
-            <a class="btn" style="border-color:#fff;color:#fff;background:transparent" href="https://wa.me/919142703535?text=Namaste%20USOA%20GROUP%2C%20please%20share%20details%20about%20your%20products.">WhatsApp</a>
-          </div>
-        </div>
-
-        <div class="credential-grid">
-          <div class="credential"><small>Business Name</small><strong>USOA GROUP</strong></div>
-          <div class="credential"><small>Proprietor</small><strong>Arpit Kumar</strong></div>
-          <div class="credential"><small>IEC</small><strong>PUSPK6683J</strong></div>
-          <div class="credential"><small>FSSAI Registration</small><strong>20425061000737</strong></div>
-          <div class="credential"><small>GSTIN</small><strong>10PUSPK6683J1ZQ</strong></div>
-          <div class="credential"><small>Udyam Registration</small><strong>UDYAM-BR-23-0085469</strong></div>
-        </div>
+  <section class="section soft" id="products">
+    <div class="container">
+      <div class="title"><p class="eyebrow">Products</p><h2>From honey to hive equipment</h2><p>Choose a category and tell us your required quantity, specifications and delivery location.</p></div>
+      <div class="grid3">
+      <article class="card product"><div class="pic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 13h18v5l3 5v14a5 5 0 0 1-5 5H17a5 5 0 0 1-5-5V23l3-5zM14 8h20v5H14z"/><path d="M24 23c3 5 5 7 5 10a5 5 0 1 1-10 0c0-3 2-5 5-10z"/></svg></div><div class="body"><p class="tag">Honey products</p><h3>Honey</h3><p>Discuss honey varieties, packaging and wholesale quantities.</p><a class="product-link" href="products.html#honey">Explore honey <span aria-hidden="true"> →</span></a><a class="product-enquiry" href="products.html">Enquire on WhatsApp</a></div></article>
+      <article class="card product"><div class="pic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="24" cy="29" rx="8" ry="11"/><path d="M18 24c-11-1-13-11-7-13 5-2 9 5 10 8m9 5c11-1 13-11 7-13-5-2-9 5-10 8M17 29h14m-12 6h10M21 17l-3-5m9 5 3-5"/></svg></div><div class="body"><p class="tag">Beekeeping</p><h3>Bee colonies</h3><p>Ask about colony availability and your beekeeping requirements.</p><a class="product-link" href="products.html#colonies">Explore bee colonies <span aria-hidden="true"> →</span></a><a class="product-enquiry" href="products.html">Enquire on WhatsApp</a></div></article>
+      <article class="card product"><div class="pic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 19 24 10l17 9v15l-17 9-17-9zM7 19l17 9 17-9M24 28v15m-9-28 18 9m-14 9h10"/></svg></div><div class="body"><p class="tag">Equipment</p><h3>Hive boxes</h3><p>Share the hive type, box dimensions and quantity you need.</p><a class="product-link" href="products.html#boxes">Explore hive boxes <span aria-hidden="true"> →</span></a><a class="product-enquiry" href="products.html">Enquire on WhatsApp</a></div></article>
+      <article class="card product"><div class="pic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="24" cy="15" rx="13" ry="5"/><path d="M11 15v20c0 3 6 5 13 5s13-2 13-5V15M24 10V6h8M16 38v5m16-5v5M20 32h8"/></svg></div><div class="body"><p class="tag">Equipment</p><h3>Extractors</h3><p>Enquire about honey extractor size and configuration.</p><a class="product-link" href="products.html#extractors">Explore extractors <span aria-hidden="true"> →</span></a><a class="product-enquiry" href="products.html">Enquire on WhatsApp</a></div></article>
+      <article class="card product"><div class="pic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 37 32 16m0 0 4-9 5 5-9 4M7 35l6 6m3-32 7 7-5 5-7-7a7 7 0 0 0 8 9l16 16a3 3 0 0 0 4-4L23 19a7 7 0 0 0-7-10z"/></svg></div><div class="body"><p class="tag">Bee equipment</p><h3>Accessories</h3><p>Discuss gloves, tools and other beekeeping supplies.</p><a class="product-link" href="products.html#equipment">Explore accessories <span aria-hidden="true"> →</span></a><a class="product-enquiry" href="products.html">Enquire on WhatsApp</a></div></article>
+      <article class="card product"><div class="pic"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 20h29m-7-7 7 7-7 7M40 31H11m7-7-7 7 7 7"/></svg></div><div class="body"><p class="tag">Commercial trade</p><h3>Wholesale</h3><p>Share commercial quantities, packaging and destination.</p><a class="product-link" href="services.html">Explore wholesale <span aria-hidden="true"> →</span></a><a class="product-enquiry" href="#contact">Enquire on WhatsApp</a></div></article>
       </div>
+      <div class="buttons"><a class="btn dark" href="products.html">View all product categories</a><a class="btn" href="https://wa.me/919142703535?text=Namaste%20USOA%20GROUP%2C%20please%20share%20details%20about%20your%20products.">Ask for product details</a></div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- BUSINESS FACTS -->
-<section class="section dark">
-  <div class="container">
-    <div class="section-title">
-      <div class="kicker">At A Glance</div>
-      <h2>Why Start a Conversation With <span>USOA GROUP?</span></h2>
-      <p>Designed for customers, beekeepers, wholesalers and trade enquiries.</p>
+  <section class="section darksec" id="services">
+    <div class="container">
+      <div class="title"><p class="eyebrow">Business services</p><h2>Discuss your supply requirements</h2></div>
+      <div class="grid3">
+        <article class="card"><span class="tag">01</span><h3>Product enquiries</h3><p>Confirm the category, specifications, availability and packaging.</p></article>
+        <article class="card"><span class="tag">02</span><h3>Wholesale supply</h3><p>Share the quantity, delivery destination and expected timing.</p></article>
+        <article class="card"><span class="tag">03</span><h3>Export-import enquiries</h3><p>Discuss destination requirements and documentation for the proposed transaction.</p></article>
+      </div>
+      <div class="buttons"><a class="btn gold" href="services.html">Explore business services</a><a class="btn service-contact" href="https://wa.me/919142703535?text=Namaste%20USOA%20GROUP%2C%20I%20want%20to%20make%20a%20business%20enquiry.">Discuss a business enquiry</a></div>
     </div>
+  </section>
 
-    <div class="fact-grid">
-      <div class="fact"><div class="quote">01</div><h3>Direct Enquiry</h3><p>Talk directly with the business about the product, quantity and intended use.</p></div>
-      <div class="fact"><div class="quote">02</div><h3>Multiple Categories</h3><p>Honey, colonies, boxes, equipment and other bee products are covered in the business scope.</p></div>
-      <div class="fact"><div class="quote">03</div><h3>Trade Ready</h3><p>Wholesale and export-import enquiries can be discussed according to the specific requirement.</p></div>
+  <section class="section white" id="business">
+    <div class="container">
+      <div class="title"><p class="eyebrow">How to enquire</p><h2>What to send us</h2></div>
+      <div class="grid4 business-scope" aria-label="Business categories">
+        <div class="fact"><strong>Honey</strong><span>Honey products and related enquiries</span></div>
+        <div class="fact"><strong>Bee Keeping</strong><span>Beekeeping activities and supplies</span></div>
+        <div class="fact"><strong>Bee Colonies</strong><span>Buy and sell enquiries</span></div>
+        <div class="fact"><strong>Bee Equipment</strong><span>Equipment and bee products</span></div>
+        <div class="fact"><strong>Wholesale</strong><span>Commercial quantity enquiries</span></div>
+        <div class="fact"><strong>Export</strong><span>Export-related business enquiries</span></div>
+        <div class="fact"><strong>Import</strong><span>Import-related business enquiries</span></div>
+        <div class="fact"><strong>Trade</strong><span>Business-to-business discussions</span></div>
+      </div>
+      <ol class="grid4 steps">
+        <li class="card"><span class="tag">Step 01</span><h3>Choose a product</h3><p>Give us the category and any specifications you already know.</p></li>
+        <li class="card"><span class="tag">Step 02</span><h3>Share quantity</h3><p>Tell us the approximate volume or number of units.</p></li>
+        <li class="card"><span class="tag">Step 03</span><h3>Add destination</h3><p>Include the delivery city or intended destination.</p></li>
+        <li class="card"><span class="tag">Step 04</span><h3>Discuss terms</h3><p>Confirm availability, pricing, packaging and delivery together.</p></li>
+      </ol>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- FAQ -->
-<section class="section muted-bg" id="faq">
-  <div class="container">
-    <div class="section-title">
-      <div class="kicker">Frequently Asked Questions</div>
-      <h2>Common <span>Questions</span></h2>
-      <p>Quick information before you contact us.</p>
+  <section class="section soft" id="credentials" aria-labelledby="credentials-title">
+    <div class="container credential-layout">
+      <div class="title left"><p class="eyebrow">Business registrations</p><h2 id="credentials-title">Official business details</h2><p>USOA GROUP · Proprietor Arpit Kumar · Muzaffarpur, Bihar, India.</p><div class="buttons"><a class="btn" href="/documents">Go to the document centre</a></div></div>
+      <dl class="credentials">
+        <div class="credential"><dt>GSTIN</dt><dd>10PUSPK6683J1ZQ</dd></div>
+        <div class="credential"><dt>Importer Exporter Code (IEC)</dt><dd>PUSPK6683J</dd></div>
+        <div class="credential"><dt>FSSAI registration</dt><dd>20425061000737</dd></div>
+        <div class="credential"><dt>Udyam registration</dt><dd>UDYAM-BR-23-0085469</dd></div>
+        <div class="credential"><dt>FSSAI licence</dt><dd>10426999000397</dd></div>
+        <div class="credential"><dt>APEDA RCMC</dt><dd>34331/2026-2027</dd></div>
+        <div class="credential"><dt>NBB certificate</dt><dd>20260813225</dd></div>
+        <div class="credential"><dt>NBB training certificate registration</dt><dd>622/SAB&amp;RM/RPCAU, Pusa</dd></div>
+        <div class="credential"><dt>NBB registration</dt><dd>DE5/6/11X/Nov26/NBB</dd></div>
+      </dl>
     </div>
+  </section>
 
-    <div class="faq">
-      <details>
+  <section class="section white" id="faq">
+    <div class="container">
+      <div class="title"><p class="eyebrow">Frequently asked questions</p><h2>Before you get in touch</h2></div>
+      <div class="faq">
+        <details>
         <summary>What does USOA GROUP deal in?</summary>
         <p>USOA GROUP deals in honey, bee keeping, bee colonies buy and sell, bee equipment and bee products, along with wholesale and export-import enquiries.</p>
       </details>
-      <details>
+        <details>
         <summary>Can I make a wholesale enquiry?</summary>
         <p>Yes. Send the product, approximate quantity and delivery location through WhatsApp, phone or email.</p>
       </details>
-      <details>
+        <details>
         <summary>Can I enquire about bee colonies?</summary>
         <p>Yes. USOA GROUP's stated business scope includes bee colony buy and sell enquiries. Availability and applicable terms should be confirmed directly.</p>
       </details>
-      <details>
+        <details>
         <summary>Can I enquire about bee equipment?</summary>
         <p>Yes. Enquiries can be made for bee boxes, honey extractors, gloves and other bee equipment or bee products.</p>
       </details>
-      <details>
+        <details>
         <summary>Does USOA GROUP handle export and import?</summary>
         <p>Export-import is included in the stated business scope. For any transaction, product eligibility, documentation, destination requirements and applicable laws should be confirmed before proceeding.</p>
       </details>
-      <details>
+        <details>
         <summary>How can I contact USOA GROUP quickly?</summary>
         <p>Call +91 91427 03535, email usoagroup@gmail.com, or use the WhatsApp enquiry button on this website.</p>
       </details>
-      <details>
+        <details>
         <summary>Where is USOA GROUP located?</summary>
         <p>SHIVRAHA CHATURBHUJ, JHAPAHA, 842004, MUZAFFARPUR, BIHAR, India.</p>
       </details>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section class="cta">
-  <div class="container cta-grid">
-    <div>
-      <h2>Ready to Discuss Your <span>Requirement?</span></h2>
-      <p>
-        Send your product name, quantity and location. USOA GROUP can then
-        discuss the relevant business requirement with you.
-      </p>
-    </div>
-    <a class="btn btn-gold" href="https://wa.me/919142703535?text=Namaste%20USOA%20GROUP%2C%20I%20would%20like%20to%20discuss%20a%20business%20requirement.">💬 Start WhatsApp Chat</a>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section class="section white" id="contact">
-  <div class="container">
-    <div class="section-title">
-      <div class="kicker">Get In Touch</div>
-      <h2>Contact <span>USOA GROUP</span></h2>
-      <p>For honey, bee colonies, equipment, wholesale and trade enquiries.</p>
-    </div>
-
-    <div class="contact-grid">
-
-      <div class="contact-card">
-        <h3>Business Contact</h3>
-
-        <div class="contact-row">
-          <div class="contact-icon">🏢</div>
-          <div><strong>Business</strong><span>USOA GROUP</span></div>
-        </div>
-
-        <div class="contact-row">
-          <div class="contact-icon">👤</div>
-          <div><strong>Proprietor</strong><span>Arpit Kumar</span></div>
-        </div>
-
-        <div class="contact-row">
-          <div class="contact-icon">📍</div>
-          <div><strong>Address</strong><span>SHIVRAHA CHATURBHUJ, JHAPAHA, 842004, MUZAFFARPUR, BIHAR</span></div>
-        </div>
-
-        <div class="contact-row">
-          <div class="contact-icon">📞</div>
-          <div><strong>Phone</strong><span><a href="tel:+919142703535">+91 91427 03535</a></span></div>
-        </div>
-
-        <div class="contact-row">
-          <div class="contact-icon">✉️</div>
-          <div><strong>Email</strong><span><a href="mailto:usoagroup@gmail.com">usoagroup@gmail.com</a></span></div>
-        </div>
-
-        <div class="actions">
-          <a class="btn btn-primary" href="tel:+919142703535">📞 Call</a>
-          <a class="btn" style="background:#e9f7ed;border-color:#b9dfc5" href="https://wa.me/919142703535?text=Namaste%20USOA%20GROUP">💬 WhatsApp</a>
-        </div>
+        <details><summary>How can I open a document I received?</summary><p>Open the <a class="inline-link" href="/verify">verification page</a> and enter the document VPIN, or scan the QR printed on the PDF.</p></details>
+        <p class="page-note"><a class="inline-link" href="faq.html">Read all frequently asked questions</a></p>
       </div>
-
-      <div class="contact-card">
-        <h3>Quick Business Enquiry</h3>
-        <p style="color:var(--muted);margin-bottom:18px">
-          Complete the form. It will prepare a WhatsApp message with your enquiry.
-        </p>
-
-        <form class="form" id="enquiryForm">
-          <input id="name" type="text" placeholder="Your Name" required>
-          <input id="mobile" type="tel" placeholder="Mobile Number" required>
-
-          <select id="requirement" required>
-            <option value="">Select Requirement</option>
-            <option>Honey</option>
-            <option>Bee Colony Buy / Sell</option>
-            <option>Bee Boxes</option>
-            <option>Honey Extractor</option>
-            <option>Bee Equipment</option>
-            <option>Bee Product</option>
-            <option>Wholesale</option>
-            <option>Export / Import</option>
-            <option>Other</option>
-          </select>
-
-          <input id="quantity" type="text" placeholder="Approx. Quantity (optional)">
-          <input id="location" type="text" placeholder="Delivery / Destination Location">
-          <textarea id="message" placeholder="Write your detailed requirement..." required></textarea>
-
-          <button class="btn btn-primary" type="submit">Send Enquiry on WhatsApp →</button>
-          <div class="form-note">By using this button, your enquiry is opened in WhatsApp for sending to USOA GROUP.</div>
-        </form>
-      </div>
-
     </div>
-  </div>
-</section>
+  </section>
 
+  <section class="ctaBand"><div class="container row"><div><p class="eyebrow">Business enquiries</p><h2>Ready to discuss your requirement?</h2><p>Send the product, quantity and location so we can discuss the next steps.</p></div><a class="btn gold" href="https://wa.me/919142703535?text=Namaste%20USOA%20GROUP%2C%20I%20would%20like%20to%20discuss%20a%20business%20requirement.">Start WhatsApp chat</a></div></section>
+
+  <section class="section soft" id="contact">
+    <div class="container">
+      <div class="title"><p class="eyebrow">Contact</p><h2>Tell us what you need</h2></div>
+      <div class="contact-grid">
+        <article class="card">
+          <h3>Business contact</h3>
+          <div class="contact-item"><div><strong>Proprietor</strong><span>Arpit Kumar</span></div></div>
+          <div class="contact-item"><div><strong>Address</strong><span>Shivraha Chaturbhuj, Jhapaha, Muzaffarpur, Bihar 842004, India</span></div></div>
+          <div class="contact-item"><div><strong>Phone</strong><span><a class="inline-link" href="tel:+919142703535">+91 91427 03535</a></span></div></div>
+          <div class="contact-item"><div><strong>Email</strong><span><a class="inline-link" href="mailto:usoagroup@gmail.com">usoagroup@gmail.com</a></span></div></div>
+          <div class="buttons"><a class="btn dark" href="tel:+919142703535">Call USOA GROUP</a><a class="btn" href="https://wa.me/919142703535?text=Namaste%20USOA%20GROUP">WhatsApp</a></div>
+        </article>
+        <article class="card">
+          <h3>Business enquiry</h3><p>Prepare a message to send to USOA GROUP on WhatsApp.</p>
+          <form class="form" id="enquiryForm">
+            <div class="form-columns">
+              <label class="form-field" for="name">Your name<input id="name" name="name" type="text" autocomplete="name" maxlength="100" required></label>
+              <label class="form-field" for="mobile">Mobile number<input id="mobile" name="mobile" type="tel" autocomplete="tel" maxlength="30" required></label>
+            </div>
+            <label class="form-field" for="requirement">Requirement<select id="requirement" name="requirement" required><option value="">Select a category</option><option>Honey</option><option>Bee Colony Buy / Sell</option><option>Bee Boxes</option><option>Honey Extractor</option><option>Bee Equipment</option><option>Bee Product</option><option>Wholesale</option><option>Export / Import</option><option>Other</option></select></label>
+            <div class="form-columns">
+              <label class="form-field" for="quantity">Approximate quantity<input id="quantity" name="quantity" maxlength="90"></label>
+              <label class="form-field" for="location">Delivery location<input id="location" name="location" maxlength="120"></label>
+            </div>
+            <label class="form-field" for="message">Your requirements<textarea id="message" name="message" maxlength="1200" required></textarea></label>
+            <button class="btn dark" type="submit">Open enquiry in WhatsApp <span aria-hidden="true">→</span></button>
+          </form>
+        </article>
+      </div>
+    </div>
+  </section>
 </main>
-
-<!-- FOOTER -->
 <footer>
   <div class="container">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-brand">USOA <span>GROUP</span></div>
-        <p>
-          Honey, bee keeping, bee colonies, bee equipment and bee products,
-          with wholesale and export-import business enquiries.
-        </p>
-        <p>📍 SHIVRAHA CHATURBHUJ, JHAPAHA, 842004, MUZAFFARPUR, BIHAR</p>
-      </div>
-
-      <div class="footer-col">
-        <h4>Navigation</h4>
-        <a href="#home">Home</a>
-        <a href="#about">About</a>
-        <a href="#products">Products</a>
-        <a href="#services">Services</a>
-        <a href="#business">Business</a>
-        <a href="#contact">Contact</a>
-      </div>
-
-      <div class="footer-col">
-        <h4>Information</h4>
-        <a href="faq.html">FAQ</a>
-        <a href="about.html">About Us</a>
-        <a href="privacy-policy.html">Privacy Policy</a>
-        <a href="terms.html">Terms & Conditions</a>
-        <a href="refund-policy.html">Refund Policy</a>
-      </div>
-
-      <div class="footer-col">
-        <h4>Business Details</h4>
-        <a href="tel:+919142703535">+91 91427 03535</a>
-        <a href="mailto:usoagroup@gmail.com">usoagroup@gmail.com</a>
-        <a href="https://wa.me/919142703535">WhatsApp Business Enquiry</a>
-        <a href="#credentials">Registration Details</a>
-      </div>
+    <div class="footgrid">
+      <div><div class="footbrand">USOA <span>GROUP</span></div><p>Honey, beekeeping supplies, wholesale and trade enquiries from Muzaffarpur, Bihar.</p></div>
+      <div><h4>Explore</h4><a href="about.html">About</a><a href="products.html">Products</a><a href="services.html">Services</a><a href="faq.html">FAQ</a></div>
+      <div><h4>Documents</h4><a href="/documents">Document centre</a><a href="/verify">Verify or download</a><a href="#credentials">Business registrations</a></div>
+      <div><h4>Information</h4><a href="contact.html">Contact</a><a href="https://wa.me/919142703535">WhatsApp business enquiries</a><a href="privacy-policy.html">Privacy policy</a><a href="terms.html">Terms &amp; conditions</a><a href="refund-policy.html">Refund policy</a></div>
     </div>
-
-    <div class="legal">
-      <span>© 2026 USOA GROUP. All rights reserved.</span>
-      <span>Proprietor: Arpit Kumar • Muzaffarpur, Bihar, India</span>
-    </div>
+    <div class="legal"><span>© 2026 USOA GROUP</span><span>Muzaffarpur, Bihar, India</span></div>
   </div>
 </footer>
-
-<button class="to-top" id="topBtn" aria-label="Back to top">↑</button>
-
-<a class="float-wa" href="https://wa.me/919142703535?text=Namaste%20USOA%20GROUP%2C%20I%20have%20a%20business%20enquiry.">💬 WhatsApp</a>
-
-<script>
-const menuBtn = document.getElementById("menuBtn");
-const navLinks = document.getElementById("navLinks");
-
-menuBtn.addEventListener("click", () => navLinks.classList.toggle("open"));
-
-document.querySelectorAll(".navlinks a").forEach(a => {
-  a.addEventListener("click", () => navLinks.classList.remove("open"));
-});
-
-const topBtn = document.getElementById("topBtn");
-window.addEventListener("scroll", () => {
-  topBtn.style.display = window.scrollY > 500 ? "block" : "none";
-});
-topBtn.addEventListener("click", () => window.scrollTo({top:0,behavior:"smooth"}));
-
-document.getElementById("enquiryForm").addEventListener("submit", function(e){
-  e.preventDefault();
-
-  const name = document.getElementById("name").value.trim();
-  const mobile = document.getElementById("mobile").value.trim();
-  const requirement = document.getElementById("requirement").value;
-  const quantity = document.getElementById("quantity").value.trim() || "Not specified";
-  const location = document.getElementById("location").value.trim() || "Not specified";
-  const message = document.getElementById("message").value.trim();
-
-  const text =
-    "Namaste USOA GROUP,%0A%0A" +
-    "Name: " + encodeURIComponent(name) + "%0A" +
-    "Mobile: " + encodeURIComponent(mobile) + "%0A" +
-    "Requirement: " + encodeURIComponent(requirement) + "%0A" +
-    "Quantity: " + encodeURIComponent(quantity) + "%0A" +
-    "Location: " + encodeURIComponent(location) + "%0A" +
-    "Message: " + encodeURIComponent(message);
-
-  window.open("https://wa.me/919142703535?text=" + text, "_blank");
-});
-</script>
-
+<button class="to-top" id="topBtn" type="button" aria-label="Back to top" hidden>↑</button>
+<a class="wa" href="https://wa.me/919142703535?text=Namaste%20USOA%20GROUP%2C%20I%20have%20a%20business%20enquiry.">WhatsApp</a>
 </body>
 </html>

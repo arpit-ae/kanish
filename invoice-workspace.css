@@ -1,0 +1,74 @@
+.invoice-editor {
+  background: #eaf0e8;
+  color: #173d32;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.invoice-editor .panel {
+  background: #fffefa;
+  border-color: #d4dfd3;
+  padding-top: 20px;
+}
+.invoice-editor .topbar {
+  border-bottom: 1px solid #dce5d9;
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+}
+.invoice-editor .back {
+  color: #895319;
+  text-underline-offset: 3px;
+}
+.invoice-editor .save-state {
+  background: #edf3e9;
+  color: #345d4b;
+  border-radius: 14px;
+  padding: 4px 8px;
+}
+.invoice-editor .save-state.warn { background: #fff2df; color: #843521; }
+.invoice-editor .panel h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: -.04em;
+}
+.invoice-editor .muted,
+.invoice-editor .help { color: #53675d; }
+.invoice-editor .group {
+  border: 1px solid #d9e2d7;
+  border-radius: 12px;
+  background: #fffefa;
+  padding: 12px;
+}
+.invoice-editor .group > h2 {
+  color: #34594c;
+  letter-spacing: .075em;
+}
+.invoice-editor label { color: #344f43; }
+.invoice-editor input,
+.invoice-editor select,
+.invoice-editor textarea {
+  border-color: #bbcbbd;
+  border-radius: 8px;
+  color: #173d32;
+}
+.invoice-editor input:focus,
+.invoice-editor select:focus,
+.invoice-editor textarea:focus {
+  border-color: #587e66;
+  box-shadow: 0 0 0 2px #d8e9da;
+}
+.invoice-editor button { background: #173d32; }
+.invoice-editor button.good { background: #287150; }
+.invoice-editor button.secondary { background: #eaf0e7; color: #173d32; }
+.invoice-editor button:focus-visible,
+.invoice-editor a:focus-visible,
+.invoice-editor summary:focus-visible {
+  outline: 3px solid #ac6c2c;
+  outline-offset: 3px;
+}
+.invoice-editor .readout,
+.invoice-editor .row-card { background: #f3f7ef; border-color: #d9e2d7; }
+.invoice-editor .row-card[open] { background: #fffefa; border-color: #bdcebe; }
+.invoice-editor .row-card summary,
+.invoice-editor .row-card summary .amt { color: #173d32; }
+.invoice-editor .preview-wrap { min-width: 0; }
+.invoice-editor .page { box-shadow: 0 10px 26px #173d3226; }

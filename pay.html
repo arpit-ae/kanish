@@ -101,15 +101,18 @@
       font-size: 13px;
     }
   </style>
+<link rel="stylesheet" href="checkout-workspace.css" media="screen">
 </head>
 
-<body>
+<body class="checkout-workspace">
 
 <div class="container">
 
   <div class="card">
 
-    <h1>USOA GROUP</h1>
+    <a class="checkout-back" href="/products.html">← Back to products</a>
+    <p class="checkout-label">USOA GROUP</p>
+    <h1>Order checkout</h1>
 
     <div class="product">
       <div class="product-name" id="productName">
@@ -166,6 +169,7 @@
 
 </div>
 
+<script src="catalogue.js"></script>
 <script>
 
   const PRODUCTS = {
@@ -217,8 +221,8 @@
   const productId =
     params.get("product") || "honey500";
 
-  const product =
-    PRODUCTS[productId];
+  let product =
+    Object.hasOwn(PRODUCTS, productId) ? PRODUCTS[productId] : null;
 
   const productName =
     document.getElementById("productName");
@@ -254,6 +258,22 @@
       "₹" + product.amount;
   }
 
+
+  if (product) {
+    payButton.disabled = true;
+    fetchProductCatalogue().then(products => {
+      const current = products.get(productId);
+      if (current) {
+        product = current;
+        productName.textContent = product.name;
+        productPrice.textContent = catalogueCurrency.format(product.amount);
+      }
+    }).catch(() => {
+      message.textContent = "The payment page will confirm the current total.";
+    }).finally(() => {
+      payButton.disabled = false;
+    });
+  }
 
   document
     .getElementById("paymentForm")
