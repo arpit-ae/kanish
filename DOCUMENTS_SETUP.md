@@ -19,7 +19,7 @@ The atomic database limiter allows 100 upload attempts or 10 verification reques
 
 After verification the browser receives same-origin URLs valid for five minutes, bound to an HttpOnly/Secure/SameSite cookie. Supabase signed URLs last sixty seconds and remain server-side. The backend sets inline disposition for viewing and attachment only for explicit download requests. PDF.js 6.5.438 renders canvases inside `/verify` on desktop and mobile. Image previews are inline. All new document responses use no-store, no-referrer and nosniff.
 
-A printed QR can open `/verify#vpin=…` with the URL-encoded VPIN. HTTP requests omit the fragment. The page removes it from the address bar and fills the VPIN field, then waits for the visitor to select **Verify and view document**. Anyone who can scan or copy the QR can use it to view the document. Treat the QR as you would the VPIN itself.
+A printed QR can open `/verify#vpin=…` with the URL-encoded VPIN. HTTP requests omit the fragment. The page removes it from the address bar and fills the VPIN field. Add `&auto=1` to the fragment to verify immediately and open the document inside the page. QR links without `auto=1` wait for the visitor to select **Verify and view document**. Anyone who can scan or copy the QR can use it to view the document. Treat the QR as you would the VPIN itself.
 
 The existing Cloudflare Git integration deploys `main`. Vercel routes use the shared backend through `api/server.js`; configure the same DOCS_* variables there only if Vercel is used. Free Workers have CPU/storage limits: validate real uploads after configuring the project. Account-wide quotas and free-project inactivity pauses can affect availability.
 

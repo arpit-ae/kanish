@@ -66,8 +66,12 @@
 
   const verifyForm = document.querySelector("#verify-form");
   if (verifyForm) {
+    const submit = verifyForm.querySelector("button[type=submit]");
+
     function prefillVpin() {
-      const vpin = new URLSearchParams(window.location.hash.slice(1)).get("vpin");
+      if (submit.disabled) return;
+      const params = new URLSearchParams(window.location.hash.slice(1));
+      const vpin = params.get("vpin");
       if (vpin === null) return;
 
       // A QR carries the VPIN in a fragment, which is omitted from HTTP requests.
@@ -76,20 +80,22 @@
       window.history.replaceState(window.history.state, "", verifyUrl);
       if (/^[A-Za-z0-9!@#$%^&*_-]{8,64}$/.test(vpin)) {
         verifyForm.elements.namedItem("vpin").value = vpin;
-        setMessage("VPIN filled from the QR link. Select Verify and view document to continue.");
+        if (params.get("auto") === "1") {
+          verifyForm.requestSubmit();
+        } else {
+          setMessage("VPIN filled from the QR link. Select Verify and view document to continue.");
+        }
       }
     }
-    prefillVpin();
-    window.addEventListener("hashchange", prefillVpin);
 
     verifyForm.addEventListener("submit", async (event) => {
       event.preventDefault();
-      if(!verifyForm.reportValidity())return;
-      const submit = verifyForm.querySelector("button[type=submit]");
-      await clearViewer();
+      if (submit.disabled || !verifyForm.reportValidity()) return;
+      const vpin = new FormData(verifyForm).get("vpin");
       submit.disabled = true; setMessage("Verifying secure access…");
       try {
-        const response = await fetch("/api/documents/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ vpin: new FormData(verifyForm).get("vpin") }) });
+        await clearViewer();
+        const response = await fetch("/api/documents/verify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ vpin }) });
         const result = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(result.message || "Verification failed.");
         document.querySelector("#document-name").textContent = result.fileName;
@@ -107,7 +113,12 @@
         viewer.scrollIntoView({ behavior: "smooth", block: "start" });
         verifyForm.reset(); setMessage("Document verified. It is displayed below; download only if needed.", "success");
       } catch (error) { setMessage(error.message, "error"); }
-      finally { submit.disabled = false; }
+      finally {
+        submit.disabled = false;
+        prefillVpin();
+      }
     });
+    prefillVpin();
+    window.addEventListener("hashchange", prefillVpin);
   }
 })();
