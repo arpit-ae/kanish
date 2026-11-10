@@ -1,0 +1,4395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; form-action 'none'; base-uri 'none'">
+<title>USOA GROUP · Export Documents</title>
+<style>
+
+:root{--ink:#173d32;--gold:#b69450;--text:#263830;--muted:#718078;--line:#dce4de;--surface:#f3f5f1;--paper:#fff}
+*{box-sizing:border-box}
+body{margin:0;color:var(--text);background:var(--surface);font-family:"Segoe UI",Arial,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid #bf9b52;outline-offset:3px}
+button,.toolbar-link{border:1px solid var(--line);border-radius:8px;padding:9px 13px;background:#fff;color:var(--ink);font-size:12px;font-weight:650}
+button:hover,.toolbar-link:hover{background:#f0f4ef}
+.toolbar-link{text-decoration:none}
+button.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+button.primary:hover{background:#245443}
+button.quiet{background:transparent}
+button.small{padding:6px 9px;font-size:11px}
+.topbar{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 26px;background:#fff;border-bottom:1px solid var(--line)}
+.identity{display:flex;gap:12px;align-items:center}
+.monogram{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;background:var(--ink);color:#e4cf9d;font-size:16px;font-weight:800;letter-spacing:-1px}
+.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.topbar h1{font-size:19px;margin:3px 0 0;font-weight:650;letter-spacing:-.4px}
+.toolbar{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+.document-nav{display:flex;padding:8px 20px;border-bottom:1px solid var(--line);background:#fff}
+.document-nav .segmented{flex-wrap:wrap}
+.linked-products{margin:8px 0 0;padding-left:18px;font-size:11px;line-height:1.6}
+.preview-badge{font-size:10px;font-weight:750;letter-spacing:.07em;background:#f4eddd;border:1px solid #e5d6b3;padding:5px 8px;border-radius:5px;color:#80632c}
+.workspace{display:grid;grid-template-columns:370px minmax(0,1fr);flex:1;min-height:0}
+.editor{background:#fff;border-right:1px solid var(--line);height:100%;overflow:auto;scrollbar-width:thin}
+.editor-intro{padding:20px 20px 15px}
+.editor-intro h2{font-size:15px;margin:0 0 6px}
+.editor-intro p{font-size:11.5px;line-height:1.65;margin:0;color:var(--muted)}
+.status{display:flex;gap:7px;align-items:center;margin-top:12px;font-size:10.5px;color:#426653}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#4b8d65}
+.section{border-top:1px solid var(--line);margin:0}
+.section>summary{padding:15px 20px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;font-size:12px;font-weight:750}
+.section>summary::-webkit-details-marker{display:none}
+.section>summary::after{content:"+";color:#87988b;font-size:16px}
+.section[open]>summary::after{content:"−"}
+.section-body{padding:0 20px 19px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px 10px}
+.field.full{grid-column:1/-1}
+.field label{display:block;font-size:10.5px;font-weight:650;margin-bottom:5px;color:#516158}
+.field input,.field select,.field textarea{width:100%;min-width:0;border:1px solid #d7e0d8;background:#fcfdfb;border-radius:6px;padding:8px 9px;font-size:12px;color:#253b2c;min-height:35px}
+.field textarea{min-height:64px;resize:vertical;line-height:1.5}
+.field input:focus,.field select:focus,.field textarea:focus{outline:0;border-color:#749c7d;box-shadow:0 0 0 3px #edf3ea}
+.field input:disabled,.field textarea:disabled{color:#87958b;background:#f1f4ef}
+.check-line{display:flex;gap:8px;align-items:center;font-size:11px;margin:0 0 12px;color:#48614f}
+.check-line input{accent-color:var(--ink)}
+.helper{font-size:10px;line-height:1.6;color:#78857b;margin:10px 0 0}
+.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.item-card{border:1px solid var(--line);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.item-card>summary{display:flex;gap:8px;padding:11px;background:#f8faf6;cursor:pointer;list-style:none;align-items:center;font-size:11px}
+.item-card .item-number{color:#8c9c8f}
+.item-card .item-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;font-weight:650}
+.item-card .item-amount{font-size:10.5px;color:var(--ink);font-weight:700}
+.item-card .form-grid{padding:12px 10px}
+.item-card .actions{padding:0 10px 11px;margin:0}
+.item-card label{font-size:10px}
+.item-card input{font-size:11px;padding:7px;min-height:32px}
+.review-box{margin:15px 20px 20px;padding:12px;border-radius:8px;background:#f7f3e9;border:1px solid #e9dfc5;font-size:10.5px;line-height:1.6;color:#795e2d}
+.review-box strong{display:block;margin-bottom:4px}
+.review-box ul{margin:0;padding-left:16px}
+.preview{padding:22px 26px 40px;min-width:0;height:100%;overflow:auto}
+.preview-top{display:flex;justify-content:space-between;align-items:center;gap:15px;max-width:850px;margin:0 auto 17px}
+.segmented{display:flex;border:1px solid #d8e1d9;background:#e9eee7;padding:3px;border-radius:9px}
+.segmented button{padding:7px 13px;background:transparent;border:0;font-size:11px}
+.segmented button[aria-pressed="true"]{background:#fff;box-shadow:0 1px 4px #15382212}
+.preview-note{font-size:10px;color:#7f8b80;line-height:1.5;text-align:right}
+.paper-wrap{position:relative;margin:0 auto 20px}
+.invoice-page{width:210mm;height:297mm;padding:11mm 11mm 14mm;background:#fff;box-shadow:0 4px 25px #263c3014;position:relative;font-family:Arial,Helvetica,sans-serif;color:#233b30;font-size:10.2px;line-height:1.42;transform-origin:top left}
+.invoice-page.print-layout{height:296mm;padding-bottom:34mm}
+.page-content{height:100%;display:flex;flex-direction:column}
+.paper-header{flex:none}
+.sheet-top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;border-bottom:2px solid var(--ink);gap:18px}
+.sheet-brand{display:flex;align-items:center;gap:10px}
+.sheet-mark{width:38px;height:38px;display:grid;place-items:center;background:var(--ink);color:#d9c18a;border-radius:9px;font-size:15px;font-weight:800;letter-spacing:-1px}
+.company-name{font-size:23px;font-weight:800;letter-spacing:1px;line-height:1.1}
+.company-tag{font-size:8px;color:#7a857b;letter-spacing:1.4px;margin-top:5px;text-transform:uppercase}
+.doc-title{text-align:right}
+.doc-title h2{font-size:14px;letter-spacing:.5px;line-height:1.3;margin:6px 0 3px;color:var(--ink);max-width:280px}
+.doc-title .draft{font-size:7px;letter-spacing:1.2px;padding:3px 6px;display:inline-block;border:1px solid #e0d1ae;color:#96753a;background:#faf7ee;border-radius:3px}
+.doc-title .currency{font-size:8px;color:#738477}
+.seller-contact{display:flex;justify-content:space-between;gap:12px;padding:8px 0 6px;font-size:9.2px;color:#56685b}
+.seller-contact .seller-address{max-width:64%}
+.seller-contact .seller-links{text-align:right}
+.credentials{padding-bottom:9px}
+.credential-line{display:flex;justify-content:space-between;gap:12px;line-height:14px;font-size:9.2px}
+.credential-line>span{white-space:nowrap}
+.credential-line .key{color:#748175;margin-right:5px}
+.credential-line b{font-weight:650}
+.invoice-meta{display:grid;grid-template-columns:1.15fr .85fr 1.1fr .9fr;border:1px solid #d8e2d9;background:#f6f8f3;margin-bottom:11px}
+.meta-cell{padding:8px 9px;min-width:0;border-right:1px solid #d8e2d9}
+.meta-cell:last-child{border-right:0}
+.key-label{display:block;font-size:7px;text-transform:uppercase;letter-spacing:.8px;color:#798678;margin-bottom:3px;font-weight:700}
+.meta-cell .value{font-size:10.4px;font-weight:700;overflow-wrap:anywhere}
+.parties{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:10px}
+.party{min-width:0}
+.party h3{font-size:7.5px;text-transform:uppercase;letter-spacing:1px;color:#a08042;margin:0 0 5px}
+.party-name{font-weight:750;font-size:10.4px;margin-bottom:3px}
+.party-address{font-size:10px;line-height:1.55;white-space:pre-line;overflow-wrap:anywhere;min-height:27px}
+.party-ids{font-size:9px;margin-top:4px;color:#6b796e}
+.dispatch-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border:1px solid #d8e2d9;margin-bottom:10px}
+.dispatch-grid .meta-cell{padding:6px 8px}
+.dispatch-grid .value{font-size:9.5px}
+.reference-line{display:flex;gap:16px;flex-wrap:wrap;font-size:9px;color:#687b6a;margin:0 0 8px}
+.items-section{flex:1;min-height:0;border-bottom:1px solid #d9e3da;margin-bottom:9px}
+.item-table{border-collapse:collapse;width:100%;table-layout:fixed}
+.item-table th{text-align:left;background:var(--ink);color:#fff;font-size:8px;letter-spacing:.45px;text-transform:uppercase;padding:8px 5px;line-height:1.4}
+.item-table td{padding:9px 5px;border-bottom:1px solid #e5ebe3;vertical-align:top;font-size:10px;overflow-wrap:anywhere}
+.item-table td:nth-child(1){color:#8b978c}
+.item-table .num{text-align:right;font-variant-numeric:tabular-nums}
+.item-table .center{text-align:center}
+.item-title{font-weight:700;color:#2b4433}
+.item-detail{font-size:8.5px;color:#788679;margin-top:3px}
+.item-detail span{display:inline-block;margin-right:7px}
+.line-total{font-weight:750}
+.end-block{flex:none}
+.packing-strip{display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid #dce4d9;padding:0 0 9px;margin-bottom:10px;gap:10px}
+.packing-strip b{font-size:10px;display:block;margin-top:2px}
+.totals-layout{display:grid;grid-template-columns:1.15fr 1fr;gap:22px;margin-bottom:9px}
+.block-label{font-size:7.4px;letter-spacing:1px;text-transform:uppercase;color:#96783d;font-weight:750;margin-bottom:6px}
+.terms-grid{display:grid;grid-template-columns:80px 1fr;gap:4px 7px;font-size:9.6px}
+.terms-grid .muted{color:#7f8b7e}
+.totals{font-size:10px}
+.total-row{display:flex;justify-content:space-between;gap:15px;padding:3px 0}
+.total-row span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+.total-row .muted{color:#788577}
+.grand-total{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--ink);color:#fff;border-radius:4px;margin-top:6px;padding:10px}
+.grand-total .total-caption{font-size:7.5px;text-transform:uppercase;letter-spacing:.8px}
+.grand-total strong{font-size:17px;letter-spacing:.2px;white-space:nowrap}
+.amount-words{font-size:8.6px;line-height:1.5;color:#71806f;margin-top:6px}
+.export-declaration{font-size:8.4px;line-height:1.55;letter-spacing:.25px;color:#3e6148;background:#f4f7ef;border:1px solid #dce6d6;padding:7px 9px;margin:0 0 10px;font-weight:650}
+.bank-sign{display:grid;grid-template-columns:1.65fr 1fr;gap:20px;border-top:1px solid #dce4da;padding-top:9px}
+.bank-grid{display:grid;grid-template-columns:80px 1fr;gap:3px 7px;font-size:9px}
+.bank-grid .muted{color:#7f8b7d}
+.sign-box{text-align:right;position:relative;min-height:92px}
+.sign-box .for-company{font-size:8px;font-weight:700}
+.sign-box img{display:block;max-height:50px;max-width:125px;object-fit:contain;margin:4px 0 0 auto}
+.sign-box .sign-space{height:48px}
+.sign-box .sign-label{font-size:7.5px;color:#7f8a7b;margin-top:2px}
+.paper-footer{position:absolute;bottom:6mm;left:11mm;right:11mm;border-top:1px solid #e4e9e0;padding-top:5px;font-size:7px;color:#87917f}
+.paper-footer-meta{display:flex;justify-content:space-between;gap:10px}
+.verification-line{display:none;align-items:center;justify-content:space-between;gap:12px;font-size:9px;color:#233b30;margin-top:3px}
+.verification-line a{color:#173d32;text-decoration:underline}
+.verification-qr{flex:none}
+.verification-qr svg{display:block;width:22mm;height:22mm;shape-rendering:crispEdges}
+.print-status{margin:0;padding:8px 18px;background:#f7f3e9;color:#795e2d;font-size:12px}
+.einvoice-box{display:flex;gap:12px;border:1px solid #dce4da;padding:8px;margin-bottom:9px}
+.einvoice-box .irn-data{flex:1;min-width:0;overflow-wrap:anywhere;font-size:7.6px}
+.einvoice-box img{height:65px;width:65px;object-fit:contain}
+.continuation{display:flex;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:12px}
+.continuation strong{font-size:16px;letter-spacing:1px}
+.continuation div:last-child{text-align:right;font-size:8px}
+.measure-host{position:absolute;left:-100000px;top:0;visibility:hidden;pointer-events:none}
+.measure-host .invoice-page{box-shadow:none;transform:none}
+.mobile-switch{display:none}
+dialog{width:min(540px,calc(100% - 30px));border:1px solid #d7dfd1;border-radius:14px;padding:24px;color:var(--text);box-shadow:0 16px 65px #173d3233}
+dialog::backdrop{background:#132d2355}
+dialog h2{font-size:18px;margin:0 0 12px}
+dialog p,dialog li{font-size:12px;line-height:1.7;color:#63705f}
+dialog ul{padding-left:20px}
+dialog a{color:#386449}
+@media(max-width:1120px){.workspace{grid-template-columns:330px minmax(0,1fr)}.topbar{padding:15px 18px}.preview{padding:19px 15px}}
+@media(max-width:820px){.topbar{align-items:flex-start;padding:13px;gap:10px;flex-wrap:wrap}.topbar h1{font-size:16px}.monogram{width:35px;height:35px}.toolbar{width:100%;justify-content:flex-end}.toolbar button{padding:8px 10px;font-size:11px}.workspace{display:block}.editor,.preview{height:100%;border-right:0}.workspace[data-view="preview"] .editor{display:none}.workspace[data-view="edit"] .preview{display:none}.preview{padding:15px 9px}.mobile-switch{display:block}.preview-top{gap:8px}.preview-note{font-size:9px}.section-body,.editor-intro{max-width:600px;margin:0 auto}.section>summary{max-width:640px;margin:auto}}
+@page{size:A4;margin:0}
+@media print{
+ html,body{background:#fff;margin:0;height:auto;display:block;overflow:visible}
+ .topbar,.document-nav,.editor,.preview-top,dialog{display:none!important}
+ .workspace,.preview{display:block!important;height:auto;overflow:visible;padding:0}
+ .paper-wrap{width:210mm!important;height:auto!important;margin:0;break-inside:avoid;break-after:page;page-break-after:always}
+ .paper-wrap:last-child{break-after:auto;page-break-after:auto}
+ .invoice-page{height:296mm;transform:none!important;box-shadow:none;margin:0;break-inside:avoid}
+ .paper-footer{bottom:4mm}
+ .verification-line{display:flex}
+ .print-status{display:none}
+ .print-status[data-print-blocked]{display:block;margin:11mm}
+ .print-status[data-print-blocked]~.workspace{display:none!important}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+
+.quantity-strip{display:flex;align-items:baseline;gap:12px;padding:6px 0;margin-bottom:8px;font-size:9px}
+.quantity-strip .key-label{margin:0;white-space:nowrap}
+.quantity-strip b{font-size:9.3px}
+.bank-sign .sign-box{min-height:68px}
+
+/* Compact paper header */
+.seller-contact{padding:6px 0 4px}
+.credentials{padding-bottom:6px}
+.credential-line{line-height:13px}
+.invoice-meta{margin-bottom:7px}
+.invoice-meta .meta-cell{padding:6px 8px}
+.parties{margin-bottom:7px}
+.party-address{line-height:1.4}
+.party h3{margin-bottom:4px}
+/* Export document suite */
+.workspace{grid-template-columns:410px minmax(0,1fr)}
+.topbar{padding:13px 22px;flex:none}
+.topbar h1{font-size:20px}
+.toolbar{max-width:calc(100% - 270px);justify-content:flex-end}
+.toolbar button{padding:8px 10px;font-size:11px}
+.preview-top{max-width:920px;flex-wrap:wrap}
+.segmented{flex-wrap:nowrap}
+.segmented button{white-space:nowrap}
+.document-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.document-controls button{padding:7px 10px;font-size:10px}
+.status-badge{font-size:9px;letter-spacing:1px;padding:4px 7px;background:#f8efd9;color:#95713a;border:1px solid #e5d6b7;border-radius:4px;font-weight:750}
+.status-badge.ready{color:#2d6745;background:#e8f1e7;border-color:#c8ddca}
+.editor-intro h2{font-size:16px}
+.editor-intro .scope{font-size:10px;color:#a18346;margin-top:9px;line-height:1.5}
+.catalogue-buttons{display:flex;gap:6px;flex-wrap:wrap}
+.catalogue-buttons button{background:#f3f6ee;border-color:#d4dfcf}
+.item-card .form-grid{padding:12px 11px}
+.item-card .field.full{grid-column:1/-1}
+.product-chip{margin:10px 11px 0;display:inline-block;padding:4px 7px;border-radius:4px;background:#f0f3e9;font-size:9px;color:#5f735b;font-weight:650}
+.subdetails{margin:0 11px 10px;border:1px solid #e1e8dc;border-radius:5px;overflow:hidden}
+.subdetails>summary{padding:9px;font-size:10.5px;font-weight:650;cursor:pointer;background:#fafbf7}
+.subdetails>.helper{padding:0 9px}
+.subdetails .form-grid{padding:10px 9px}
+.parts-editor{padding:8px 9px}
+.parts-editor>label,.part-name-row{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid #edf0e8;padding:5px 0;font-size:10px}
+.parts-editor>:last-child{border-bottom:0}
+.parts-editor input{width:65px;flex-shrink:0;padding:5px 7px;border:1px solid #d8e1d2;border-radius:4px;font:inherit;min-height:29px}
+.parts-editor .part-name{width:auto;flex:1;min-width:0}
+.empty-equipment{padding:8px 9px;font-size:9px;color:#6d7f63;background:#f5f7ef}
+.product-confirm{padding:0 11px}
+.product-confirm .check-line{font-size:10px;line-height:1.5;margin-bottom:7px}
+.allocation-note{padding:2px 11px 10px;font-size:9.5px;color:#8d7140}
+.range-label{padding:9px 11px 0;font-size:10px;font-weight:650;color:#78916c;overflow-wrap:anywhere}
+.package-contents{padding:0 11px 11px}
+.package-contents>strong{font-size:10.5px}
+.package-contents .helper{margin:5px 0 8px}
+.content-row{padding:8px;background:#f8faf4;border:1px solid #e1e8d9;border-radius:5px;margin-bottom:8px}
+.content-row select,.content-row input{width:100%;font-size:10.5px;border:1px solid #d5dfcf;border-radius:4px;padding:6px;margin-bottom:6px;background:#fff;min-width:0;color:#314333}
+.content-quantity{display:grid;grid-template-columns:1fr 30px;gap:6px}
+.content-quantity input{margin:0}
+.content-quantity button{padding:3px;font-size:16px}
+.package-summary{padding:8px 11px;background:#f1f5eb;font-size:9.5px;color:#667c5d}
+.package-card .actions{padding-top:10px}
+.review-box{font-size:10px}
+.review-box>div{margin-bottom:5px}
+.review-notes{margin-top:8px}
+.review-notes>summary{cursor:pointer;font-weight:650}
+.review-notes ul{margin-top:4px}
+.review-dialog ul{max-height:50vh;overflow:auto}
+.company-tag{font-size:7px;letter-spacing:.75px}
+.party-ids span{display:inline-block;margin-right:8px}
+.item-table td{font-size:9.5px;padding:7px 5px}
+.item-table th{font-size:7.6px;padding:7px 5px}
+.item-detail{font-size:8px;line-height:1.4;margin-top:2px}
+.doc-title h2{font-size:15px}
+.currency{max-width:290px}
+.terms-grid{grid-template-columns:74px 1fr;font-size:9px}
+.totals{font-size:9.5px}
+.tax-note{font-size:8px;line-height:1.5;padding:5px 0;color:#977848}
+.grand-total .total-caption{font-size:7.1px;max-width:145px;line-height:1.45}
+.grand-total strong{font-size:17px}
+.balance-row{font-weight:750;border-top:1px solid #dae4d5;margin-top:5px;padding-top:6px}
+.quantity-strip{border-top:1px solid #d8e2d0;border-bottom:1px solid #d8e2d0;padding:7px 0;margin-bottom:10px;font-size:10px}
+.quantity-strip .key-label{margin-bottom:2px}
+.quantity-strip b{font-weight:650}
+.packing-strip{padding-bottom:9px;margin-bottom:9px}
+.packing-strip b{font-size:10px}
+.packing-table td{font-size:8.9px;padding:7px 4px}
+.packing-table .item-detail{font-size:7.6px}
+.packing-remarks{font-size:8.8px;padding-bottom:8px;line-height:1.5}
+.small-note{font-size:8px;line-height:1.5;color:#7d8975;margin-top:7px;white-space:pre-line;overflow-wrap:anywhere}
+.equipment-note{padding:5px 0 7px;color:#627658;font-size:7.8px;line-height:1.5}
+.certificate-references{font-size:8px;padding-bottom:7px;white-space:pre-line;overflow-wrap:anywhere}
+.quotation-note{background:#f8f5ec;border-color:#e7dfcc;color:#8a7441}
+.pending-value{font-size:8px;color:#9b7c43}
+.bank-sign{padding-top:8px}
+.bank-grid{font-size:8.3px;grid-template-columns:78px 1fr}
+.sign-box{min-height:80px}
+.sign-box img{max-height:43px}
+.amount-words{font-size:8px}
+.kit-page{flex:none}
+.kit-block{border:1px solid #d7e0cf;border-radius:3px;margin:0 0 14px;padding:12px;break-inside:avoid}
+.kit-heading{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:8px}
+.kit-heading strong{font-size:11px}
+.kit-heading .item-detail{font-size:8.5px}
+.kit-count{font-size:13px;color:#315e3f;font-weight:750;white-space:nowrap}
+.kit-spec{font-size:8px;display:flex;gap:10px;flex-wrap:wrap;margin-bottom:7px;color:#6a7d61}
+.kit-table{width:100%;border-collapse:collapse;font-size:8.7px}
+.kit-table th{background:#f0f4e9;text-align:left;padding:5px 7px;color:#5c7450;border-bottom:1px solid #d6e1ca;font-weight:650}
+.kit-table td{padding:4px 7px;border-bottom:1px solid #edf1e7}
+.kit-table tr:last-child td{border-bottom:0}
+.kit-table .num{text-align:right}
+.kit-bottom{border-top:1px solid #dce5d4;margin-top:7px;padding-top:7px;font-size:7.5px;line-height:1.5;color:#7a886e}
+.credential-line{font-size:8.7px}
+@media(max-width:1240px){.workspace{grid-template-columns:365px minmax(0,1fr)}.topbar{align-items:flex-start}.toolbar{max-width:calc(100% - 250px)}}
+@media(max-width:920px){.workspace{grid-template-columns:330px minmax(0,1fr)}.segmented button{padding:7px 9px;font-size:10px}.preview{padding:15px 10px}}
+@media(max-width:820px){
+ .workspace{display:block}.toolbar{max-width:100%;width:100%}.topbar{padding:12px}
+ .topbar h1{font-size:17px}.toolbar button{font-size:10px;padding:7px 8px}
+ .document-controls{width:100%;justify-content:flex-end}
+ .preview-top{margin-bottom:12px}.preview-note{font-size:9px}
+ .editor,.preview{height:100%}
+ .form-grid{gap:10px}
+}
+@media print{
+ .document-controls,.status-badge{display:none!important}
+ .workspace,.preview{display:block!important;flex:none;overflow:visible;height:auto;padding:0!important;margin:0}
+ .page-content{overflow:visible}
+}
+
+
+/* Final paper spacing */
+.item-table td{padding:6px 5px}
+.commercial-table td{padding-top:4px;padding-bottom:4px}
+.packing-table td{padding:6px 4px}
+.quantity-strip{margin-bottom:7px}
+.bank-grid{gap:2px 7px}
+.bank-sign .block-label{margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="identity">
+    <div class="monogram" aria-hidden="true">UG</div>
+    <div><div class="eyebrow">USOA GROUP · Export workspace</div><h1>Export documents</h1></div>
+  </div>
+  <div class="toolbar">
+    <button class="mobile-switch" id="mobileSwitch">Edit details</button>
+    <button id="aboutButton" class="quiet">Guide</button>
+    <button id="downloadAppButton">Download HTML</button>
+    <button id="importButton">Import backup</button>
+    <button id="exportButton">Export backup</button>
+    <button id="sampleButton" class="quiet">Sample</button>
+    <button id="newButton">New shipment</button>
+    <button id="choosePrintButton">Choose documents / PDF</button>
+    <button id="printButton" class="primary">Print current / PDF</button>
+    <a class="toolbar-link" href="https://www.usoagroup.in/upload" target="_blank" rel="noopener noreferrer">Upload saved PDF</a>
+  </div>
+</header>
+<p id="printStatus" class="print-status" role="status" hidden></p>
+<nav class="document-nav" aria-label="Choose a document">
+  <div class="segmented">
+    <button type="button" data-document-tab="proforma" aria-pressed="true">Proforma Invoice</button>
+    <button type="button" data-document-tab="commercial" aria-pressed="false">Commercial Invoice</button>
+    <button type="button" data-document-tab="packing" aria-pressed="false">Packing List</button>
+  </div>
+</nav>
+<div class="workspace" id="workspace" data-view="preview">
+  <aside class="editor" id="documentEditor" aria-labelledby="editorTitle">
+    <div class="editor-intro">
+      <h2 id="editorTitle">Proforma Invoice form</h2>
+      <p id="editorDescription"></p>
+      <div class="status" role="status" aria-live="polite"><span class="status-dot"></span><span id="saveStatus">Ready</span></div>
+    </div>
+    <form id="invoiceForm" autocomplete="off" aria-labelledby="editorTitle"></form>
+    <div class="review-box" id="reviewBox" aria-live="polite"></div>
+  </aside>
+  <main class="preview" aria-label="A4 document preview">
+    <div class="preview-top">
+      <div class="preview-note"><span id="activeDocumentLabel">Proforma invoice</span><br><span id="pageCount">A4</span></div>
+      <div class="document-controls">
+        <span class="status-badge" id="statusBadge">DRAFT</span>
+        <span class="preview-note" id="reviewCount"></span>
+        <button id="readyButton">Review &amp; mark ready</button>
+        <button id="bundleButton">Print CI + packing</button>
+        <button id="allButton">Print all three</button>
+      </div>
+    </div>
+    <div id="paperPages"></div>
+  </main>
+</div>
+<input type="file" id="backupFile" accept=".json,application/json" hidden>
+<dialog id="aboutDialog">
+  <h2>USOA export document suite</h2>
+  <p>This standalone file creates a proforma quotation, commercial invoice and packing list for the same shipment. Data is stored in this file's own local workspace. Export a JSON backup to retain entered shipment records.</p>
+  <ul>
+    <li>This copy starts with a blank shipment. Use Sample to explore fictional data, or import your own backup.</li>
+    <li>To register a saved PDF, open Upload saved PDF and use the VPIN printed on that PDF.</li>
+    <li>Enter shared exporter, buyer, product and order details in Proforma Invoice. Commercial Invoice and Packing List link to that shipment automatically.</li>
+    <li>Proforma has its own number, date, validity and choice of tax-exclusive or tax-inclusive quotation.</li>
+    <li>Commercial invoice has final tax mode, payment balance, reverse-charge status and official e-invoice references when applicable.</li>
+    <li>Packing list records each outer package group once. Mixed contents and split kit components are matched against sale quantities.</li>
+    <li>Kg, sheets and sets are totalled by unit. Dimensions use centimetres, weights use kilograms, and volume uses cubic metres.</li>
+    <li>Cerana starts with 8 brood frames and 8 super frames per set. Mellifera starts with 10 and 10. All components, materials and dimensions are editable.</li>
+    <li>The equipment configuration includes floor board, brood chamber, frames, honey super, inner cover, outer roof, queen excluder, entrance reducer, feeder and stand. Optional foundation sheets are recorded separately in the kit contents.</li>
+    <li>Hive sets are empty wooden equipment, without live bees. The set schedule is linked to the sales item and does not add shipping packages.</li>
+    <li>Sample prices, quantities, weights, dimensions and grades are planning examples. Confirm the actual shipment and destination requirements before issue.</li>
+    <li>Honey and raw beeswax reference HSNs are prefilled. Foundation sheets and complete wooden sets need confirmed classification. Every HSN and tax rate is editable and requires confirmation for the commercial Ready workflow.</li>
+    <li>The Ready marker checks entered data and allocation consistency. The official IRN and signed QR image come from an authorised IRP when e-invoicing applies.</li>
+    <li>Download HTML saves the app. Export backup saves the current entered shipment.</li>
+  </ul>
+  <p>Reference material for specification and documentation review</p>
+  <ul>
+    <li><a href="https://www.agritech.tnau.ac.in/farm_enterprises/fe_api_beekeepingaccessories.html" target="_blank" rel="noopener noreferrer">TNAU hive parts and frame configurations</a></li>
+    <li><a href="https://www.services.bis.gov.in/tmp/SR1515.pdf" target="_blank" rel="noopener noreferrer">BIS beehive specification preview</a></li>
+    <li><a href="https://www.fao.org/4/w0076e/w0076e12.htm" target="_blank" rel="noopener noreferrer">FAO beeswax and foundation-sheet background</a></li>
+    <li><a href="https://taxinformation.cbic.gov.in/content-page/explore-rules/1000136/1000001" target="_blank" rel="noopener noreferrer">CBIC invoice requirements</a></li>
+    <li><a href="https://courier.cbic.gov.in/ECCS/advisory/2025/NOTIFICATION%20NO.%209_2025-INTEGRATED%20TAX%20%28RATE%29%20-1759486719.pdf" target="_blank" rel="noopener noreferrer">Integrated tax rate notification</a></li>
+    <li><a href="https://www.ippc.int/en/publications/640/" target="_blank" rel="noopener noreferrer">IPPC solid-wood packaging standard</a></li>
+  </ul>
+  <button id="closeAbout" class="primary">Close</button>
+</dialog>
+<dialog id="reviewDialog" class="review-dialog">
+  <h2>Review the document entries</h2>
+  <div id="reviewDialogBody"></div>
+  <button id="closeReview" class="primary">Continue editing</button>
+</dialog>
+<dialog id="printSelectionDialog" aria-labelledby="printSelectionTitle">
+  <h2 id="printSelectionTitle">Choose documents for one PDF</h2>
+  <p>Every page will use the same VPIN and QR code.</p>
+  <form id="printSelectionForm">
+    <label class="check-line"><input type="checkbox" name="document" value="proforma">Proforma Invoice</label>
+    <label class="check-line"><input type="checkbox" name="document" value="commercial">Commercial Invoice</label>
+    <label class="check-line"><input type="checkbox" name="document" value="packing">Packing List</label>
+    <div class="actions">
+      <button type="submit" id="printSelectionSubmit" class="primary">Print selected / PDF</button>
+      <button type="button" id="cancelPrintSelection">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
+<script id="qr-encoder">
+/* Vendored qrcode-generator by Kazuhiko Arase
+   Source https://github.com/kazuhikoarase/qrcode-generator/blob/master/js/dist/qrcode.js
+
+MIT License
+
+Copyright (c) 2009 Kazuhiko Arase
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+//---------------------------------------------------------------------
+//
+// QR Code Generator for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//  http://www.opensource.org/licenses/mit-license.php
+//
+// The word 'QR Code' is registered trademark of
+// DENSO WAVE INCORPORATED
+//  http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+
+var qrcode = function() {
+
+  //---------------------------------------------------------------------
+  // qrcode
+  //---------------------------------------------------------------------
+
+  /**
+   * qrcode
+   * @param typeNumber 1 to 40
+   * @param errorCorrectionLevel 'L','M','Q','H'
+   */
+  var qrcode = function(typeNumber, errorCorrectionLevel) {
+
+    var PAD0 = 0xEC;
+    var PAD1 = 0x11;
+
+    var _typeNumber = typeNumber;
+    var _errorCorrectionLevel = QRErrorCorrectionLevel[errorCorrectionLevel];
+    var _modules = null;
+    var _moduleCount = 0;
+    var _dataCache = null;
+    var _dataList = [];
+
+    var _this = {};
+
+    var makeImpl = function(test, maskPattern) {
+
+      _moduleCount = _typeNumber * 4 + 17;
+      _modules = function(moduleCount) {
+        var modules = new Array(moduleCount);
+        for (var row = 0; row < moduleCount; row += 1) {
+          modules[row] = new Array(moduleCount);
+          for (var col = 0; col < moduleCount; col += 1) {
+            modules[row][col] = null;
+          }
+        }
+        return modules;
+      }(_moduleCount);
+
+      setupPositionProbePattern(0, 0);
+      setupPositionProbePattern(_moduleCount - 7, 0);
+      setupPositionProbePattern(0, _moduleCount - 7);
+      setupPositionAdjustPattern();
+      setupTimingPattern();
+      setupTypeInfo(test, maskPattern);
+
+      if (_typeNumber >= 7) {
+        setupTypeNumber(test);
+      }
+
+      if (_dataCache == null) {
+        _dataCache = createData(_typeNumber, _errorCorrectionLevel, _dataList);
+      }
+
+      mapData(_dataCache, maskPattern);
+    };
+
+    var setupPositionProbePattern = function(row, col) {
+
+      for (var r = -1; r <= 7; r += 1) {
+
+        if (row + r <= -1 || _moduleCount <= row + r) continue;
+
+        for (var c = -1; c <= 7; c += 1) {
+
+          if (col + c <= -1 || _moduleCount <= col + c) continue;
+
+          if ( (0 <= r && r <= 6 && (c == 0 || c == 6) )
+              || (0 <= c && c <= 6 && (r == 0 || r == 6) )
+              || (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+            _modules[row + r][col + c] = true;
+          } else {
+            _modules[row + r][col + c] = false;
+          }
+        }
+      }
+    };
+
+    var getBestMaskPattern = function() {
+
+      var minLostPoint = 0;
+      var pattern = 0;
+
+      for (var i = 0; i < 8; i += 1) {
+
+        makeImpl(true, i);
+
+        var lostPoint = QRUtil.getLostPoint(_this);
+
+        if (i == 0 || minLostPoint > lostPoint) {
+          minLostPoint = lostPoint;
+          pattern = i;
+        }
+      }
+
+      return pattern;
+    };
+
+    var setupTimingPattern = function() {
+
+      for (var r = 8; r < _moduleCount - 8; r += 1) {
+        if (_modules[r][6] != null) {
+          continue;
+        }
+        _modules[r][6] = (r % 2 == 0);
+      }
+
+      for (var c = 8; c < _moduleCount - 8; c += 1) {
+        if (_modules[6][c] != null) {
+          continue;
+        }
+        _modules[6][c] = (c % 2 == 0);
+      }
+    };
+
+    var setupPositionAdjustPattern = function() {
+
+      var pos = QRUtil.getPatternPosition(_typeNumber);
+
+      for (var i = 0; i < pos.length; i += 1) {
+
+        for (var j = 0; j < pos.length; j += 1) {
+
+          var row = pos[i];
+          var col = pos[j];
+
+          if (_modules[row][col] != null) {
+            continue;
+          }
+
+          for (var r = -2; r <= 2; r += 1) {
+
+            for (var c = -2; c <= 2; c += 1) {
+
+              if (r == -2 || r == 2 || c == -2 || c == 2
+                  || (r == 0 && c == 0) ) {
+                _modules[row + r][col + c] = true;
+              } else {
+                _modules[row + r][col + c] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+
+    var setupTypeNumber = function(test) {
+
+      var bits = QRUtil.getBCHTypeNumber(_typeNumber);
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[Math.floor(i / 3)][i % 3 + _moduleCount - 8 - 3] = mod;
+      }
+
+      for (var i = 0; i < 18; i += 1) {
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+        _modules[i % 3 + _moduleCount - 8 - 3][Math.floor(i / 3)] = mod;
+      }
+    };
+
+    var setupTypeInfo = function(test, maskPattern) {
+
+      var data = (_errorCorrectionLevel << 3) | maskPattern;
+      var bits = QRUtil.getBCHTypeInfo(data);
+
+      // vertical
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 6) {
+          _modules[i][8] = mod;
+        } else if (i < 8) {
+          _modules[i + 1][8] = mod;
+        } else {
+          _modules[_moduleCount - 15 + i][8] = mod;
+        }
+      }
+
+      // horizontal
+      for (var i = 0; i < 15; i += 1) {
+
+        var mod = (!test && ( (bits >> i) & 1) == 1);
+
+        if (i < 8) {
+          _modules[8][_moduleCount - i - 1] = mod;
+        } else if (i < 9) {
+          _modules[8][15 - i - 1 + 1] = mod;
+        } else {
+          _modules[8][15 - i - 1] = mod;
+        }
+      }
+
+      // fixed module
+      _modules[_moduleCount - 8][8] = (!test);
+    };
+
+    var mapData = function(data, maskPattern) {
+
+      var inc = -1;
+      var row = _moduleCount - 1;
+      var bitIndex = 7;
+      var byteIndex = 0;
+      var maskFunc = QRUtil.getMaskFunction(maskPattern);
+
+      for (var col = _moduleCount - 1; col > 0; col -= 2) {
+
+        if (col == 6) col -= 1;
+
+        while (true) {
+
+          for (var c = 0; c < 2; c += 1) {
+
+            if (_modules[row][col - c] == null) {
+
+              var dark = false;
+
+              if (byteIndex < data.length) {
+                dark = ( ( (data[byteIndex] >>> bitIndex) & 1) == 1);
+              }
+
+              var mask = maskFunc(row, col - c);
+
+              if (mask) {
+                dark = !dark;
+              }
+
+              _modules[row][col - c] = dark;
+              bitIndex -= 1;
+
+              if (bitIndex == -1) {
+                byteIndex += 1;
+                bitIndex = 7;
+              }
+            }
+          }
+
+          row += inc;
+
+          if (row < 0 || _moduleCount <= row) {
+            row -= inc;
+            inc = -inc;
+            break;
+          }
+        }
+      }
+    };
+
+    var createBytes = function(buffer, rsBlocks) {
+
+      var offset = 0;
+
+      var maxDcCount = 0;
+      var maxEcCount = 0;
+
+      var dcdata = new Array(rsBlocks.length);
+      var ecdata = new Array(rsBlocks.length);
+
+      for (var r = 0; r < rsBlocks.length; r += 1) {
+
+        var dcCount = rsBlocks[r].dataCount;
+        var ecCount = rsBlocks[r].totalCount - dcCount;
+
+        maxDcCount = Math.max(maxDcCount, dcCount);
+        maxEcCount = Math.max(maxEcCount, ecCount);
+
+        dcdata[r] = new Array(dcCount);
+
+        for (var i = 0; i < dcdata[r].length; i += 1) {
+          dcdata[r][i] = 0xff & buffer.getBuffer()[i + offset];
+        }
+        offset += dcCount;
+
+        var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+        var rawPoly = qrPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+        var modPoly = rawPoly.mod(rsPoly);
+        ecdata[r] = new Array(rsPoly.getLength() - 1);
+        for (var i = 0; i < ecdata[r].length; i += 1) {
+          var modIndex = i + modPoly.getLength() - ecdata[r].length;
+          ecdata[r][i] = (modIndex >= 0)? modPoly.getAt(modIndex) : 0;
+        }
+      }
+
+      var totalCodeCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalCodeCount += rsBlocks[i].totalCount;
+      }
+
+      var data = new Array(totalCodeCount);
+      var index = 0;
+
+      for (var i = 0; i < maxDcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < dcdata[r].length) {
+            data[index] = dcdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      for (var i = 0; i < maxEcCount; i += 1) {
+        for (var r = 0; r < rsBlocks.length; r += 1) {
+          if (i < ecdata[r].length) {
+            data[index] = ecdata[r][i];
+            index += 1;
+          }
+        }
+      }
+
+      return data;
+    };
+
+    var createData = function(typeNumber, errorCorrectionLevel, dataList) {
+
+      var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectionLevel);
+
+      var buffer = qrBitBuffer();
+
+      for (var i = 0; i < dataList.length; i += 1) {
+        var data = dataList[i];
+        buffer.put(data.getMode(), 4);
+        buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+        data.write(buffer);
+      }
+
+      // calc num max data.
+      var totalDataCount = 0;
+      for (var i = 0; i < rsBlocks.length; i += 1) {
+        totalDataCount += rsBlocks[i].dataCount;
+      }
+
+      if (buffer.getLengthInBits() > totalDataCount * 8) {
+        throw 'code length overflow. ('
+          + buffer.getLengthInBits()
+          + '>'
+          + totalDataCount * 8
+          + ')';
+      }
+
+      // end code
+      if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+        buffer.put(0, 4);
+      }
+
+      // padding
+      while (buffer.getLengthInBits() % 8 != 0) {
+        buffer.putBit(false);
+      }
+
+      // padding
+      while (true) {
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD0, 8);
+
+        if (buffer.getLengthInBits() >= totalDataCount * 8) {
+          break;
+        }
+        buffer.put(PAD1, 8);
+      }
+
+      return createBytes(buffer, rsBlocks);
+    };
+
+    _this.addData = function(data, mode) {
+
+      mode = mode || 'Byte';
+
+      var newData = null;
+
+      switch(mode) {
+      case 'Numeric' :
+        newData = qrNumber(data);
+        break;
+      case 'Alphanumeric' :
+        newData = qrAlphaNum(data);
+        break;
+      case 'Byte' :
+        newData = qr8BitByte(data);
+        break;
+      case 'Kanji' :
+        newData = qrKanji(data);
+        break;
+      default :
+        throw 'mode:' + mode;
+      }
+
+      _dataList.push(newData);
+      _dataCache = null;
+    };
+
+    _this.isDark = function(row, col) {
+      if (row < 0 || _moduleCount <= row || col < 0 || _moduleCount <= col) {
+        throw row + ',' + col;
+      }
+      return _modules[row][col];
+    };
+
+    _this.getModuleCount = function() {
+      return _moduleCount;
+    };
+
+    _this.make = function() {
+      if (_typeNumber < 1) {
+        var typeNumber = 1;
+
+        for (; typeNumber < 40; typeNumber++) {
+          var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, _errorCorrectionLevel);
+          var buffer = qrBitBuffer();
+
+          for (var i = 0; i < _dataList.length; i++) {
+            var data = _dataList[i];
+            buffer.put(data.getMode(), 4);
+            buffer.put(data.getLength(), QRUtil.getLengthInBits(data.getMode(), typeNumber) );
+            data.write(buffer);
+          }
+
+          var totalDataCount = 0;
+          for (var i = 0; i < rsBlocks.length; i++) {
+            totalDataCount += rsBlocks[i].dataCount;
+          }
+
+          if (buffer.getLengthInBits() <= totalDataCount * 8) {
+            break;
+          }
+        }
+
+        _typeNumber = typeNumber;
+      }
+
+      makeImpl(false, getBestMaskPattern() );
+    };
+
+    _this.createTableTag = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var qrHtml = '';
+
+      qrHtml += '<table style="';
+      qrHtml += ' border-width: 0px; border-style: none;';
+      qrHtml += ' border-collapse: collapse;';
+      qrHtml += ' padding: 0px; margin: ' + margin + 'px;';
+      qrHtml += '">';
+      qrHtml += '<tbody>';
+
+      for (var r = 0; r < _this.getModuleCount(); r += 1) {
+
+        qrHtml += '<tr>';
+
+        for (var c = 0; c < _this.getModuleCount(); c += 1) {
+          qrHtml += '<td style="';
+          qrHtml += ' border-width: 0px; border-style: none;';
+          qrHtml += ' border-collapse: collapse;';
+          qrHtml += ' padding: 0px; margin: 0px;';
+          qrHtml += ' width: ' + cellSize + 'px;';
+          qrHtml += ' height: ' + cellSize + 'px;';
+          qrHtml += ' background-color: ';
+          qrHtml += _this.isDark(r, c)? '#000000' : '#ffffff';
+          qrHtml += ';';
+          qrHtml += '"/>';
+        }
+
+        qrHtml += '</tr>';
+      }
+
+      qrHtml += '</tbody>';
+      qrHtml += '</table>';
+
+      return qrHtml;
+    };
+
+    _this.createSvgTag = function(cellSize, margin, alt, title) {
+
+      var opts = {};
+      if (typeof arguments[0] == 'object') {
+        // Called by options.
+        opts = arguments[0];
+        // overwrite cellSize and margin.
+        cellSize = opts.cellSize;
+        margin = opts.margin;
+        alt = opts.alt;
+        title = opts.title;
+      }
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      // Compose alt property surrogate
+      alt = (typeof alt === 'string') ? {text: alt} : alt || {};
+      alt.text = alt.text || null;
+      alt.id = (alt.text) ? alt.id || 'qrcode-description' : null;
+
+      // Compose title property surrogate
+      title = (typeof title === 'string') ? {text: title} : title || {};
+      title.text = title.text || null;
+      title.id = (title.text) ? title.id || 'qrcode-title' : null;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var c, mc, r, mr, qrSvg='', rect;
+
+      rect = 'l' + cellSize + ',0 0,' + cellSize +
+        ' -' + cellSize + ',0 0,-' + cellSize + 'z ';
+
+      qrSvg += '<svg version="1.1" xmlns="http://www.w3.org/2000/svg"';
+      qrSvg += !opts.scalable ? ' width="' + size + 'px" height="' + size + 'px"' : '';
+      qrSvg += ' viewBox="0 0 ' + size + ' ' + size + '" ';
+      qrSvg += ' preserveAspectRatio="xMinYMin meet"';
+      qrSvg += (title.text || alt.text) ? ' role="img" aria-labelledby="' +
+          escapeXml([title.id, alt.id].join(' ').trim() ) + '"' : '';
+      qrSvg += '>';
+      qrSvg += (title.text) ? '<title id="' + escapeXml(title.id) + '">' +
+          escapeXml(title.text) + '</title>' : '';
+      qrSvg += (alt.text) ? '<description id="' + escapeXml(alt.id) + '">' +
+          escapeXml(alt.text) + '</description>' : '';
+      qrSvg += '<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>';
+      qrSvg += '<path d="';
+
+      for (r = 0; r < _this.getModuleCount(); r += 1) {
+        mr = r * cellSize + margin;
+        for (c = 0; c < _this.getModuleCount(); c += 1) {
+          if (_this.isDark(r, c) ) {
+            mc = c*cellSize+margin;
+            qrSvg += 'M' + mc + ',' + mr + rect;
+          }
+        }
+      }
+
+      qrSvg += '" stroke="transparent" fill="black"/>';
+      qrSvg += '</svg>';
+
+      return qrSvg;
+    };
+
+    _this.createDataURL = function(cellSize, margin) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      return createDataURL(size, size, function(x, y) {
+        if (min <= x && x < max && min <= y && y < max) {
+          var c = Math.floor( (x - min) / cellSize);
+          var r = Math.floor( (y - min) / cellSize);
+          return _this.isDark(r, c)? 0 : 1;
+        } else {
+          return 1;
+        }
+      } );
+    };
+
+    _this.createImgTag = function(cellSize, margin, alt) {
+
+      cellSize = cellSize || 2;
+      margin = (typeof margin == 'undefined')? cellSize * 4 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+
+      var img = '';
+      img += '<img';
+      img += '\u0020src="';
+      img += _this.createDataURL(cellSize, margin);
+      img += '"';
+      img += '\u0020width="';
+      img += size;
+      img += '"';
+      img += '\u0020height="';
+      img += size;
+      img += '"';
+      if (alt) {
+        img += '\u0020alt="';
+        img += escapeXml(alt);
+        img += '"';
+      }
+      img += '/>';
+
+      return img;
+    };
+
+    var escapeXml = function(s) {
+      var escaped = '';
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charAt(i);
+        switch(c) {
+        case '<': escaped += '&lt;'; break;
+        case '>': escaped += '&gt;'; break;
+        case '&': escaped += '&amp;'; break;
+        case '"': escaped += '&quot;'; break;
+        default : escaped += c; break;
+        }
+      }
+      return escaped;
+    };
+
+    var _createHalfASCII = function(margin) {
+      var cellSize = 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r1, r2, p;
+
+      var blocks = {
+        '██': '█',
+        '█ ': '▀',
+        ' █': '▄',
+        '  ': ' '
+      };
+
+      var blocksLastLineNoMargin = {
+        '██': '▀',
+        '█ ': '▀',
+        ' █': ' ',
+        '  ': ' '
+      };
+
+      var ascii = '';
+      for (y = 0; y < size; y += 2) {
+        r1 = Math.floor((y - min) / cellSize);
+        r2 = Math.floor((y + 1 - min) / cellSize);
+        for (x = 0; x < size; x += 1) {
+          p = '█';
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r1, Math.floor((x - min) / cellSize))) {
+            p = ' ';
+          }
+
+          if (min <= x && x < max && min <= y+1 && y+1 < max && _this.isDark(r2, Math.floor((x - min) / cellSize))) {
+            p += ' ';
+          }
+          else {
+            p += '█';
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          ascii += (margin < 1 && y+1 >= max) ? blocksLastLineNoMargin[p] : blocks[p];
+        }
+
+        ascii += '\n';
+      }
+
+      if (size % 2 && margin > 0) {
+        return ascii.substring(0, ascii.length - size - 1) + Array(size+1).join('▀');
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.createASCII = function(cellSize, margin) {
+      cellSize = cellSize || 1;
+
+      if (cellSize < 2) {
+        return _createHalfASCII(margin);
+      }
+
+      cellSize -= 1;
+      margin = (typeof margin == 'undefined')? cellSize * 2 : margin;
+
+      var size = _this.getModuleCount() * cellSize + margin * 2;
+      var min = margin;
+      var max = size - margin;
+
+      var y, x, r, p;
+
+      var white = Array(cellSize+1).join('██');
+      var black = Array(cellSize+1).join('  ');
+
+      var ascii = '';
+      var line = '';
+      for (y = 0; y < size; y += 1) {
+        r = Math.floor( (y - min) / cellSize);
+        line = '';
+        for (x = 0; x < size; x += 1) {
+          p = 1;
+
+          if (min <= x && x < max && min <= y && y < max && _this.isDark(r, Math.floor((x - min) / cellSize))) {
+            p = 0;
+          }
+
+          // Output 2 characters per pixel, to create full square. 1 character per pixels gives only half width of square.
+          line += p ? white : black;
+        }
+
+        for (r = 0; r < cellSize; r += 1) {
+          ascii += line + '\n';
+        }
+      }
+
+      return ascii.substring(0, ascii.length-1);
+    };
+
+    _this.renderTo2dContext = function(context, cellSize) {
+      cellSize = cellSize || 2;
+      var length = _this.getModuleCount();
+      for (var row = 0; row < length; row++) {
+        for (var col = 0; col < length; col++) {
+          context.fillStyle = _this.isDark(row, col) ? 'black' : 'white';
+          context.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrcode.stringToBytes
+  //---------------------------------------------------------------------
+
+  qrcode.stringToBytesFuncs = {
+    'default' : function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        bytes.push(c & 0xff);
+      }
+      return bytes;
+    }
+  };
+
+  qrcode.stringToBytes = qrcode.stringToBytesFuncs['default'];
+
+  //---------------------------------------------------------------------
+  // qrcode.createStringToBytes
+  //---------------------------------------------------------------------
+
+  /**
+   * @param unicodeData base64 string of byte array.
+   * [16bit Unicode],[16bit Bytes], ...
+   * @param numChars
+   */
+  qrcode.createStringToBytes = function(unicodeData, numChars) {
+
+    // create conversion map.
+
+    var unicodeMap = function() {
+
+      var bin = base64DecodeInputStream(unicodeData);
+      var read = function() {
+        var b = bin.read();
+        if (b == -1) throw 'eof';
+        return b;
+      };
+
+      var count = 0;
+      var unicodeMap = {};
+      while (true) {
+        var b0 = bin.read();
+        if (b0 == -1) break;
+        var b1 = read();
+        var b2 = read();
+        var b3 = read();
+        var k = String.fromCharCode( (b0 << 8) | b1);
+        var v = (b2 << 8) | b3;
+        unicodeMap[k] = v;
+        count += 1;
+      }
+      if (count != numChars) {
+        throw count + ' != ' + numChars;
+      }
+
+      return unicodeMap;
+    }();
+
+    var unknownChar = '?'.charCodeAt(0);
+
+    return function(s) {
+      var bytes = [];
+      for (var i = 0; i < s.length; i += 1) {
+        var c = s.charCodeAt(i);
+        if (c < 128) {
+          bytes.push(c);
+        } else {
+          var b = unicodeMap[s.charAt(i)];
+          if (typeof b == 'number') {
+            if ( (b & 0xff) == b) {
+              // 1byte
+              bytes.push(b);
+            } else {
+              // 2bytes
+              bytes.push(b >>> 8);
+              bytes.push(b & 0xff);
+            }
+          } else {
+            bytes.push(unknownChar);
+          }
+        }
+      }
+      return bytes;
+    };
+  };
+
+  //---------------------------------------------------------------------
+  // QRMode
+  //---------------------------------------------------------------------
+
+  var QRMode = {
+    MODE_NUMBER :    1 << 0,
+    MODE_ALPHA_NUM : 1 << 1,
+    MODE_8BIT_BYTE : 1 << 2,
+    MODE_KANJI :     1 << 3
+  };
+
+  //---------------------------------------------------------------------
+  // QRErrorCorrectionLevel
+  //---------------------------------------------------------------------
+
+  var QRErrorCorrectionLevel = {
+    L : 1,
+    M : 0,
+    Q : 3,
+    H : 2
+  };
+
+  //---------------------------------------------------------------------
+  // QRMaskPattern
+  //---------------------------------------------------------------------
+
+  var QRMaskPattern = {
+    PATTERN000 : 0,
+    PATTERN001 : 1,
+    PATTERN010 : 2,
+    PATTERN011 : 3,
+    PATTERN100 : 4,
+    PATTERN101 : 5,
+    PATTERN110 : 6,
+    PATTERN111 : 7
+  };
+
+  //---------------------------------------------------------------------
+  // QRUtil
+  //---------------------------------------------------------------------
+
+  var QRUtil = function() {
+
+    var PATTERN_POSITION_TABLE = [
+      [],
+      [6, 18],
+      [6, 22],
+      [6, 26],
+      [6, 30],
+      [6, 34],
+      [6, 22, 38],
+      [6, 24, 42],
+      [6, 26, 46],
+      [6, 28, 50],
+      [6, 30, 54],
+      [6, 32, 58],
+      [6, 34, 62],
+      [6, 26, 46, 66],
+      [6, 26, 48, 70],
+      [6, 26, 50, 74],
+      [6, 30, 54, 78],
+      [6, 30, 56, 82],
+      [6, 30, 58, 86],
+      [6, 34, 62, 90],
+      [6, 28, 50, 72, 94],
+      [6, 26, 50, 74, 98],
+      [6, 30, 54, 78, 102],
+      [6, 28, 54, 80, 106],
+      [6, 32, 58, 84, 110],
+      [6, 30, 58, 86, 114],
+      [6, 34, 62, 90, 118],
+      [6, 26, 50, 74, 98, 122],
+      [6, 30, 54, 78, 102, 126],
+      [6, 26, 52, 78, 104, 130],
+      [6, 30, 56, 82, 108, 134],
+      [6, 34, 60, 86, 112, 138],
+      [6, 30, 58, 86, 114, 142],
+      [6, 34, 62, 90, 118, 146],
+      [6, 30, 54, 78, 102, 126, 150],
+      [6, 24, 50, 76, 102, 128, 154],
+      [6, 28, 54, 80, 106, 132, 158],
+      [6, 32, 58, 84, 110, 136, 162],
+      [6, 26, 54, 82, 110, 138, 166],
+      [6, 30, 58, 86, 114, 142, 170]
+    ];
+    var G15 = (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0);
+    var G18 = (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0);
+    var G15_MASK = (1 << 14) | (1 << 12) | (1 << 10) | (1 << 4) | (1 << 1);
+
+    var _this = {};
+
+    var getBCHDigit = function(data) {
+      var digit = 0;
+      while (data != 0) {
+        digit += 1;
+        data >>>= 1;
+      }
+      return digit;
+    };
+
+    _this.getBCHTypeInfo = function(data) {
+      var d = data << 10;
+      while (getBCHDigit(d) - getBCHDigit(G15) >= 0) {
+        d ^= (G15 << (getBCHDigit(d) - getBCHDigit(G15) ) );
+      }
+      return ( (data << 10) | d) ^ G15_MASK;
+    };
+
+    _this.getBCHTypeNumber = function(data) {
+      var d = data << 12;
+      while (getBCHDigit(d) - getBCHDigit(G18) >= 0) {
+        d ^= (G18 << (getBCHDigit(d) - getBCHDigit(G18) ) );
+      }
+      return (data << 12) | d;
+    };
+
+    _this.getPatternPosition = function(typeNumber) {
+      return PATTERN_POSITION_TABLE[typeNumber - 1];
+    };
+
+    _this.getMaskFunction = function(maskPattern) {
+
+      switch (maskPattern) {
+
+      case QRMaskPattern.PATTERN000 :
+        return function(i, j) { return (i + j) % 2 == 0; };
+      case QRMaskPattern.PATTERN001 :
+        return function(i, j) { return i % 2 == 0; };
+      case QRMaskPattern.PATTERN010 :
+        return function(i, j) { return j % 3 == 0; };
+      case QRMaskPattern.PATTERN011 :
+        return function(i, j) { return (i + j) % 3 == 0; };
+      case QRMaskPattern.PATTERN100 :
+        return function(i, j) { return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 == 0; };
+      case QRMaskPattern.PATTERN101 :
+        return function(i, j) { return (i * j) % 2 + (i * j) % 3 == 0; };
+      case QRMaskPattern.PATTERN110 :
+        return function(i, j) { return ( (i * j) % 2 + (i * j) % 3) % 2 == 0; };
+      case QRMaskPattern.PATTERN111 :
+        return function(i, j) { return ( (i * j) % 3 + (i + j) % 2) % 2 == 0; };
+
+      default :
+        throw 'bad maskPattern:' + maskPattern;
+      }
+    };
+
+    _this.getErrorCorrectPolynomial = function(errorCorrectLength) {
+      var a = qrPolynomial([1], 0);
+      for (var i = 0; i < errorCorrectLength; i += 1) {
+        a = a.multiply(qrPolynomial([1, QRMath.gexp(i)], 0) );
+      }
+      return a;
+    };
+
+    _this.getLengthInBits = function(mode, type) {
+
+      if (1 <= type && type < 10) {
+
+        // 1 - 9
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 10;
+        case QRMode.MODE_ALPHA_NUM : return 9;
+        case QRMode.MODE_8BIT_BYTE : return 8;
+        case QRMode.MODE_KANJI     : return 8;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 27) {
+
+        // 10 - 26
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 12;
+        case QRMode.MODE_ALPHA_NUM : return 11;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 10;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else if (type < 41) {
+
+        // 27 - 40
+
+        switch(mode) {
+        case QRMode.MODE_NUMBER    : return 14;
+        case QRMode.MODE_ALPHA_NUM : return 13;
+        case QRMode.MODE_8BIT_BYTE : return 16;
+        case QRMode.MODE_KANJI     : return 12;
+        default :
+          throw 'mode:' + mode;
+        }
+
+      } else {
+        throw 'type:' + type;
+      }
+    };
+
+    _this.getLostPoint = function(qrcode) {
+
+      var moduleCount = qrcode.getModuleCount();
+
+      var lostPoint = 0;
+
+      // LEVEL1
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount; col += 1) {
+
+          var sameCount = 0;
+          var dark = qrcode.isDark(row, col);
+
+          for (var r = -1; r <= 1; r += 1) {
+
+            if (row + r < 0 || moduleCount <= row + r) {
+              continue;
+            }
+
+            for (var c = -1; c <= 1; c += 1) {
+
+              if (col + c < 0 || moduleCount <= col + c) {
+                continue;
+              }
+
+              if (r == 0 && c == 0) {
+                continue;
+              }
+
+              if (dark == qrcode.isDark(row + r, col + c) ) {
+                sameCount += 1;
+              }
+            }
+          }
+
+          if (sameCount > 5) {
+            lostPoint += (3 + sameCount - 5);
+          }
+        }
+      };
+
+      // LEVEL2
+
+      for (var row = 0; row < moduleCount - 1; row += 1) {
+        for (var col = 0; col < moduleCount - 1; col += 1) {
+          var count = 0;
+          if (qrcode.isDark(row, col) ) count += 1;
+          if (qrcode.isDark(row + 1, col) ) count += 1;
+          if (qrcode.isDark(row, col + 1) ) count += 1;
+          if (qrcode.isDark(row + 1, col + 1) ) count += 1;
+          if (count == 0 || count == 4) {
+            lostPoint += 3;
+          }
+        }
+      }
+
+      // LEVEL3
+
+      for (var row = 0; row < moduleCount; row += 1) {
+        for (var col = 0; col < moduleCount - 6; col += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row, col + 1)
+              &&  qrcode.isDark(row, col + 2)
+              &&  qrcode.isDark(row, col + 3)
+              &&  qrcode.isDark(row, col + 4)
+              && !qrcode.isDark(row, col + 5)
+              &&  qrcode.isDark(row, col + 6) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount - 6; row += 1) {
+          if (qrcode.isDark(row, col)
+              && !qrcode.isDark(row + 1, col)
+              &&  qrcode.isDark(row + 2, col)
+              &&  qrcode.isDark(row + 3, col)
+              &&  qrcode.isDark(row + 4, col)
+              && !qrcode.isDark(row + 5, col)
+              &&  qrcode.isDark(row + 6, col) ) {
+            lostPoint += 40;
+          }
+        }
+      }
+
+      // LEVEL4
+
+      var darkCount = 0;
+
+      for (var col = 0; col < moduleCount; col += 1) {
+        for (var row = 0; row < moduleCount; row += 1) {
+          if (qrcode.isDark(row, col) ) {
+            darkCount += 1;
+          }
+        }
+      }
+
+      var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+      lostPoint += ratio * 10;
+
+      return lostPoint;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // QRMath
+  //---------------------------------------------------------------------
+
+  var QRMath = function() {
+
+    var EXP_TABLE = new Array(256);
+    var LOG_TABLE = new Array(256);
+
+    // initialize tables
+    for (var i = 0; i < 8; i += 1) {
+      EXP_TABLE[i] = 1 << i;
+    }
+    for (var i = 8; i < 256; i += 1) {
+      EXP_TABLE[i] = EXP_TABLE[i - 4]
+        ^ EXP_TABLE[i - 5]
+        ^ EXP_TABLE[i - 6]
+        ^ EXP_TABLE[i - 8];
+    }
+    for (var i = 0; i < 255; i += 1) {
+      LOG_TABLE[EXP_TABLE[i] ] = i;
+    }
+
+    var _this = {};
+
+    _this.glog = function(n) {
+
+      if (n < 1) {
+        throw 'glog(' + n + ')';
+      }
+
+      return LOG_TABLE[n];
+    };
+
+    _this.gexp = function(n) {
+
+      while (n < 0) {
+        n += 255;
+      }
+
+      while (n >= 256) {
+        n -= 255;
+      }
+
+      return EXP_TABLE[n];
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrPolynomial
+  //---------------------------------------------------------------------
+
+  function qrPolynomial(num, shift) {
+
+    if (typeof num.length == 'undefined') {
+      throw num.length + '/' + shift;
+    }
+
+    var _num = function() {
+      var offset = 0;
+      while (offset < num.length && num[offset] == 0) {
+        offset += 1;
+      }
+      var _num = new Array(num.length - offset + shift);
+      for (var i = 0; i < num.length - offset; i += 1) {
+        _num[i] = num[i + offset];
+      }
+      return _num;
+    }();
+
+    var _this = {};
+
+    _this.getAt = function(index) {
+      return _num[index];
+    };
+
+    _this.getLength = function() {
+      return _num.length;
+    };
+
+    _this.multiply = function(e) {
+
+      var num = new Array(_this.getLength() + e.getLength() - 1);
+
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        for (var j = 0; j < e.getLength(); j += 1) {
+          num[i + j] ^= QRMath.gexp(QRMath.glog(_this.getAt(i) ) + QRMath.glog(e.getAt(j) ) );
+        }
+      }
+
+      return qrPolynomial(num, 0);
+    };
+
+    _this.mod = function(e) {
+
+      if (_this.getLength() - e.getLength() < 0) {
+        return _this;
+      }
+
+      var ratio = QRMath.glog(_this.getAt(0) ) - QRMath.glog(e.getAt(0) );
+
+      var num = new Array(_this.getLength() );
+      for (var i = 0; i < _this.getLength(); i += 1) {
+        num[i] = _this.getAt(i);
+      }
+
+      for (var i = 0; i < e.getLength(); i += 1) {
+        num[i] ^= QRMath.gexp(QRMath.glog(e.getAt(i) ) + ratio);
+      }
+
+      // recursive call
+      return qrPolynomial(num, 0).mod(e);
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // QRRSBlock
+  //---------------------------------------------------------------------
+
+  var QRRSBlock = function() {
+
+    var RS_BLOCK_TABLE = [
+
+      // L
+      // M
+      // Q
+      // H
+
+      // 1
+      [1, 26, 19],
+      [1, 26, 16],
+      [1, 26, 13],
+      [1, 26, 9],
+
+      // 2
+      [1, 44, 34],
+      [1, 44, 28],
+      [1, 44, 22],
+      [1, 44, 16],
+
+      // 3
+      [1, 70, 55],
+      [1, 70, 44],
+      [2, 35, 17],
+      [2, 35, 13],
+
+      // 4
+      [1, 100, 80],
+      [2, 50, 32],
+      [2, 50, 24],
+      [4, 25, 9],
+
+      // 5
+      [1, 134, 108],
+      [2, 67, 43],
+      [2, 33, 15, 2, 34, 16],
+      [2, 33, 11, 2, 34, 12],
+
+      // 6
+      [2, 86, 68],
+      [4, 43, 27],
+      [4, 43, 19],
+      [4, 43, 15],
+
+      // 7
+      [2, 98, 78],
+      [4, 49, 31],
+      [2, 32, 14, 4, 33, 15],
+      [4, 39, 13, 1, 40, 14],
+
+      // 8
+      [2, 121, 97],
+      [2, 60, 38, 2, 61, 39],
+      [4, 40, 18, 2, 41, 19],
+      [4, 40, 14, 2, 41, 15],
+
+      // 9
+      [2, 146, 116],
+      [3, 58, 36, 2, 59, 37],
+      [4, 36, 16, 4, 37, 17],
+      [4, 36, 12, 4, 37, 13],
+
+      // 10
+      [2, 86, 68, 2, 87, 69],
+      [4, 69, 43, 1, 70, 44],
+      [6, 43, 19, 2, 44, 20],
+      [6, 43, 15, 2, 44, 16],
+
+      // 11
+      [4, 101, 81],
+      [1, 80, 50, 4, 81, 51],
+      [4, 50, 22, 4, 51, 23],
+      [3, 36, 12, 8, 37, 13],
+
+      // 12
+      [2, 116, 92, 2, 117, 93],
+      [6, 58, 36, 2, 59, 37],
+      [4, 46, 20, 6, 47, 21],
+      [7, 42, 14, 4, 43, 15],
+
+      // 13
+      [4, 133, 107],
+      [8, 59, 37, 1, 60, 38],
+      [8, 44, 20, 4, 45, 21],
+      [12, 33, 11, 4, 34, 12],
+
+      // 14
+      [3, 145, 115, 1, 146, 116],
+      [4, 64, 40, 5, 65, 41],
+      [11, 36, 16, 5, 37, 17],
+      [11, 36, 12, 5, 37, 13],
+
+      // 15
+      [5, 109, 87, 1, 110, 88],
+      [5, 65, 41, 5, 66, 42],
+      [5, 54, 24, 7, 55, 25],
+      [11, 36, 12, 7, 37, 13],
+
+      // 16
+      [5, 122, 98, 1, 123, 99],
+      [7, 73, 45, 3, 74, 46],
+      [15, 43, 19, 2, 44, 20],
+      [3, 45, 15, 13, 46, 16],
+
+      // 17
+      [1, 135, 107, 5, 136, 108],
+      [10, 74, 46, 1, 75, 47],
+      [1, 50, 22, 15, 51, 23],
+      [2, 42, 14, 17, 43, 15],
+
+      // 18
+      [5, 150, 120, 1, 151, 121],
+      [9, 69, 43, 4, 70, 44],
+      [17, 50, 22, 1, 51, 23],
+      [2, 42, 14, 19, 43, 15],
+
+      // 19
+      [3, 141, 113, 4, 142, 114],
+      [3, 70, 44, 11, 71, 45],
+      [17, 47, 21, 4, 48, 22],
+      [9, 39, 13, 16, 40, 14],
+
+      // 20
+      [3, 135, 107, 5, 136, 108],
+      [3, 67, 41, 13, 68, 42],
+      [15, 54, 24, 5, 55, 25],
+      [15, 43, 15, 10, 44, 16],
+
+      // 21
+      [4, 144, 116, 4, 145, 117],
+      [17, 68, 42],
+      [17, 50, 22, 6, 51, 23],
+      [19, 46, 16, 6, 47, 17],
+
+      // 22
+      [2, 139, 111, 7, 140, 112],
+      [17, 74, 46],
+      [7, 54, 24, 16, 55, 25],
+      [34, 37, 13],
+
+      // 23
+      [4, 151, 121, 5, 152, 122],
+      [4, 75, 47, 14, 76, 48],
+      [11, 54, 24, 14, 55, 25],
+      [16, 45, 15, 14, 46, 16],
+
+      // 24
+      [6, 147, 117, 4, 148, 118],
+      [6, 73, 45, 14, 74, 46],
+      [11, 54, 24, 16, 55, 25],
+      [30, 46, 16, 2, 47, 17],
+
+      // 25
+      [8, 132, 106, 4, 133, 107],
+      [8, 75, 47, 13, 76, 48],
+      [7, 54, 24, 22, 55, 25],
+      [22, 45, 15, 13, 46, 16],
+
+      // 26
+      [10, 142, 114, 2, 143, 115],
+      [19, 74, 46, 4, 75, 47],
+      [28, 50, 22, 6, 51, 23],
+      [33, 46, 16, 4, 47, 17],
+
+      // 27
+      [8, 152, 122, 4, 153, 123],
+      [22, 73, 45, 3, 74, 46],
+      [8, 53, 23, 26, 54, 24],
+      [12, 45, 15, 28, 46, 16],
+
+      // 28
+      [3, 147, 117, 10, 148, 118],
+      [3, 73, 45, 23, 74, 46],
+      [4, 54, 24, 31, 55, 25],
+      [11, 45, 15, 31, 46, 16],
+
+      // 29
+      [7, 146, 116, 7, 147, 117],
+      [21, 73, 45, 7, 74, 46],
+      [1, 53, 23, 37, 54, 24],
+      [19, 45, 15, 26, 46, 16],
+
+      // 30
+      [5, 145, 115, 10, 146, 116],
+      [19, 75, 47, 10, 76, 48],
+      [15, 54, 24, 25, 55, 25],
+      [23, 45, 15, 25, 46, 16],
+
+      // 31
+      [13, 145, 115, 3, 146, 116],
+      [2, 74, 46, 29, 75, 47],
+      [42, 54, 24, 1, 55, 25],
+      [23, 45, 15, 28, 46, 16],
+
+      // 32
+      [17, 145, 115],
+      [10, 74, 46, 23, 75, 47],
+      [10, 54, 24, 35, 55, 25],
+      [19, 45, 15, 35, 46, 16],
+
+      // 33
+      [17, 145, 115, 1, 146, 116],
+      [14, 74, 46, 21, 75, 47],
+      [29, 54, 24, 19, 55, 25],
+      [11, 45, 15, 46, 46, 16],
+
+      // 34
+      [13, 145, 115, 6, 146, 116],
+      [14, 74, 46, 23, 75, 47],
+      [44, 54, 24, 7, 55, 25],
+      [59, 46, 16, 1, 47, 17],
+
+      // 35
+      [12, 151, 121, 7, 152, 122],
+      [12, 75, 47, 26, 76, 48],
+      [39, 54, 24, 14, 55, 25],
+      [22, 45, 15, 41, 46, 16],
+
+      // 36
+      [6, 151, 121, 14, 152, 122],
+      [6, 75, 47, 34, 76, 48],
+      [46, 54, 24, 10, 55, 25],
+      [2, 45, 15, 64, 46, 16],
+
+      // 37
+      [17, 152, 122, 4, 153, 123],
+      [29, 74, 46, 14, 75, 47],
+      [49, 54, 24, 10, 55, 25],
+      [24, 45, 15, 46, 46, 16],
+
+      // 38
+      [4, 152, 122, 18, 153, 123],
+      [13, 74, 46, 32, 75, 47],
+      [48, 54, 24, 14, 55, 25],
+      [42, 45, 15, 32, 46, 16],
+
+      // 39
+      [20, 147, 117, 4, 148, 118],
+      [40, 75, 47, 7, 76, 48],
+      [43, 54, 24, 22, 55, 25],
+      [10, 45, 15, 67, 46, 16],
+
+      // 40
+      [19, 148, 118, 6, 149, 119],
+      [18, 75, 47, 31, 76, 48],
+      [34, 54, 24, 34, 55, 25],
+      [20, 45, 15, 61, 46, 16]
+    ];
+
+    var qrRSBlock = function(totalCount, dataCount) {
+      var _this = {};
+      _this.totalCount = totalCount;
+      _this.dataCount = dataCount;
+      return _this;
+    };
+
+    var _this = {};
+
+    var getRsBlockTable = function(typeNumber, errorCorrectionLevel) {
+
+      switch(errorCorrectionLevel) {
+      case QRErrorCorrectionLevel.L :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+      case QRErrorCorrectionLevel.M :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+      case QRErrorCorrectionLevel.Q :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+      case QRErrorCorrectionLevel.H :
+        return RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+      default :
+        return undefined;
+      }
+    };
+
+    _this.getRSBlocks = function(typeNumber, errorCorrectionLevel) {
+
+      var rsBlock = getRsBlockTable(typeNumber, errorCorrectionLevel);
+
+      if (typeof rsBlock == 'undefined') {
+        throw 'bad rs block @ typeNumber:' + typeNumber +
+            '/errorCorrectionLevel:' + errorCorrectionLevel;
+      }
+
+      var length = rsBlock.length / 3;
+
+      var list = [];
+
+      for (var i = 0; i < length; i += 1) {
+
+        var count = rsBlock[i * 3 + 0];
+        var totalCount = rsBlock[i * 3 + 1];
+        var dataCount = rsBlock[i * 3 + 2];
+
+        for (var j = 0; j < count; j += 1) {
+          list.push(qrRSBlock(totalCount, dataCount) );
+        }
+      }
+
+      return list;
+    };
+
+    return _this;
+  }();
+
+  //---------------------------------------------------------------------
+  // qrBitBuffer
+  //---------------------------------------------------------------------
+
+  var qrBitBuffer = function() {
+
+    var _buffer = [];
+    var _length = 0;
+
+    var _this = {};
+
+    _this.getBuffer = function() {
+      return _buffer;
+    };
+
+    _this.getAt = function(index) {
+      var bufIndex = Math.floor(index / 8);
+      return ( (_buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+    };
+
+    _this.put = function(num, length) {
+      for (var i = 0; i < length; i += 1) {
+        _this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+      }
+    };
+
+    _this.getLengthInBits = function() {
+      return _length;
+    };
+
+    _this.putBit = function(bit) {
+
+      var bufIndex = Math.floor(_length / 8);
+      if (_buffer.length <= bufIndex) {
+        _buffer.push(0);
+      }
+
+      if (bit) {
+        _buffer[bufIndex] |= (0x80 >>> (_length % 8) );
+      }
+
+      _length += 1;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrNumber
+  //---------------------------------------------------------------------
+
+  var qrNumber = function(data) {
+
+    var _mode = QRMode.MODE_NUMBER;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _data;
+
+      var i = 0;
+
+      while (i + 2 < data.length) {
+        buffer.put(strToNum(data.substring(i, i + 3) ), 10);
+        i += 3;
+      }
+
+      if (i < data.length) {
+        if (data.length - i == 1) {
+          buffer.put(strToNum(data.substring(i, i + 1) ), 4);
+        } else if (data.length - i == 2) {
+          buffer.put(strToNum(data.substring(i, i + 2) ), 7);
+        }
+      }
+    };
+
+    var strToNum = function(s) {
+      var num = 0;
+      for (var i = 0; i < s.length; i += 1) {
+        num = num * 10 + chatToNum(s.charAt(i) );
+      }
+      return num;
+    };
+
+    var chatToNum = function(c) {
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      }
+      throw 'illegal char :' + c;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrAlphaNum
+  //---------------------------------------------------------------------
+
+  var qrAlphaNum = function(data) {
+
+    var _mode = QRMode.MODE_ALPHA_NUM;
+    var _data = data;
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _data.length;
+    };
+
+    _this.write = function(buffer) {
+
+      var s = _data;
+
+      var i = 0;
+
+      while (i + 1 < s.length) {
+        buffer.put(
+          getCode(s.charAt(i) ) * 45 +
+          getCode(s.charAt(i + 1) ), 11);
+        i += 2;
+      }
+
+      if (i < s.length) {
+        buffer.put(getCode(s.charAt(i) ), 6);
+      }
+    };
+
+    var getCode = function(c) {
+
+      if ('0' <= c && c <= '9') {
+        return c.charCodeAt(0) - '0'.charCodeAt(0);
+      } else if ('A' <= c && c <= 'Z') {
+        return c.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+      } else {
+        switch (c) {
+        case ' ' : return 36;
+        case '$' : return 37;
+        case '%' : return 38;
+        case '*' : return 39;
+        case '+' : return 40;
+        case '-' : return 41;
+        case '.' : return 42;
+        case '/' : return 43;
+        case ':' : return 44;
+        default :
+          throw 'illegal char :' + c;
+        }
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qr8BitByte
+  //---------------------------------------------------------------------
+
+  var qr8BitByte = function(data) {
+
+    var _mode = QRMode.MODE_8BIT_BYTE;
+    var _data = data;
+    var _bytes = qrcode.stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return _bytes.length;
+    };
+
+    _this.write = function(buffer) {
+      for (var i = 0; i < _bytes.length; i += 1) {
+        buffer.put(_bytes[i], 8);
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // qrKanji
+  //---------------------------------------------------------------------
+
+  var qrKanji = function(data) {
+
+    var _mode = QRMode.MODE_KANJI;
+    var _data = data;
+
+    var stringToBytes = qrcode.stringToBytesFuncs['SJIS'];
+    if (!stringToBytes) {
+      throw 'sjis not supported.';
+    }
+    !function(c, code) {
+      // self test for sjis support.
+      var test = stringToBytes(c);
+      if (test.length != 2 || ( (test[0] << 8) | test[1]) != code) {
+        throw 'sjis not supported.';
+      }
+    }('\u53cb', 0x9746);
+
+    var _bytes = stringToBytes(data);
+
+    var _this = {};
+
+    _this.getMode = function() {
+      return _mode;
+    };
+
+    _this.getLength = function(buffer) {
+      return ~~(_bytes.length / 2);
+    };
+
+    _this.write = function(buffer) {
+
+      var data = _bytes;
+
+      var i = 0;
+
+      while (i + 1 < data.length) {
+
+        var c = ( (0xff & data[i]) << 8) | (0xff & data[i + 1]);
+
+        if (0x8140 <= c && c <= 0x9FFC) {
+          c -= 0x8140;
+        } else if (0xE040 <= c && c <= 0xEBBF) {
+          c -= 0xC140;
+        } else {
+          throw 'illegal char at ' + (i + 1) + '/' + c;
+        }
+
+        c = ( (c >>> 8) & 0xff) * 0xC0 + (c & 0xff);
+
+        buffer.put(c, 13);
+
+        i += 2;
+      }
+
+      if (i < data.length) {
+        throw 'illegal char at ' + (i + 1);
+      }
+    };
+
+    return _this;
+  };
+
+  //=====================================================================
+  // GIF Support etc.
+  //
+
+  //---------------------------------------------------------------------
+  // byteArrayOutputStream
+  //---------------------------------------------------------------------
+
+  var byteArrayOutputStream = function() {
+
+    var _bytes = [];
+
+    var _this = {};
+
+    _this.writeByte = function(b) {
+      _bytes.push(b & 0xff);
+    };
+
+    _this.writeShort = function(i) {
+      _this.writeByte(i);
+      _this.writeByte(i >>> 8);
+    };
+
+    _this.writeBytes = function(b, off, len) {
+      off = off || 0;
+      len = len || b.length;
+      for (var i = 0; i < len; i += 1) {
+        _this.writeByte(b[i + off]);
+      }
+    };
+
+    _this.writeString = function(s) {
+      for (var i = 0; i < s.length; i += 1) {
+        _this.writeByte(s.charCodeAt(i) );
+      }
+    };
+
+    _this.toByteArray = function() {
+      return _bytes;
+    };
+
+    _this.toString = function() {
+      var s = '';
+      s += '[';
+      for (var i = 0; i < _bytes.length; i += 1) {
+        if (i > 0) {
+          s += ',';
+        }
+        s += _bytes[i];
+      }
+      s += ']';
+      return s;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64EncodeOutputStream
+  //---------------------------------------------------------------------
+
+  var base64EncodeOutputStream = function() {
+
+    var _buffer = 0;
+    var _buflen = 0;
+    var _length = 0;
+    var _base64 = '';
+
+    var _this = {};
+
+    var writeEncoded = function(b) {
+      _base64 += String.fromCharCode(encode(b & 0x3f) );
+    };
+
+    var encode = function(n) {
+      if (n < 0) {
+        // error.
+      } else if (n < 26) {
+        return 0x41 + n;
+      } else if (n < 52) {
+        return 0x61 + (n - 26);
+      } else if (n < 62) {
+        return 0x30 + (n - 52);
+      } else if (n == 62) {
+        return 0x2b;
+      } else if (n == 63) {
+        return 0x2f;
+      }
+      throw 'n:' + n;
+    };
+
+    _this.writeByte = function(n) {
+
+      _buffer = (_buffer << 8) | (n & 0xff);
+      _buflen += 8;
+      _length += 1;
+
+      while (_buflen >= 6) {
+        writeEncoded(_buffer >>> (_buflen - 6) );
+        _buflen -= 6;
+      }
+    };
+
+    _this.flush = function() {
+
+      if (_buflen > 0) {
+        writeEncoded(_buffer << (6 - _buflen) );
+        _buffer = 0;
+        _buflen = 0;
+      }
+
+      if (_length % 3 != 0) {
+        // padding
+        var padlen = 3 - _length % 3;
+        for (var i = 0; i < padlen; i += 1) {
+          _base64 += '=';
+        }
+      }
+    };
+
+    _this.toString = function() {
+      return _base64;
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // base64DecodeInputStream
+  //---------------------------------------------------------------------
+
+  var base64DecodeInputStream = function(str) {
+
+    var _str = str;
+    var _pos = 0;
+    var _buffer = 0;
+    var _buflen = 0;
+
+    var _this = {};
+
+    _this.read = function() {
+
+      while (_buflen < 8) {
+
+        if (_pos >= _str.length) {
+          if (_buflen == 0) {
+            return -1;
+          }
+          throw 'unexpected end of file./' + _buflen;
+        }
+
+        var c = _str.charAt(_pos);
+        _pos += 1;
+
+        if (c == '=') {
+          _buflen = 0;
+          return -1;
+        } else if (c.match(/^\s$/) ) {
+          // ignore if whitespace.
+          continue;
+        }
+
+        _buffer = (_buffer << 6) | decode(c.charCodeAt(0) );
+        _buflen += 6;
+      }
+
+      var n = (_buffer >>> (_buflen - 8) ) & 0xff;
+      _buflen -= 8;
+      return n;
+    };
+
+    var decode = function(c) {
+      if (0x41 <= c && c <= 0x5a) {
+        return c - 0x41;
+      } else if (0x61 <= c && c <= 0x7a) {
+        return c - 0x61 + 26;
+      } else if (0x30 <= c && c <= 0x39) {
+        return c - 0x30 + 52;
+      } else if (c == 0x2b) {
+        return 62;
+      } else if (c == 0x2f) {
+        return 63;
+      } else {
+        throw 'c:' + c;
+      }
+    };
+
+    return _this;
+  };
+
+  //---------------------------------------------------------------------
+  // gifImage (B/W)
+  //---------------------------------------------------------------------
+
+  var gifImage = function(width, height) {
+
+    var _width = width;
+    var _height = height;
+    var _data = new Array(width * height);
+
+    var _this = {};
+
+    _this.setPixel = function(x, y, pixel) {
+      _data[y * _width + x] = pixel;
+    };
+
+    _this.write = function(out) {
+
+      //---------------------------------
+      // GIF Signature
+
+      out.writeString('GIF87a');
+
+      //---------------------------------
+      // Screen Descriptor
+
+      out.writeShort(_width);
+      out.writeShort(_height);
+
+      out.writeByte(0x80); // 2bit
+      out.writeByte(0);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Global Color Map
+
+      // black
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+      out.writeByte(0x00);
+
+      // white
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+      out.writeByte(0xff);
+
+      //---------------------------------
+      // Image Descriptor
+
+      out.writeString(',');
+      out.writeShort(0);
+      out.writeShort(0);
+      out.writeShort(_width);
+      out.writeShort(_height);
+      out.writeByte(0);
+
+      //---------------------------------
+      // Local Color Map
+
+      //---------------------------------
+      // Raster Data
+
+      var lzwMinCodeSize = 2;
+      var raster = getLZWRaster(lzwMinCodeSize);
+
+      out.writeByte(lzwMinCodeSize);
+
+      var offset = 0;
+
+      while (raster.length - offset > 255) {
+        out.writeByte(255);
+        out.writeBytes(raster, offset, 255);
+        offset += 255;
+      }
+
+      out.writeByte(raster.length - offset);
+      out.writeBytes(raster, offset, raster.length - offset);
+      out.writeByte(0x00);
+
+      //---------------------------------
+      // GIF Terminator
+      out.writeString(';');
+    };
+
+    var bitOutputStream = function(out) {
+
+      var _out = out;
+      var _bitLength = 0;
+      var _bitBuffer = 0;
+
+      var _this = {};
+
+      _this.write = function(data, length) {
+
+        if ( (data >>> length) != 0) {
+          throw 'length over';
+        }
+
+        while (_bitLength + length >= 8) {
+          _out.writeByte(0xff & ( (data << _bitLength) | _bitBuffer) );
+          length -= (8 - _bitLength);
+          data >>>= (8 - _bitLength);
+          _bitBuffer = 0;
+          _bitLength = 0;
+        }
+
+        _bitBuffer = (data << _bitLength) | _bitBuffer;
+        _bitLength = _bitLength + length;
+      };
+
+      _this.flush = function() {
+        if (_bitLength > 0) {
+          _out.writeByte(_bitBuffer);
+        }
+      };
+
+      return _this;
+    };
+
+    var getLZWRaster = function(lzwMinCodeSize) {
+
+      var clearCode = 1 << lzwMinCodeSize;
+      var endCode = (1 << lzwMinCodeSize) + 1;
+      var bitLength = lzwMinCodeSize + 1;
+
+      // Setup LZWTable
+      var table = lzwTable();
+
+      for (var i = 0; i < clearCode; i += 1) {
+        table.add(String.fromCharCode(i) );
+      }
+      table.add(String.fromCharCode(clearCode) );
+      table.add(String.fromCharCode(endCode) );
+
+      var byteOut = byteArrayOutputStream();
+      var bitOut = bitOutputStream(byteOut);
+
+      // clear code
+      bitOut.write(clearCode, bitLength);
+
+      var dataIndex = 0;
+
+      var s = String.fromCharCode(_data[dataIndex]);
+      dataIndex += 1;
+
+      while (dataIndex < _data.length) {
+
+        var c = String.fromCharCode(_data[dataIndex]);
+        dataIndex += 1;
+
+        if (table.contains(s + c) ) {
+
+          s = s + c;
+
+        } else {
+
+          bitOut.write(table.indexOf(s), bitLength);
+
+          if (table.size() < 0xfff) {
+
+            if (table.size() == (1 << bitLength) ) {
+              bitLength += 1;
+            }
+
+            table.add(s + c);
+          }
+
+          s = c;
+        }
+      }
+
+      bitOut.write(table.indexOf(s), bitLength);
+
+      // end code
+      bitOut.write(endCode, bitLength);
+
+      bitOut.flush();
+
+      return byteOut.toByteArray();
+    };
+
+    var lzwTable = function() {
+
+      var _map = {};
+      var _size = 0;
+
+      var _this = {};
+
+      _this.add = function(key) {
+        if (_this.contains(key) ) {
+          throw 'dup key:' + key;
+        }
+        _map[key] = _size;
+        _size += 1;
+      };
+
+      _this.size = function() {
+        return _size;
+      };
+
+      _this.indexOf = function(key) {
+        return _map[key];
+      };
+
+      _this.contains = function(key) {
+        return typeof _map[key] != 'undefined';
+      };
+
+      return _this;
+    };
+
+    return _this;
+  };
+
+  var createDataURL = function(width, height, getPixel) {
+    var gif = gifImage(width, height);
+    for (var y = 0; y < height; y += 1) {
+      for (var x = 0; x < width; x += 1) {
+        gif.setPixel(x, y, getPixel(x, y) );
+      }
+    }
+
+    var b = byteArrayOutputStream();
+    gif.write(b);
+
+    var base64 = base64EncodeOutputStream();
+    var bytes = b.toByteArray();
+    for (var i = 0; i < bytes.length; i += 1) {
+      base64.writeByte(bytes[i]);
+    }
+    base64.flush();
+
+    return 'data:image/gif;base64,' + base64;
+  };
+
+  //---------------------------------------------------------------------
+  // returns qrcode function.
+
+  return qrcode;
+}();
+
+// multibyte support
+!function() {
+
+  qrcode.stringToBytesFuncs['UTF-8'] = function(s) {
+    // http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
+    function toUTF8Array(str) {
+      var utf8 = [];
+      for (var i=0; i < str.length; i++) {
+        var charcode = str.charCodeAt(i);
+        if (charcode < 0x80) utf8.push(charcode);
+        else if (charcode < 0x800) {
+          utf8.push(0xc0 | (charcode >> 6),
+              0x80 | (charcode & 0x3f));
+        }
+        else if (charcode < 0xd800 || charcode >= 0xe000) {
+          utf8.push(0xe0 | (charcode >> 12),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+        // surrogate pair
+        else {
+          i++;
+          // UTF-16 encodes 0x10000-0x10FFFF by
+          // subtracting 0x10000 and splitting the
+          // 20 bits of 0x0-0xFFFFF into two halves
+          charcode = 0x10000 + (((charcode & 0x3ff)<<10)
+            | (str.charCodeAt(i) & 0x3ff));
+          utf8.push(0xf0 | (charcode >>18),
+              0x80 | ((charcode>>12) & 0x3f),
+              0x80 | ((charcode>>6) & 0x3f),
+              0x80 | (charcode & 0x3f));
+        }
+      }
+      return utf8;
+    }
+    return toUTF8Array(s);
+  };
+
+}();
+
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+      define([], factory);
+  } else if (typeof exports === 'object') {
+      module.exports = factory();
+  }
+}(function () {
+    return qrcode;
+}));
+</script>
+<script>
+const BUSINESS = {
+  "title": "COMMERCIAL INVOICE",
+  "company": "",
+  "address": "",
+  "ie": "",
+  "gst": "",
+  "fssai": "",
+  "uam": "",
+  "apeda": "",
+  "mandi": "",
+  "nbb": "",
+  "nbbreg": "",
+  "phone": "",
+  "mobile": "",
+  "email": "",
+  "buyer": "",
+  "buyeraddr": "",
+  "exim": "",
+  "pan": "",
+  "supply": "",
+  "inv": "",
+  "dispatchThrough": "",
+  "vehicleNo": "",
+  "code": "",
+  "freight": "",
+  "payment": "",
+  "incoterms": "",
+  "loading": "",
+  "discharge": "",
+  "shipment": "",
+  "contact": "",
+  "contactno": "",
+  "bankname": "",
+  "account": "",
+  "branch": "",
+  "ifsc": "",
+  "adcode": "",
+  "swift": "",
+  "jurisdiction": "",
+  "website": "",
+  "supplyType": "export",
+  "exportTax": "",
+  "nameFont": "script"
+};
+const DEFAULT_SIGNATURE = "";
+
+(function () {
+  "use strict";
+  const APP_SOURCE = "<!doctype html>\n" + document.documentElement.outerHTML;
+  const STORAGE_KEY = "usoa.export-document-suite.public.v2";
+  const PRINT_VPIN_KEY = STORAGE_KEY + ".lastPrintVPIN";
+  const VERIFY_URL = "https://www.usoagroup.in/verify";
+  const VPIN_CLOCK = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Kolkata", hourCycle: "h23", hour: "2-digit", minute: "2-digit",
+    weekday: "short", day: "2-digit", month: "2-digit", year: "2-digit"
+  });
+  const BACKUP_APP = "usoa-export-document-suite";
+  const TYPE_LABELS = { proforma: "Proforma invoice", commercial: "Commercial invoice", packing: "Packing list" };
+  const UNIT_LABELS = { KGS: "Kg", NOS: "Sheets", SET: "Sets", PCS: "Nos." };
+  const PARTS = [
+    ["bottom", "Bottom / floor board", "Nos."],
+    ["brood", "Brood chamber", "Nos."],
+    ["broodFrames", "Brood frames", "Nos."],
+    ["super", "Honey super chamber", "Nos."],
+    ["superFrames", "Super frames", "Nos."],
+    ["inner", "Inner cover / crown board", "Nos."],
+    ["roof", "Weatherproof outer roof", "Nos."],
+    ["excluder", "Queen excluder", "Nos."],
+    ["entrance", "Entrance reducer", "Nos."],
+    ["feeder", "Feeder", "Nos."],
+    ["stand", "Hive stand", "Nos."],
+    ["foundation", "Included foundation sheets", "Sheets"]
+  ];
+  const EDITABLE_PART_NAMES = [
+    "bottom", "brood", "broodFrames", "super", "superFrames",
+    "roof", "excluder", "entrance", "feeder", "stand", "foundation"
+  ];
+  const CATALOG = {
+    honey: { label: "Honey", description: "Natural honey", unit: "KGS", hsn: "04090000", gst: "", kind: "honey" },
+    wax: { label: "Beeswax", description: "Beeswax blocks / slabs", unit: "KGS", hsn: "15219010", gst: "", kind: "wax" },
+    sheets: { label: "Foundation sheets", description: "Beeswax comb foundation sheets", unit: "NOS", hsn: "", gst: "", kind: "sheets" },
+    cerana: { label: "Cerana hive set", description: "Complete wooden beehive set — Apis cerana", unit: "SET", hsn: "", gst: "", kind: "hive" },
+    mellifera: { label: "Mellifera hive set", description: "Complete wooden beehive set — Apis mellifera", unit: "SET", hsn: "", gst: "", kind: "hive" },
+    custom: { label: "Custom item", description: "", unit: "PCS", hsn: "", gst: "", kind: "custom" }
+  };
+  let state;
+  let activeDocument = "proforma";
+  let renderTimer;
+  let saveTimer;
+  let importRequest = 0;
+  let printRequest = null;
+  let printTimer = null;
+  let lastPrintVPIN = "";
+  let layoutWarnings = [];
+  const byId = id => document.getElementById(id);
+  const esc = value => String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  const num = value => Number.isFinite(Number(value)) ? Number(value) : 0;
+  const round = value => Math.round((num(value) + Number.EPSILON) * 100) / 100;
+  const cents = value => {
+    const result = decimalInteger(decimal(value), 2);
+    return result !== null && result <= BigInt(Number.MAX_SAFE_INTEGER) && result >= -BigInt(Number.MAX_SAFE_INTEGER) ? Number(result) : 0;
+  };
+  const money = value => num(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const qty = value => num(value).toLocaleString("en-IN", { maximumFractionDigits: 6 });
+  const priceText = value => num(value).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 8 });
+  const show = value => esc(value === 0 ? "0" : value || "—");
+  const today = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+
+  function takePrintVPIN(now) {
+    const parts = Object.fromEntries(VPIN_CLOCK.formatToParts(now).map(part => [part.type, part.value]));
+    const vpin = parts.hour + parts.minute + parts.weekday[0] + parts.day + parts.month + parts.year;
+    if (vpin === lastPrintVPIN) return "";
+    try {
+      if (localStorage.getItem(PRINT_VPIN_KEY) === vpin) return "";
+      localStorage.setItem(PRINT_VPIN_KEY, vpin);
+    } catch (error) {
+      // The current tab still tracks the last VPIN when storage is unavailable.
+    }
+    lastPrintVPIN = vpin;
+    return vpin;
+  }
+
+  // Decimal coefficients keep monetary and volume rounding independent of binary floating point.
+  function decimal(value) {
+    const text = String(value == null || value === "" ? "0" : value).trim();
+    if (text.length > 140) return null;
+    const match = text.match(/^([+-]?)(\d*)(?:\.(\d*))?(?:e([+-]?\d+))?$/i);
+    if (!match || !(match[2] || match[3])) return null;
+    const exponent = Number(match[4] || 0);
+    const digits = (match[2] + (match[3] || "")).replace(/^0+/, "") || "0";
+    if (!Number.isInteger(exponent) || Math.abs(exponent) > 40 || digits.length > 80) return null;
+    let coefficient = BigInt(digits) * (match[1] === "-" ? -1n : 1n);
+    let scale = (match[3] || "").length - exponent;
+    if (scale < 0) {
+      coefficient *= 10n ** BigInt(-scale);
+      scale = 0;
+    }
+    return { coefficient, scale };
+  }
+  function multiplyDecimals(values) {
+    let coefficient = 1n;
+    let scale = 0;
+    for (const value of values) {
+      const parsed = decimal(value);
+      if (!parsed) return null;
+      coefficient *= parsed.coefficient;
+      scale += parsed.scale;
+    }
+    return { coefficient, scale };
+  }
+  function addDecimals(values) {
+    let result = { coefficient: 0n, scale: 0 };
+    for (const value of values) {
+      if (!value) return null;
+      const scale = Math.max(result.scale, value.scale);
+      result = {
+        coefficient: result.coefficient * 10n ** BigInt(scale - result.scale) + value.coefficient * 10n ** BigInt(scale - value.scale),
+        scale
+      };
+    }
+    return result;
+  }
+  function decimalInteger(value, precision) {
+    if (!value) return null;
+    if (value.scale <= precision) return value.coefficient * 10n ** BigInt(precision - value.scale);
+    const divisor = 10n ** BigInt(value.scale - precision);
+    const absolute = value.coefficient < 0n ? -value.coefficient : value.coefficient;
+    const rounded = (absolute + divisor / 2n) / divisor;
+    return value.coefficient < 0n ? -rounded : rounded;
+  }
+  function decimalText(value, precision) {
+    const integer = decimalInteger(value, precision);
+    if (integer === null) return "—";
+    const negative = integer < 0n;
+    const digits = String(negative ? -integer : integer).padStart(precision + 1, "0");
+    return (negative ? "-" : "") + (precision ? digits.slice(0, -precision) + "." + digits.slice(-precision) : digits);
+  }
+  function productCents(quantity, rate) {
+    const result = decimalInteger(multiplyDecimals([quantity, rate]), 2);
+    return result !== null && result <= BigInt(Number.MAX_SAFE_INTEGER) && result >= -BigInt(Number.MAX_SAFE_INTEGER) ? Number(result) : NaN;
+  }
+  function validCurrency(value) {
+    const result = decimalInteger(decimal(value), 2);
+    return result !== null && result <= BigInt(Number.MAX_SAFE_INTEGER) && result >= -BigInt(Number.MAX_SAFE_INTEGER);
+  }
+  function supportedPrecision(value, places) {
+    const parsed = decimal(value);
+    return parsed !== null && (parsed.scale <= places || parsed.coefficient % (10n ** BigInt(parsed.scale - places)) === 0n);
+  }
+  function taxCents(base, rate) {
+    const result = multiplyDecimals([base, rate]);
+    if (!result) return 0;
+    result.scale += 2;
+    const rounded = decimalInteger(result, 0);
+    return rounded <= BigInt(Number.MAX_SAFE_INTEGER) && rounded >= -BigInt(Number.MAX_SAFE_INTEGER) ? Number(rounded) : 0;
+  }
+  function volumeDecimal(pack) {
+    const result = multiplyDecimals([pack.length, pack.width, pack.height, pack.count]);
+    if (result) result.scale += 6;
+    return result;
+  }
+  function volumeText(value) {
+    if (value && value.coefficient > 0n && decimalInteger(value, 3) === 0n) return "<0.001";
+    return decimalText(value, 3);
+  }
+
+  function validDate(value) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(value || "") && Number.isFinite(Date.parse(value)) && new Date(value).toISOString().slice(0, 10) === value;
+  }
+  function dateText(value) {
+    return validDate(value) ? new Date(value + "T12:00:00Z").toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }) : "—";
+  }
+  function addDays(value, days) {
+    if (!validDate(value)) return "";
+    const result = new Date(value + "T12:00:00Z");
+    result.setUTCDate(result.getUTCDate() + num(days));
+    return result.toISOString().slice(0, 10);
+  }
+  function docNumber(prefix, serial) {
+    const date = new Date(today() + "T12:00:00Z");
+    const year = date.getUTCMonth() >= 3 ? date.getUTCFullYear() : date.getUTCFullYear() - 1;
+    return prefix + "/" + year + "-" + String(year + 1).slice(-2) + "/" + String(serial).padStart(3, "0");
+  }
+  function nextId(prefix) {
+    let id;
+    do {
+      state.nextId += 1;
+      id = prefix + state.nextId;
+    } while (state.items.some(item => item.id === id) || state.packages.some(pack => pack.id === id));
+    return id;
+  }
+  function newItem(key, id) {
+    const preset = CATALOG[key] || CATALOG.custom;
+    const frames = key === "cerana" ? 8 : 10;
+    return {
+      id, product: key, description: preset.description, unit: preset.unit, hsn: preset.hsn, gst: preset.gst,
+      quantity: "", rate: "", batch: "", origin: "India", classificationConfirmed: false, specificationConfirmed: false,
+      variety: "", grade: "", manufactureDate: "", bestBefore: "", model: "", wood: "", dimensions: "",
+      cellSize: "", sheetSize: "", thickness: "", purity: "", notes: "",
+      parts: { bottom: 1, brood: 1, broodFrames: frames, super: 1, superFrames: frames, inner: 1, roof: 1, excluder: 1, entrance: 1, feeder: 1, stand: 1, foundation: 0 },
+      partNames: {}
+    };
+  }
+  function newPackage(id) {
+    return { id, type: "Carton", count: "", weightBasis: "total", net: "", gross: "", length: "", width: "", height: "", notes: "", allocations: [] };
+  }
+  function freshState(serial, sample) {
+    const fields = Object.assign({}, BUSINESS, {
+      piNo: docNumber("PI", serial), piDate: today(), validUntil: addDays(today(), 30),
+      ciNo: docNumber("INV", serial), ciDate: today(), plNo: docNumber("PL", serial), plDate: today(),
+      poNo: "", poDate: "", quoteTaxBasis: "exclude", exportTax: "igst", reverseCharge: "no",
+      shipSame: true, shipName: BUSINESS.buyer, shipAddress: BUSINESS.buyeraddr, shipCountry: BUSINESS.supply,
+      dispatchThrough: "Road transport", vehicleNo: "", dispatchDate: "", lrNo: "", lrDate: "", ewayNo: "", ewayDate: "",
+      creditDays: "60", dueDate: addDays(today(), 60), leadTime: "", incotermPlace: "",
+      discount: "0", freight: "0", freightGST: "", insurance: "0", insuranceGST: "",
+      advance: "0", lutRef: "", eInvoice: "review", irn: "", ackNo: "", ackDate: "",
+      marksPrefix: "PKG", firstPackageNo: "1", woodPackaging: "review", treatmentRef: "",
+      packingNotes: "", documentNotes: "", productCertificates: ""
+    });
+    const items = sample ? ["honey", "wax", "sheets", "cerana", "mellifera"].map((key, index) => newItem(key, "I" + (index + 1))) : [];
+    const result = {
+      version: 2, serial, nextId: 20, fields, items, packages: [], signature: DEFAULT_SIGNATURE, qrImage: "",
+      status: { proforma: "draft", commercial: "draft", packing: "draft" },
+      reviewed: { proforma: false, commercial: false, packing: false }
+    };
+    if (!sample) return result;
+    Object.assign(fields, {
+      company: "Example Exporter", address: "Example exporter address",
+      buyer: "Example Buyer", buyeraddr: "Example buyer address",
+      shipName: "Example Buyer", shipAddress: "Example buyer address",
+      supply: "Example destination", shipCountry: "Example destination",
+      piNo: "DEMO-PI-001", ciNo: "DEMO-CI-001", plNo: "DEMO-PL-001",
+      poNo: "DEMO-ORDER-001", poDate: today(), vehicleNo: "DEMO-VEHICLE",
+      dispatchDate: today(), leadTime: "After order confirmation", incotermPlace: "Example dispatch point",
+      documentNotes: "Fictional sample for demonstration only."
+    });
+    fields.packingNotes = "Sample packing plan. Enter the actual measured package dimensions and weights before dispatch.";
+    const data = [
+      { quantity: "200", rate: "260", batch: "SAMPLE-HNY-A", gst: "5", variety: "", grade: "Pre-packaged and labelled honey", model: "20 Kg sample pack" },
+      { quantity: "50", rate: "650", batch: "SAMPLE-WAX-A", gst: "5", grade: "Refined beeswax slabs" },
+      { quantity: "500", rate: "45", batch: "SAMPLE-CFS-A", model: "Foundation sheets — sample lot", purity: "" },
+      { quantity: "10", rate: "2200", batch: "SAMPLE-CER-A", model: "Cerana-compatible wooden set", notes: "Empty equipment set with brood and super. Confirm materials, dimensions and all included parts." },
+      { quantity: "10", rate: "3000", batch: "SAMPLE-MEL-A", model: "Mellifera-compatible wooden set", notes: "Empty equipment set with brood and super. Confirm materials, dimensions and all included parts." }
+    ];
+    items.forEach((item, index) => Object.assign(item, data[index]));
+    const packData = [
+      ["Carton", 10, 200, 210, 40, 30, 30],
+      ["Carton", 5, 50, 55, 40, 30, 25],
+      ["Carton", 5, 50, 55, 45, 35, 20],
+      ["Crate", 10, 120, 140, 55, 45, 65],
+      ["Crate", 10, 160, 180, 65, 55, 75]
+    ];
+    result.packages = packData.map((data, index) => ({
+      id: "P" + (index + 1), type: data[0], count: String(data[1]), weightBasis: "total",
+      net: String(data[2]), gross: String(data[3]), length: String(data[4]), width: String(data[5]), height: String(data[6]),
+      notes: "Sample measurements", allocations: [{ itemId: items[index].id, component: "units", quantity: items[index].quantity }]
+    }));
+    return result;
+  }
+  function safeImage(value) {
+    return typeof value === "string" && value.length < 2500000 && /^data:image\/(?:png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(value) ? value : "";
+  }
+  function restore(data, preserveStatus = false) {
+    if (!data || typeof data !== "object") throw new Error("Choose a valid document-suite backup.");
+    if (data.app && data.app !== BACKUP_APP) throw new Error("Choose a backup exported from this document suite.");
+    const saved = data.shipment || data;
+    if (!saved.fields || !Array.isArray(saved.items) || !Array.isArray(saved.packages)) throw new Error("This file does not contain the three-document shipment data.");
+    if (saved.items.length > 200 || saved.packages.length > 300) throw new Error("This backup exceeds 200 items or 300 package groups.");
+    const result = freshState(Math.max(1, Math.floor(num(saved.serial)) || 1), false);
+    Object.keys(result.fields).forEach(key => {
+      if (saved.fields[key] != null) result.fields[key] = typeof result.fields[key] === "boolean" ? saved.fields[key] === true : String(saved.fields[key]);
+    });
+    const identifiers = new Set();
+    result.items = saved.items.map((value, index) => {
+      const item = newItem(CATALOG[value && value.product] ? value.product : "custom", "I" + (index + 1));
+      Object.keys(item).forEach(key => {
+        if (key === "parts" || key === "partNames") return;
+        if (value && value[key] != null) item[key] = typeof item[key] === "boolean" ? value[key] === true : String(value[key]);
+      });
+      if (!/^[A-Za-z][A-Za-z0-9_-]{0,40}$/.test(item.id) || identifiers.has(item.id)) throw new Error("The backup has duplicate product identifiers.");
+      identifiers.add(item.id);
+      PARTS.forEach(part => {
+        if (value.parts && value.parts[part[0]] != null) item.parts[part[0]] = Math.max(0, num(value.parts[part[0]]));
+      });
+      EDITABLE_PART_NAMES.forEach(key => {
+        const name = value.partNames?.[key];
+        if (typeof name === "string") item.partNames[key] = name.trim().slice(0, 100);
+      });
+      return item;
+    });
+    const packageIds = new Set();
+    result.packages = saved.packages.map((value, index) => {
+      const pack = newPackage("P" + (index + 1));
+      Object.keys(pack).forEach(key => { if (key !== "allocations" && value[key] != null) pack[key] = String(value[key]); });
+      if (!/^[A-Za-z][A-Za-z0-9_-]{0,40}$/.test(pack.id) || packageIds.has(pack.id)) throw new Error("The backup has duplicate package identifiers.");
+      packageIds.add(pack.id);
+      if (!Array.isArray(value.allocations) || value.allocations.length > 200) throw new Error("A package group has invalid contents.");
+      pack.allocations = value.allocations.map(content => ({
+        itemId: String(content.itemId || ""), component: String(content.component || "units"), quantity: String(content.quantity == null ? "" : content.quantity)
+      }));
+      return pack;
+    });
+    result.nextId = Math.min(1000000000, Math.max(Math.floor(num(saved.nextId)), 1000));
+    result.signature = Object.prototype.hasOwnProperty.call(saved, "signature") ? safeImage(saved.signature) : DEFAULT_SIGNATURE;
+    result.qrImage = safeImage(saved.qrImage);
+    result.status = { proforma: "draft", commercial: "draft", packing: "draft" };
+    if (preserveStatus && saved.status) {
+      Object.keys(TYPE_LABELS).forEach(type => { if (saved.status[type] === "ready") result.status[type] = "ready"; });
+    }
+    if (preserveStatus) {
+      Object.keys(TYPE_LABELS).forEach(type => {
+        result.reviewed[type] = (saved.reviewed?.[type] ?? saved.fields.reviewed) === true;
+      });
+    }
+    result.lastDocument = Object.hasOwn(TYPE_LABELS, saved.lastDocument) ? saved.lastDocument : "proforma";
+    return result;
+  }
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      state = raw ? restore(JSON.parse(raw), true) : freshState(1, false);
+    } catch (error) {
+      state = freshState(1, false);
+      byId("saveStatus").textContent = "A blank shipment has been opened";
+    }
+  }
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      byId("saveStatus").textContent = "Shipment saved on this device";
+    } catch (error) {
+      byId("saveStatus").textContent = "Export a backup to keep this shipment";
+    }
+  }
+  function changed(types = Object.keys(TYPE_LABELS)) {
+    types.forEach(type => {
+      state.status[type] = "draft";
+      state.reviewed[type] = false;
+    });
+    byId("reviewed").checked = state.reviewed[activeDocument];
+    clearTimeout(renderTimer);
+    clearTimeout(saveTimer);
+    byId("saveStatus").textContent = "Saving changes…";
+    renderTimer = setTimeout(renderDocuments, 140);
+    saveTimer = setTimeout(save, 500);
+    updateStatus();
+  }
+  function productKind(item) {
+    return (CATALOG[item.product] || CATALOG.custom).kind;
+  }
+  function partName(item, part) {
+    return item.partNames[part[0]] || part[1];
+  }
+  function itemLabel(item) {
+    return item.description || "Untitled item";
+  }
+  function itemIndex(itemId) {
+    return state.items.findIndex(item => item.id === itemId);
+  }
+  function getItem(itemId) {
+    return state.items.find(item => item.id === itemId);
+  }
+  function groupWeights(pack) {
+    const factor = pack.weightBasis === "each" ? num(pack.count) : 1;
+    return { net: num(decimalText(multiplyDecimals([pack.net, factor]), 3)), gross: num(decimalText(multiplyDecimals([pack.gross, factor]), 3)) };
+  }
+  function groupVolume(pack) {
+    return num(pack.length) * num(pack.width) * num(pack.height) * num(pack.count) / 1000000;
+  }
+  function packageRange(index) {
+    let first = Math.max(1, Math.floor(num(state.fields.firstPackageNo)) || 1);
+    state.packages.slice(0, index).forEach(pack => { first += Math.max(0, Math.floor(num(pack.count))); });
+    const count = Math.max(0, Math.floor(num(state.packages[index].count)));
+    if (!count) return "Numbers pending";
+    const prefix = state.fields.marksPrefix.trim();
+    const start = String(first).padStart(3, "0");
+    const end = String(first + count - 1).padStart(3, "0");
+    return (prefix ? prefix + "/" : "") + start + (count > 1 ? "–" + end : "");
+  }
+  function packingTotals() {
+    const result = state.packages.reduce((totals, pack) => {
+      const weights = groupWeights(pack);
+      totals.packages += num(pack.count);
+      totals.net += weights.net;
+      totals.gross += weights.gross;
+      totals.volume += groupVolume(pack);
+      return totals;
+    }, { packages: 0, net: 0, gross: 0, volume: 0 });
+    result.volumeText = volumeText(addDecimals(state.packages.map(volumeDecimal)));
+    return result;
+  }
+  function quantityTotals() {
+    const totals = {};
+    state.items.forEach(item => { totals[item.unit] = num(totals[item.unit]) + num(item.quantity); });
+    return totals;
+  }
+  function quantitySummary() {
+    return Object.keys(quantityTotals()).map(unit => qty(quantityTotals()[unit]) + " " + (UNIT_LABELS[unit] || unit)).join(" · ");
+  }
+  function allocationCoverage(item) {
+    let wholeUnits = 0;
+    const components = {};
+    state.packages.forEach(pack => {
+      pack.allocations.forEach(content => {
+        if (content.itemId !== item.id) return;
+        if (content.component === "units") wholeUnits += num(content.quantity);
+        else components[content.component] = num(components[content.component]) + num(content.quantity);
+      });
+    });
+    if (productKind(item) !== "hive") {
+      return { complete: Math.abs(wholeUnits - num(item.quantity)) < 0.0005, wholeUnits, components, differences: [] };
+    }
+    const differences = PARTS.filter(part => num(item.parts[part[0]]) > 0).map(part => {
+      const expected = num(item.parts[part[0]]) * num(item.quantity);
+      const packed = wholeUnits * num(item.parts[part[0]]) + num(components[part[0]]);
+      return { label: partName(item, part), expected, packed };
+    }).filter(result => Math.abs(result.expected - result.packed) > 0.0005);
+    return { complete: differences.length === 0 && wholeUnits <= num(item.quantity), wholeUnits, components, differences };
+  }
+  function amounts() {
+    const rawBases = state.items.map(item => productCents(item.quantity, item.rate));
+    const bases = rawBases.map(value => Number.isSafeInteger(value) ? Math.max(0, value) : 0);
+    const subtotal = bases.reduce((sum, value) => sum + value, 0);
+    const discount = Math.min(Math.max(0, cents(state.fields.discount)), subtotal);
+    const allocated = bases.map(base => subtotal ? Number(BigInt(discount) * BigInt(base) / BigInt(subtotal)) : 0);
+    let remainder = discount - allocated.reduce((sum, value) => sum + value, 0);
+    allocated.forEach((value, index) => {
+      if (remainder > 0 && value < bases[index]) { allocated[index] += 1; remainder -= 1; }
+    });
+    const taxable = bases.map((base, index) => base - allocated[index]);
+    const lut = state.fields.exportTax !== "igst";
+    const taxes = taxable.map((base, index) => lut ? 0 : taxCents(base, Math.max(0, num(state.items[index].gst))));
+    const pending = rawBases.some(value => !Number.isSafeInteger(value)) || (!lut && state.items.some(item => item.gst === "" || !Number.isFinite(Number(item.gst)) || num(item.gst) < 0 || num(item.gst) > 100));
+    const freight = Math.max(0, cents(state.fields.freight));
+    const insurance = Math.max(0, cents(state.fields.insurance));
+    const extrasPending = !lut && ((freight > 0 && state.fields.freightGST === "") || (insurance > 0 && state.fields.insuranceGST === ""));
+    const freightTax = lut ? 0 : taxCents(freight, Math.max(0, num(state.fields.freightGST)));
+    const insuranceTax = lut ? 0 : taxCents(insurance, Math.max(0, num(state.fields.insuranceGST)));
+    const tax = taxes.reduce((sum, value) => sum + value, 0) + freightTax + insuranceTax;
+    const taxableTotal = taxable.reduce((sum, value) => sum + value, 0) + freight + insurance;
+    const taxCollected = state.fields.reverseCharge === "yes" ? 0 : tax;
+    const grand = taxableTotal + taxCollected;
+    const advance = Math.max(0, cents(state.fields.advance));
+    const groups = {};
+    state.items.forEach((item, index) => {
+      if (!lut && item.gst === "") return;
+      const rate = lut ? "0" : String(num(item.gst));
+      groups[rate] = num(groups[rate]) + taxes[index];
+    });
+    [[freight, state.fields.freightGST, freightTax], [insurance, state.fields.insuranceGST, insuranceTax]].forEach(extra => {
+      if (extra[0] && (lut || extra[1] !== "")) {
+        const rate = lut ? "0" : String(num(extra[1]));
+        groups[rate] = num(groups[rate]) + extra[2];
+      }
+    });
+    return { bases, taxable, taxes, subtotal, discount, freight, insurance, tax, taxableTotal, grand, advance, balance: grand - advance, pending: pending || extrasPending, groups };
+  }
+  function amountWords(value) {
+    const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+    const tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+    function underThousand(n) {
+      const parts = [];
+      if (n >= 100) { parts.push(ones[Math.floor(n / 100)] + " Hundred"); n %= 100; }
+      if (n >= 20) { parts.push(tens[Math.floor(n / 10)]); n %= 10; }
+      if (n) parts.push(ones[n]);
+      return parts.join(" ");
+    }
+    const safe = Math.max(0, Math.round(value));
+    let rupees = Math.floor(safe / 100);
+    const paise = safe % 100;
+    const parts = [];
+    [[10000000, "Crore"], [100000, "Lakh"], [1000, "Thousand"]].forEach(group => {
+      const count = Math.floor(rupees / group[0]);
+      if (count) { parts.push((count < 1000 ? underThousand(count) : qty(count)) + " " + group[1]); rupees %= group[0]; }
+    });
+    if (rupees) parts.push(underThousand(rupees));
+    return "Indian Rupees " + (parts.join(" ") || "Zero") + (paise ? " and " + underThousand(paise) + " Paise" : "") + " Only";
+  }
+
+
+  function validate(type) {
+    const d = state.fields;
+    const errors = [];
+    const warnings = [];
+    const commercial = type === "commercial";
+    const financial = type !== "packing";
+    const includeTax = commercial || d.quoteTaxBasis === "include";
+    const result = amounts();
+    if (!d.company.trim() || !d.address.trim() || !d.gst.trim() || !d.ie.trim()) errors.push("Complete the exporter name, address, GSTIN and IEC.");
+    if (!d.buyer.trim() || !d.buyeraddr.trim() || !d.supply.trim()) errors.push("Complete the buyer address and destination country.");
+    if (!d.shipSame && (!d.shipName.trim() || !d.shipAddress.trim() || !d.shipCountry.trim())) errors.push("Complete the Ship To name, address and country.");
+    const docNo = type === "proforma" ? d.piNo : commercial ? d.ciNo : d.plNo;
+    const docDate = type === "proforma" ? d.piDate : commercial ? d.ciDate : d.plDate;
+    if (!/^[A-Za-z0-9/-]{1,16}$/.test(docNo)) errors.push("Use a document number with up to 16 letters, digits, hyphens or slashes.");
+    if (!validDate(docDate)) errors.push("Enter a valid document date.");
+    if (type === "proforma" && (!validDate(d.validUntil) || d.validUntil < d.piDate)) errors.push("Proforma validity must be on or after its issue date.");
+    if (type === "packing" && (!d.ciNo || !validDate(d.ciDate))) errors.push("Add the related commercial invoice number and date.");
+    if (!state.items.length) errors.push("Add at least one product.");
+    state.items.forEach((item, index) => {
+      const prefix = "Item " + (index + 1);
+      if (!item.description.trim() || !Number.isFinite(Number(item.quantity)) || num(item.quantity) <= 0) errors.push(prefix + " needs a description and positive quantity.");
+      if (!supportedPrecision(item.quantity, 6)) errors.push(prefix + " sale quantity supports up to six decimal places.");
+      if (financial && !supportedPrecision(item.rate, 8)) errors.push(prefix + " unit price supports up to eight decimal places.");
+      if (item.unit !== "KGS" && !Number.isSafeInteger(num(item.quantity))) errors.push(prefix + " uses whole sheets, pieces or sets. Enter a whole quantity.");
+      if (!item.origin.trim()) errors.push(prefix + " needs its country of origin.");
+      if (financial && (item.rate === "" || !Number.isFinite(Number(item.rate)) || num(item.rate) < 0)) errors.push(prefix + " needs an agreed unit price.");
+      if (financial && !Number.isSafeInteger(productCents(item.quantity, item.rate))) errors.push(prefix + " amount is outside the supported monetary range.");
+      if (commercial || (type === "proforma" && includeTax)) {
+        if (!/^\d{8}$/.test(item.hsn)) errors.push(prefix + " needs a confirmed eight-digit export HSN.");
+        if (!item.classificationConfirmed) errors.push(prefix + " HSN and tax classification need confirmation.");
+        if (d.exportTax === "igst" && (item.gst === "" || !Number.isFinite(Number(item.gst)) || num(item.gst) < 0 || num(item.gst) > 100)) errors.push(prefix + " needs its confirmed GST rate.");
+      }
+      if (financial && item.gst !== "" && (num(item.gst) < 0 || num(item.gst) > 100)) errors.push(prefix + " GST rate must be between 0 and 100.");
+      if (!item.specificationConfirmed) errors.push(prefix + " product specifications and included parts need confirmation.");
+      if (type !== "proforma" && ["honey", "wax", "sheets"].includes(productKind(item)) && !item.batch.trim()) errors.push(prefix + " needs its batch / lot reference.");
+      if (productKind(item) === "hive") {
+        if (item.unit !== "SET") errors.push(prefix + " complete hive equipment must use the Sets sale unit.");
+        const required = ["bottom", "brood", "broodFrames", "super", "superFrames", "inner", "roof"];
+        if (required.some(key => !Number.isSafeInteger(num(item.parts[key])) || num(item.parts[key]) < 1)) errors.push(prefix + " complete hive set needs floor, brood, super, frames, inner cover and roof.");
+        if (PARTS.some(part => !Number.isSafeInteger(num(item.parts[part[0]])) || num(item.parts[part[0]]) < 0)) errors.push(prefix + " part counts must be whole numbers.");
+        if (!item.wood.trim() || !item.dimensions.trim()) warnings.push(prefix + " wood type and actual hive dimensions still need review.");
+      }
+      if (productKind(item) === "sheets" && (!item.sheetSize.trim() || !item.cellSize.trim())) warnings.push(prefix + " foundation sheet dimensions and cell size still need review.");
+    });
+    if (financial) {
+      if (!Number.isSafeInteger(result.subtotal) || !Number.isSafeInteger(result.grand)) errors.push("The document total exceeds the supported monetary range.");
+      if (num(d.discount) < 0 || cents(d.discount) > result.subtotal) errors.push("The order discount must be between zero and the items subtotal.");
+      ["discount", "freight", "insurance"].forEach(key => {
+        if (!validCurrency(d[key]) || !Number.isFinite(Number(d[key])) || num(d[key]) < 0) errors.push("Enter a valid non-negative " + key + " amount.");
+      });
+      if (includeTax && d.exportTax === "igst") {
+        [["freight", "freightGST"], ["insurance", "insuranceGST"]].forEach(pair => {
+          if (num(d[pair[0]]) > 0 && (d[pair[1]] === "" || !Number.isFinite(Number(d[pair[1]])) || num(d[pair[1]]) < 0 || num(d[pair[1]]) > 100)) errors.push("Confirm the GST rate for " + pair[0] + ".");
+        });
+      }
+    }
+    if (commercial) {
+      if (!validCurrency(d.advance) || !Number.isFinite(Number(d.advance)) || num(d.advance) < 0) errors.push("Enter a valid non-negative advance amount.");
+      if (result.advance > (result.pending ? result.taxableTotal : result.grand)) errors.push("Advance received exceeds the document amount.");
+      if (!validDate(d.dueDate) || d.dueDate < d.ciDate) errors.push("The payment due date must be on or after the commercial invoice date.");
+      if (d.exportTax !== "igst" && !d.lutRef.trim()) errors.push("Record the applicable LUT / bond reference.");
+      if (d.eInvoice === "review") errors.push("Confirm whether e-invoicing applies to this business.");
+      if (d.eInvoice === "required" && (!/^[A-Fa-f0-9]{64}$/.test(d.irn) || !state.qrImage)) errors.push("Add the official IRN and its signed QR image.");
+      if (d.reverseCharge === "yes") warnings.push("Confirm the reverse-charge treatment for this export with your GST adviser.");
+    }
+    if (type === "packing") {
+      if (!state.packages.length) errors.push("Add the actual package groups.");
+      if (!Number.isInteger(num(d.firstPackageNo)) || num(d.firstPackageNo) < 1) errors.push("Enter a positive first package number.");
+      state.packages.forEach((pack, index) => {
+        const label = "Package group " + (index + 1);
+        const weights = groupWeights(pack);
+        if (!pack.type.trim() || !Number.isSafeInteger(num(pack.count)) || num(pack.count) < 1) errors.push(label + " needs a type and whole package count.");
+        if (!Number.isFinite(Number(pack.net)) || !Number.isFinite(Number(pack.gross)) || weights.net <= 0 || weights.gross < weights.net) errors.push(label + " needs positive net weight and gross weight at least equal to net.");
+        const dimensions = [pack.length, pack.width, pack.height];
+        if (dimensions.some(value => value !== "") && dimensions.some(value => !decimal(value) || !Number.isFinite(Number(value)) || num(value) <= 0)) errors.push(label + " needs all three positive dimensions in cm.");
+        if (!pack.allocations.length) errors.push(label + " needs its contents.");
+        let knownKilograms = 0;
+        pack.allocations.forEach(content => {
+          const item = getItem(content.itemId);
+          if (!item) { errors.push(label + " refers to a removed product."); return; }
+          if (!Number.isFinite(Number(content.quantity)) || num(content.quantity) <= 0) errors.push(label + " has an empty or invalid content quantity.");
+          if (content.component === "units") {
+            if (item.unit === "KGS") knownKilograms += num(content.quantity);
+            else if (!Number.isSafeInteger(num(content.quantity))) errors.push(label + " needs whole product units.");
+          } else {
+            const part = PARTS.find(value => value[0] === content.component);
+            if (productKind(item) !== "hive" || !part || num(item.parts[content.component]) <= 0) errors.push(label + " has an invalid kit component.");
+            if (!Number.isSafeInteger(num(content.quantity))) errors.push(label + " component counts must be whole numbers.");
+          }
+        });
+        if (weights.net + 0.0005 < knownKilograms) errors.push(label + " net weight is less than its declared Kg contents.");
+      });
+      state.items.forEach((item, index) => {
+        const coverage = allocationCoverage(item);
+        if (!coverage.complete) {
+          const detail = productKind(item) === "hive" && coverage.differences.length
+            ? coverage.differences.slice(0, 2).map(part => part.label + " " + qty(part.packed) + "/" + qty(part.expected)).join(", ")
+            : qty(coverage.wholeUnits) + "/" + qty(item.quantity) + " " + (UNIT_LABELS[item.unit] || item.unit);
+          errors.push("Packing allocation for item " + (index + 1) + " does not match the shipment. " + detail + ".");
+        }
+      });
+      if (state.packages.some(pack => ["Crate", "Pallet"].includes(pack.type)) && d.woodPackaging === "review") warnings.push("Review whether the crates / pallets use regulated solid-wood packaging.");
+      if (d.woodPackaging === "yes" && !d.treatmentRef.trim()) warnings.push("Record the applicable wood-packaging treatment / marking reference.");
+    }
+    if (!state.reviewed[type]) errors.push("Confirm the details for this document in its final review.");
+    warnings.push("Confirm document-number uniqueness against your previously issued records.");
+    return { errors: [...new Set(errors)], warnings: [...new Set(warnings)] };
+  }
+
+  function field(key, label, type = "text", options = {}) {
+    const value = options.value !== undefined ? options.value : state.fields[key];
+    const attribute = options.attribute || 'data-field="' + key + '"';
+    const id = options.id || key;
+    const full = options.full ? " full" : "";
+    let control;
+    if (type === "checkbox") {
+      return '<label class="check-line' + full + '"><input id="' + id + '" type="checkbox" ' + attribute + (value ? " checked" : "") + '>' + esc(label) + '</label>';
+    }
+    if (type === "select") {
+      control = '<select id="' + id + '" ' + attribute + '>' + options.choices.map(choice => '<option value="' + esc(choice[0]) + '"' + (String(value) === String(choice[0]) ? " selected" : "") + '>' + esc(choice[1]) + '</option>').join("") + '</select>';
+    } else if (type === "textarea") {
+      control = '<textarea id="' + id + '" ' + attribute + ' maxlength="1500">' + esc(value) + '</textarea>';
+    } else {
+      control = '<input id="' + id + '" ' + attribute + ' type="' + type + '" value="' + esc(value) + '"' +
+        (type === "number" ? ' step="any" min="0"' : ' maxlength="' + (options.max || 300) + '"') +
+        (options.placeholder ? ' placeholder="' + esc(options.placeholder) + '"' : "") + '>';
+    }
+    return '<div class="field' + full + '"><label for="' + id + '">' + esc(label) + '</label>' + control + '</div>';
+  }
+  function itemField(item, key, label, type = "text", options = {}) {
+    return field(key, label, type, Object.assign({}, options, {
+      id: item.id + "_" + key, value: item[key], attribute: 'data-item="' + item.id + '" data-key="' + key + '"'
+    }));
+  }
+  function packField(pack, key, label, type = "text", options = {}) {
+    return field(key, label, type, Object.assign({}, options, {
+      id: pack.id + "_" + key, value: pack[key], attribute: 'data-package="' + pack.id + '" data-key="' + key + '"'
+    }));
+  }
+  function section(title, content, open = false) {
+    return '<details class="section"' + (open ? " open" : "") + '><summary>' + esc(title) + '</summary><div class="section-body">' + content + '</div></details>';
+  }
+  function grid(content) {
+    return '<div class="form-grid">' + content + '</div>';
+  }
+  function productSpecifications(item) {
+    const kind = productKind(item);
+    let content = itemField(item, "model", "Model / variety", "text", { full: true });
+    if (kind === "honey") {
+      content += itemField(item, "variety", "Floral source / type") + itemField(item, "grade", "Packing / grade");
+      content += itemField(item, "manufactureDate", "Packing / manufacture date", "date") + itemField(item, "bestBefore", "Best before", "date");
+    }
+    if (kind === "wax") content += itemField(item, "grade", "Raw / refined grade") + itemField(item, "purity", "Composition / purity");
+    if (kind === "sheets") {
+      content += itemField(item, "purity", "Material / beeswax composition", "text", { full: true });
+      content += itemField(item, "sheetSize", "Sheet L × W in mm") + itemField(item, "cellSize", "Cell size in mm");
+      content += itemField(item, "thickness", "Thickness / weight per sheet");
+    }
+    if (kind === "hive") {
+      content += itemField(item, "wood", "Wood / finish", "text", { full: true });
+      content += itemField(item, "dimensions", "Actual hive / frame dimensions", "text", { full: true });
+    }
+    content += itemField(item, "notes", "Product specification / remarks", "textarea", { full: true });
+    return grid(content);
+  }
+  function partsEditor(item) {
+    if (productKind(item) !== "hive") return "";
+    return '<details class="subdetails"><summary>Included parts per complete set</summary><p class="helper">Edit the boxed component names and enter parts per set. Shipment totals use the sold set quantity. Optional accessories can be set to zero.</p><div class="parts-editor">' +
+      PARTS.map(part => {
+        const key = part[0];
+        const name = partName(item, part);
+        const quantity = '<input aria-label="' + esc(name + " per set") + '" type="number" min="0" step="1" value="' + esc(item.parts[key]) + '" data-part="' + key + '" data-item="' + item.id + '">';
+        if (!EDITABLE_PART_NAMES.includes(key)) return '<label><span>' + esc(name) + '</span>' + quantity + '</label>';
+        return '<div class="part-name-row"><input class="part-name" aria-label="' + esc(part[1] + " name") + '" type="text" maxlength="100" value="' + esc(name) +
+          '" placeholder="' + esc(part[1]) + '" data-part-name="' + key + '" data-item="' + item.id + '">' + quantity + '</div>';
+      }).join("") +
+      '</div><div class="empty-equipment">Empty equipment sets · without live bees</div></details>';
+  }
+  function renderItems() {
+    const cards = state.items.map((item, index) => {
+      const allocation = allocationCoverage(item);
+      const taxable = amounts().taxable[index] || 0;
+      return '<details class="item-card" data-card="' + item.id + '"' + (index === 0 ? " open" : "") + '><summary><span class="item-number">' + String(index + 1).padStart(2, "0") + '</span><span class="item-name">' + esc(itemLabel(item)) + '</span><span class="item-amount">₹ ' + money(taxable / 100) + '</span></summary>' +
+        '<div class="product-chip">' + esc(CATALOG[item.product].label) + ' · ' + esc(UNIT_LABELS[item.unit] || item.unit) + '</div>' +
+        grid(itemField(item, "description", "Commercial product description", "text", { full: true }) +
+          itemField(item, "quantity", "Sale quantity", "number") +
+          itemField(item, "unit", "Sale unit", "select", { choices: productKind(item) === "hive" ? [["SET", "Complete sets · SET"]] : [["KGS", "Kg · KGS"], ["NOS", "Sheets · NOS"], ["SET", "Sets · SET"], ["PCS", "Pieces · NOS"]] }) +
+          itemField(item, "rate", "Unit price in INR", "number") +
+          itemField(item, "gst", "GST rate %", "number", { placeholder: "Confirm rate" }) +
+          itemField(item, "hsn", "Export HSN · 8 digits", "text", { max: 8, placeholder: "Confirm classification" }) +
+          itemField(item, "batch", "Batch / lot / SKU") +
+          itemField(item, "origin", "Country of origin", "text", { full: true })) +
+        '<details class="subdetails"><summary>Product specifications</summary>' + productSpecifications(item) + '</details>' +
+        partsEditor(item) +
+        '<div class="product-confirm">' +
+          itemField(item, "classificationConfirmed", "HSN and tax classification verified", "checkbox") +
+          itemField(item, "specificationConfirmed", "Specifications and included parts verified", "checkbox") +
+        '</div><div class="allocation-note" data-coverage="' + item.id + '">' +
+          (allocation.complete ? "Packing quantity matched" : "Packing allocation needs review") +
+        '</div><div class="actions"><button type="button" class="small" data-action="duplicateItem" data-id="' + item.id + '">Duplicate item</button><button type="button" class="small" data-action="removeItem" data-id="' + item.id + '">Remove item</button></div></details>';
+    });
+    byId("itemsEditor").innerHTML = cards.join("") || '<p class="helper">Choose a product below to add the first item.</p>';
+    byId("catalogueButtons").innerHTML = Object.keys(CATALOG).map(key => '<button class="small" type="button" data-action="addItem" data-product="' + key + '">+ ' + esc(CATALOG[key].label) + '</button>').join("");
+  }
+  function contentEditor(pack, content, index) {
+    const selected = getItem(content.itemId);
+    const choices = [["units", "Complete items · " + (selected ? UNIT_LABELS[selected.unit] || selected.unit : "sale units")]];
+    if (selected && productKind(selected) === "hive") PARTS.filter(part => num(selected.parts[part[0]]) > 0).forEach(part => choices.push([part[0], partName(selected, part) + " · pieces"]));
+    return '<div class="content-row">' +
+      '<select aria-label="Packed product" data-content="' + pack.id + '" data-index="' + index + '" data-key="itemId">' +
+        '<option value="">Choose product</option>' +
+        state.items.map((item, itemNumber) => '<option value="' + item.id + '"' + (item.id === content.itemId ? " selected" : "") + '>Item ' + (itemNumber + 1) + ' · ' + esc(itemLabel(item)) + '</option>').join("") + '</select>' +
+      '<select aria-label="Packed unit or kit part" data-content="' + pack.id + '" data-index="' + index + '" data-key="component" data-part-item="' + (selected ? selected.id : "") + '">' +
+        choices.map(choice => '<option value="' + choice[0] + '"' + (choice[0] === content.component ? " selected" : "") + '>' + esc(choice[1]) + '</option>').join("") + '</select>' +
+      '<div class="content-quantity"><input aria-label="Total content quantity in this package group" type="number" min="0" step="any" value="' + esc(content.quantity) + '" data-content="' + pack.id + '" data-index="' + index + '" data-key="quantity"><button type="button" class="small" aria-label="Remove package content" data-action="removeContent" data-id="' + pack.id + '" data-index="' + index + '">×</button></div>' +
+      '</div>';
+  }
+  function renderPackages() {
+    const editor = byId("packagesEditor");
+    if (!editor) return;
+    editor.innerHTML = state.packages.map((pack, index) => {
+      const weight = groupWeights(pack);
+      return '<details class="item-card package-card"' + (index === 0 ? " open" : "") + '><summary><span class="item-number">' + esc(pack.id) + '</span><span class="item-name">' + qty(pack.count) + ' ' + esc(pack.type) + '</span><span class="item-amount">' + qty(weight.gross) + ' Kg</span></summary>' +
+        '<div class="range-label" data-range="' + pack.id + '">' + esc(packageRange(index)) + '</div>' +
+        grid(packField(pack, "type", "Outer package type", "select", { choices: [["Carton", "Carton"], ["Crate", "Crate"], ["Pallet", "Pallet"], ["Pail", "Pail"], ["Bundle", "Bundle"], ["Bag", "Bag"], ["Other", "Other"]] }) +
+          packField(pack, "count", "Outer package count", "number") +
+          packField(pack, "weightBasis", "Weight entry basis", "select", { full: true, choices: [["total", "Total for this package group"], ["each", "Weight of each identical package"]] }) +
+          packField(pack, "net", "Net Kg · selected basis", "number") +
+          packField(pack, "gross", "Gross Kg · selected basis", "number") +
+          packField(pack, "length", "Each package length cm", "number") +
+          packField(pack, "width", "Each package width cm", "number") +
+          packField(pack, "height", "Each package height cm", "number") +
+          packField(pack, "notes", "Package / inner packing notes", "textarea", { full: true })) +
+        '<div class="package-contents"><strong>Contents in the entire group</strong><p class="helper">For a split hive set, choose its component and enter the piece count. Whole sets and their parts are reconciled automatically.</p>' +
+        pack.allocations.map((content, contentIndex) => contentEditor(pack, content, contentIndex)).join("") +
+        '<button type="button" class="small" data-action="addContent" data-id="' + pack.id + '">+ Add contents</button></div>' +
+        '<div class="package-summary" data-pack-summary="' + pack.id + '">' + qty(weight.net) + ' net Kg · ' + qty(weight.gross) + ' gross Kg · ' + volumeText(volumeDecimal(pack)) + ' m³</div>' +
+        '<div class="actions"><button type="button" class="small" data-action="duplicatePackage" data-id="' + pack.id + '">Duplicate group</button><button type="button" class="small" data-action="removePackage" data-id="' + pack.id + '">Remove group</button></div></details>';
+    }).join("") || '<p class="helper">Create the actual cartons, crates or pallets and assign their contents.</p>';
+  }
+  function proformaForm() {
+    let html = section("Proforma details", grid(
+      field("piNo", "Proforma number", "text", { max: 16 }) + field("piDate", "Proforma date", "date") +
+      field("validUntil", "Proforma valid until", "date") +
+      field("quoteTaxBasis", "Proforma tax basis", "select", { choices: [["exclude", "Quote excluding taxes"], ["include", "Include estimated taxes"]] }) +
+      field("leadTime", "Proforma lead time", "text", { full: true })
+    ), true);
+    html += section("Shared buyer & delivery", '<label class="check-line"><input id="shipSame" data-field="shipSame" type="checkbox"' + (state.fields.shipSame ? " checked" : "") + '>Ship To is the same as Bill To</label>' + grid(
+      field("buyer", "Buyer / Bill To name", "text", { full: true }) + field("buyeraddr", "Buyer address", "textarea", { full: true }) +
+      field("exim", "Buyer EXIM code") + field("pan", "Buyer PAN / tax ID") + field("supply", "Destination country", "text", { full: true }) +
+      field("shipName", "Ship To name", "text", { full: true }) + field("shipAddress", "Delivery address", "textarea", { full: true }) +
+      field("shipCountry", "Delivery country", "text", { full: true })
+    ));
+    html += section("Shared products & complete hive sets", '<div id="itemsEditor"></div><div class="catalogue-buttons" id="catalogueButtons"></div><p class="helper">Honey and beeswax reference HSNs are prefilled. Confirm each actual classification and rate. Foundation sheets and wooden hive sets need their confirmed tariff codes.</p>', true);
+    html += section("Shared order & transport", grid(
+      field("poNo", "Buyer order / PO") + field("poDate", "Order date", "date") +
+      field("dispatchThrough", "Transport method") + field("loading", "Place / port of loading") + field("discharge", "Place / port of discharge") +
+      field("productCertificates", "Actual certificate references", "textarea", { full: true })
+    ));
+    html += section("Shared payment, tax & charges", grid(
+      field("payment", "Agreed payment terms", "text", { full: true }) + field("creditDays", "Credit period in days", "number") +
+      field("incoterms", "Incoterms") + field("incotermPlace", "Named place") + field("shipment", "Part shipment") +
+      field("discount", "Order discount INR", "number") + field("freight", "Freight charge INR", "number") +
+      field("freightGST", "Freight GST %", "number") + field("insurance", "Insurance charge INR", "number") +
+      field("insuranceGST", "Insurance GST %", "number") +
+      field("exportTax", "Export tax mode", "select", { full: true, choices: [["igst", "Export with payment of IGST"], ["lut", "Export without IGST under LUT"], ["bond", "Export without IGST under bond"]] }) +
+      field("reverseCharge", "Reverse charge", "select", { choices: [["no", "No"], ["yes", "Yes — confirm treatment"]] }) +
+      field("documentNotes", "Commercial / quotation remarks", "textarea", { full: true })
+    ));
+    html += section("Shared exporter & registrations", grid(
+      field("company", "Company name", "text", { full: true }) + field("address", "Exporter address", "textarea", { full: true }) +
+      field("gst", "GSTIN") + field("ie", "IEC") + field("fssai", "FSSAI licence") + field("apeda", "APEDA RCMC") +
+      field("uam", "Udyam / UAM") + field("nbb", "NBB Certificate No.") +
+      field("mandi", "NBB Training Certificate Regd. No.", "text", { full: true }) +
+      field("nbbreg", "NBB registration") + field("phone", "Phone") + field("mobile", "Mobile") +
+      field("email", "Email") + field("website", "Website")
+    ));
+    html += section("Shared bank & signature", grid(
+      field("bankname", "Account holder", "text", { full: true }) + field("account", "Account number", "text", { full: true }) +
+      field("branch", "Bank / branch", "text", { full: true }) + field("ifsc", "IFSC") + field("swift", "SWIFT") +
+      field("adcode", "AD code", "text", { full: true })
+    ) + '<div class="actions"><label class="field full"><span class="key-label">Replace signature · PNG / JPG</span><input type="file" id="signatureUpload" accept="image/png,image/jpeg"></label><button type="button" class="small" data-action="removeSignature">Remove signature</button></div>');
+    return html;
+  }
+  function linkedShipmentForm(type) {
+    const d = state.fields;
+    const packing = type === "packing";
+    const details = [
+      ["Exporter", d.company], ["Buyer / consignee", d.buyer],
+      ["Ship To", d.shipSame ? d.buyer : d.shipName], ["Destination", d.shipSame ? d.supply : d.shipCountry],
+      ["Transport method", d.dispatchThrough]
+    ];
+    if (packing) {
+      details.push(["Commercial invoice reference", d.ciNo], ["Commercial invoice date", dateText(d.ciDate)], ["Dispatch date", dateText(d.dispatchDate)]);
+    } else {
+      details.push(["Proforma reference", d.piNo], ["Buyer order / PO", d.poNo], ["Payment terms", d.payment]);
+    }
+    const products = state.items.map(item =>
+      '<li>' + esc(itemLabel(item)) + ' · ' + (item.quantity === "" ? "Quantity pending" : qty(item.quantity) + ' ' + esc(UNIT_LABELS[item.unit] || item.unit)) + '</li>'
+    );
+    return section("Linked shipment details", '<p class="helper">These details come from the same shipment and update when you edit their source form.</p>' +
+      grid(details.map(([label, value]) => metaCell(label, value)).join("")) +
+      (products.length ? '<ul class="linked-products">' + products.join("") + '</ul>' : '<p class="helper">Add products in Proforma Invoice.</p>') +
+      '<div class="actions"><button type="button" class="small" data-action="openProforma">Edit shared details in Proforma</button>' +
+      (packing ? '<button type="button" class="small" data-action="openCommercial">Edit commercial reference or dispatch</button>' : "") + '</div>', true);
+  }
+  function commercialForm() {
+    return section("Commercial invoice details", grid(
+      field("ciNo", "Commercial invoice number", "text", { max: 16 }) + field("ciDate", "Commercial invoice date", "date") +
+      field("dueDate", "Payment due date", "date") + field("advance", "Advance received INR", "number") +
+      field("lutRef", "LUT / Bond reference", "text", { full: true })
+    ), true) + section("Actual dispatch", grid(
+      field("vehicleNo", "Motor Vehicle No.") + field("dispatchDate", "Dispatch date", "date") +
+      field("lrNo", "LR / GR number") + field("lrDate", "LR / GR date", "date") +
+      field("ewayNo", "E-way Bill number") + field("ewayDate", "E-way Bill date", "date")
+    ), true) + linkedShipmentForm("commercial") + section("E-invoice references", grid(
+      field("eInvoice", "Applicability", "select", { full: true, choices: [["review", "Confirm applicability"], ["no", "Not applicable — confirmed"], ["required", "Applicable — official IRN required"]] }) +
+      field("irn", "IRN from authorised IRP", "text", { full: true, max: 64 }) + field("ackNo", "Acknowledgement number") + field("ackDate", "Acknowledgement date", "date")
+    ) + '<p class="helper">These references appear on the commercial invoice when applicable. Upload the signed QR image supplied by the authorised IRP.</p><div class="actions"><input type="file" id="qrUpload" accept="image/png,image/jpeg" aria-label="Signed QR image"><button type="button" class="small" data-action="removeQR">Remove QR image</button></div>');
+  }
+  function packingForm() {
+    return section("Packing list details", grid(
+      field("plNo", "Packing list number", "text", { max: 16 }) + field("plDate", "Packing list date", "date")
+    ), true) + linkedShipmentForm("packing") + section("Packing groups & contents", grid(
+      field("marksPrefix", "Shipping marks prefix") + field("firstPackageNo", "First package number", "number") +
+      field("woodPackaging", "Solid-wood outer packaging", "select", { full: true, choices: [["review", "Review packaging material"], ["no", "Confirmed no regulated solid-wood packaging"], ["yes", "Solid-wood packaging used"]] }) +
+      field("treatmentRef", "Treatment / marking reference", "text", { full: true })
+    ) + '<p class="helper">Use One group per product to bring in the product quantities from Proforma. Edit allocations for mixed or split shipments. Enter actual outer package counts, dimensions and weights.</p><div id="packagesEditor"></div><div class="actions"><button type="button" data-action="addPackage">+ Package group</button><button type="button" data-action="generatePackages">One group per product</button></div>' +
+      grid(field("packingNotes", "Packing / handling remarks", "textarea", { full: true })), true);
+  }
+  function renderForm() {
+    const forms = {
+      proforma: [proformaForm, "Enter the quotation and shared shipment details here once."],
+      commercial: [commercialForm, "Enter the final invoice and actual dispatch details. Shared shipment details are linked from Proforma."],
+      packing: [packingForm, "Enter the actual packing details. Products and invoice references are linked automatically."]
+    };
+    const [form, description] = forms[activeDocument];
+    byId("editorTitle").textContent = TYPE_LABELS[activeDocument] + " form";
+    byId("editorDescription").textContent = description;
+    const html = form() + section("Final review", field("reviewed", "I have checked the details for this document", "checkbox", { value: state.reviewed[activeDocument] }) + '<p class="helper">Complete this review before marking the document ready.</p>', true);
+    byId("invoiceForm").innerHTML = html;
+    if (activeDocument === "proforma") {
+      renderItems();
+      syncDelivery();
+    } else if (activeDocument === "packing") {
+      renderPackages();
+    }
+  }
+  function syncDelivery() {
+    ["shipName", "shipAddress", "shipCountry"].forEach(key => { byId(key).disabled = state.fields.shipSame; });
+  }
+  function updateStatus() {
+    const ready = state.status[activeDocument] === "ready";
+    byId("statusBadge").textContent = ready ? "READY" : "DRAFT";
+    byId("statusBadge").className = ready ? "status-badge ready" : "status-badge";
+    byId("readyButton").textContent = ready ? "Return to draft" : "Review & mark ready";
+    byId("activeDocumentLabel").textContent = TYPE_LABELS[activeDocument];
+  }
+  function updateEditorSummaries() {
+    const financial = amounts();
+    state.items.forEach((item, index) => {
+      const card = document.querySelector('[data-card="' + item.id + '"]');
+      if (card) {
+        card.querySelector(".item-name").textContent = itemLabel(item);
+        card.querySelector(".item-amount").textContent = "₹ " + money((financial.taxable[index] || 0) / 100);
+      }
+      const coverage = document.querySelector('[data-coverage="' + item.id + '"]');
+      if (coverage) coverage.textContent = allocationCoverage(item).complete ? "Packing quantity matched" : "Packing allocation needs review";
+    });
+    state.packages.forEach((pack, index) => {
+      const range = document.querySelector('[data-range="' + pack.id + '"]');
+      const summary = document.querySelector('[data-pack-summary="' + pack.id + '"]');
+      const weights = groupWeights(pack);
+      if (range) range.textContent = packageRange(index);
+      if (summary) summary.textContent = qty(weights.net) + " net Kg · " + qty(weights.gross) + " gross Kg · " + volumeText(volumeDecimal(pack)) + " m³";
+    });
+  }
+
+
+  function metaCell(label, value) {
+    return '<div class="meta-cell"><span class="key-label">' + esc(label) + '</span><div class="value">' + show(value) + '</div></div>';
+  }
+  function credential(label, value) {
+    return '<span><span class="key">' + esc(label) + '</span><b>' + show(value) + '</b></span>';
+  }
+  function reference(label, value) {
+    return value ? '<span><b>' + esc(label) + '</b> ' + esc(value) + '</span>' : "";
+  }
+  function documentInfo(type) {
+    const d = state.fields;
+    if (type === "proforma") return { number: d.piNo, date: d.piDate, title: "PROFORMA INVOICE" };
+    if (type === "commercial") return { number: d.ciNo, date: d.ciDate, title: "COMMERCIAL INVOICE" };
+    return { number: d.plNo, date: d.plDate, title: "PACKING LIST" };
+  }
+  function fullHeader(type) {
+    const d = state.fields;
+    const info = documentInfo(type);
+    const ship = d.shipSame ? { name: d.buyer, address: d.buyeraddr, country: d.supply } : { name: d.shipName, address: d.shipAddress, country: d.shipCountry };
+    const ready = state.status[type] === "ready";
+    let metadata;
+    if (type === "proforma") {
+      metadata = metaCell("Proforma number", d.piNo) + metaCell("Issue date", dateText(d.piDate)) + metaCell("Valid until", dateText(d.validUntil)) + metaCell("Buyer order / PO", d.poNo);
+    } else if (type === "commercial") {
+      metadata = metaCell("Invoice number", d.ciNo) + metaCell("Invoice date", dateText(d.ciDate)) + metaCell("Proforma reference", d.piNo) + metaCell("Buyer order / PO", d.poNo);
+    } else {
+      metadata = metaCell("Packing list", d.plNo) + metaCell("Packing date", dateText(d.plDate)) + metaCell("Invoice reference", d.ciNo) + metaCell("Invoice date", dateText(d.ciDate));
+    }
+    const dispatch = type === "proforma"
+      ? metaCell("Proposed transport", d.dispatchThrough) + metaCell("Delivery lead time", d.leadTime) + metaCell("Incoterms", d.incoterms) + metaCell("Destination", d.discharge)
+      : metaCell("Dispatched through", d.dispatchThrough) + metaCell("Motor Vehicle No.", d.vehicleNo) + metaCell("Dispatch date", dateText(d.dispatchDate)) + metaCell("LR / GR number", d.lrNo);
+    const subreferences = type === "proforma"
+      ? reference("Currency", "INR") + reference("Order date", d.poNo && d.poDate ? dateText(d.poDate) : "")
+      : reference("LR / GR date", d.lrNo && d.lrDate ? dateText(d.lrDate) : "") + reference("E-way Bill", d.ewayNo) + reference("E-way date", d.ewayNo && d.ewayDate ? dateText(d.ewayDate) : "") + (type === "commercial" ? reference("Reverse charge", d.reverseCharge === "yes" ? "Yes" : "No") : "");
+    return '<div class="paper-header">' +
+      '<div class="sheet-top"><div class="sheet-brand"><div class="sheet-mark">UG</div><div><div class="company-name">' + show(d.company) + '</div><div class="company-tag">Honey · Beeswax · Beekeeping equipment</div></div></div>' +
+      '<div class="doc-title">' + (!ready ? '<span class="draft">DRAFT</span>' : "") + '<h2>' + info.title + '</h2><div class="currency">' + (type === "packing" ? "Package and contents schedule" : "Currency INR") + ' · India → ' + show(d.supply) + '</div></div></div>' +
+      '<div class="seller-contact"><div class="seller-address">' + show(d.address) + '</div><div class="seller-links">' + show(d.website) + '<br>' + show(d.email) + ' · ' + show(d.phone) + '</div></div>' +
+      '<div class="credentials"><div class="credential-line">' + credential("IEC", d.ie) + credential("GSTIN", d.gst) + '</div>' +
+      '<div class="credential-line">' + credential("APEDA RCMC", d.apeda) + credential("FSSAI licence", d.fssai) + '</div>' +
+      '<div class="credential-line">' + credential("NBB Certificate No.", d.nbb) + credential("Udyam", d.uam) + '</div>' +
+      '<div class="credential-line">' + credential("NBB Training Certificate Regd. No.", d.mandi) + credential("NBB Regd. No.", d.nbbreg) + '</div></div>' +
+      '<div class="invoice-meta">' + metadata + '</div>' +
+      '<div class="parties"><div class="party"><h3>' + (type === "packing" ? "Consignee" : "Bill To") + '</h3><div class="party-name">' + show(d.buyer) + '</div><div class="party-address">' + show(d.buyeraddr) + '</div><div class="party-ids">' + reference("EXIM", d.exim) + reference("PAN / tax ID", d.pan) + '</div></div>' +
+      '<div class="party"><h3>Ship To' + (d.shipSame ? " · Same as consignee" : "") + '</h3><div class="party-name">' + show(ship.name) + '</div><div class="party-address">' + show(ship.address) + '</div><div class="party-ids">Destination country ' + show(ship.country) + '</div></div></div>' +
+      '<div class="dispatch-grid">' + dispatch + '</div>' +
+      '<div class="reference-line">' + subreferences + '</div></div>';
+  }
+  function continuationHeader(type, appendix = false) {
+    const info = documentInfo(type);
+    return '<div class="paper-header continuation"><div><strong>' + show(state.fields.company) + '</strong><div>' + (appendix ? "Hive set contents schedule" : esc(TYPE_LABELS[type]) + " continued") + '</div></div><div><b>' + show(info.number) + '</b><br>' + dateText(info.date) + '<br>' + show(state.fields.buyer) + '</div></div>';
+  }
+  function compactSpecs(item) {
+    const lines = [];
+    const identifiers = [item.batch ? "Lot " + item.batch : "", item.origin ? "Origin " + item.origin : ""].filter(Boolean);
+    if (identifiers.length) lines.push(identifiers.join(" · "));
+    if (productKind(item) === "hive") {
+      const broodCount = qty(item.parts.broodFrames);
+      const superCount = qty(item.parts.superFrames);
+      const broodName = item.partNames.broodFrames;
+      const superName = item.partNames.superFrames;
+      const brood = broodName ? broodName + " × " + broodCount : "Brood " + broodCount + " frames";
+      const honeySuper = superName ? superName + " × " + superCount : "Super " + superCount + " frames";
+      lines.push(brood + " · " + honeySuper);
+    } else if (item.model) lines.push(item.model);
+    if (productKind(item) === "honey" && item.grade) lines.push(item.grade);
+    if (productKind(item) === "wax" && item.grade) lines.push(item.grade);
+    if (productKind(item) === "sheets") {
+      const sheet = [item.sheetSize ? item.sheetSize + " mm" : "", item.cellSize ? item.cellSize + " mm cells" : "", item.thickness].filter(Boolean).join(" · ");
+      if (sheet) lines.push(sheet);
+    }
+    return lines.map(line => '<div class="item-detail">' + esc(line) + '</div>').join("");
+  }
+  function financialRows(type) {
+    const totals = amounts();
+    const exclude = type === "proforma" && state.fields.quoteTaxBasis === "exclude";
+    return state.items.map((item, index) => {
+      const quantity = qty(item.quantity) + '<br><span class="item-detail">' + esc(UNIT_LABELS[item.unit] || item.unit) + '</span>';
+      const description = '<div class="item-title">' + show(item.description) + '</div>' + compactSpecs(item);
+      const basic = '<td>' + String(index + 1).padStart(2, "0") + '</td><td>' + description + '</td><td>' + show(item.hsn) + '</td><td class="num">' + quantity + '</td><td class="num">' + priceText(item.rate) + '</td>';
+      if (exclude) return '<tr>' + basic + '<td class="num line-total">' + money(totals.bases[index] / 100) + '</td></tr>';
+      const pendingRate = state.fields.exportTax === "igst" && item.gst === "";
+      return '<tr>' + basic + '<td class="num line-total">' + money(totals.taxable[index] / 100) + '</td><td class="num">' + (pendingRate ? '<span class="pending-value">Review</span>' : qty(state.fields.exportTax === "igst" ? item.gst : 0)) + '</td><td class="num">' + (pendingRate ? '<span class="pending-value">Pending</span>' : money(totals.taxes[index] / 100)) + '</td></tr>';
+    });
+  }
+  function packingRows() {
+    const rows = [];
+    state.packages.forEach((pack, groupIndex) => {
+      const contents = pack.allocations.length ? pack.allocations : [{ itemId: "", component: "units", quantity: "" }];
+      const weights = groupWeights(pack);
+      contents.forEach((content, contentIndex) => {
+        const item = getItem(content.itemId);
+        const first = contentIndex === 0;
+        const part = PARTS.find(value => value[0] === content.component);
+        const unit = item ? (content.component === "units" ? UNIT_LABELS[item.unit] || item.unit : part ? part[2] : "Nos.") : "";
+        const name = item ? "Item " + String(itemIndex(item.id) + 1).padStart(2, "0") + " · " + itemLabel(item) : "Assign package contents";
+        const detail = item ? (content.component === "units" ? (item.batch ? "Lot " + item.batch : "Complete sale units") : (part ? partName(item, part) : "Invalid component")) : "";
+        const dimensions = num(pack.length) && num(pack.width) && num(pack.height)
+          ? qty(pack.length) + " × " + qty(pack.width) + " × " + qty(pack.height) + '<div class="item-detail">' + volumeText(volumeDecimal(pack)) + ' m³ group</div>'
+          : "—";
+        rows.push('<tr class="packing-entry" data-group="' + esc(pack.id) + '"><td>' + String(groupIndex + 1).padStart(2, "0") + '</td>' +
+          '<td><div class="item-title">' + esc(packageRange(groupIndex)) + '</div><div class="item-detail">' + (first ? qty(pack.count) + " " + esc(pack.type) : "Contents continued") + '</div>' + (first && pack.notes ? '<div class="item-detail">' + esc(pack.notes) + '</div>' : "") + '</td>' +
+          '<td><div class="item-title">' + esc(name) + '</div><div class="item-detail">' + esc(detail) + '</div></td>' +
+          '<td class="num">' + qty(content.quantity) + '<br><span class="item-detail">' + esc(unit) + '</span></td>' +
+          '<td class="num">' + (first ? qty(weights.net) : "—") + '</td><td class="num">' + (first ? qty(weights.gross) : "—") + '</td>' +
+          '<td class="num">' + (first ? dimensions : "—") + '</td></tr>');
+      });
+    });
+    return rows;
+  }
+  function tableHeader(type) {
+    if (type === "packing") return '<colgroup><col style="width:3%"><col style="width:20%"><col style="width:29%"><col style="width:11%"><col style="width:10%"><col style="width:10%"><col style="width:17%"></colgroup><thead><tr><th>#</th><th>Marks / packages</th><th>Contents</th><th class="num">Quantity</th><th class="num">Net Kg</th><th class="num">Gross Kg</th><th class="num">Each pack cm</th></tr></thead>';
+    if (type === "proforma" && state.fields.quoteTaxBasis === "exclude") return '<colgroup><col style="width:4%"><col style="width:43%"><col style="width:12%"><col style="width:12%"><col style="width:14%"><col style="width:15%"></colgroup><thead><tr><th>#</th><th>Description / specification</th><th>HSN</th><th class="num">Quantity</th><th class="num">Rate INR</th><th class="num">Amount INR</th></tr></thead>';
+    return '<colgroup><col style="width:3%"><col style="width:31%"><col style="width:10%"><col style="width:11%"><col style="width:12%"><col style="width:14%"><col style="width:6%"><col style="width:13%"></colgroup><thead><tr><th>#</th><th>Description / specification</th><th>HSN</th><th class="num">Quantity</th><th class="num">Rate INR</th><th class="num">Taxable INR</th><th class="num">GST %</th><th class="num">IGST INR</th></tr></thead>';
+  }
+  function table(type, rows) {
+    const columns = type === "packing" ? 7 : (type === "proforma" && state.fields.quoteTaxBasis === "exclude" ? 6 : 8);
+    return '<table class="item-table ' + (type === "packing" ? "packing-table" : type === "commercial" ? "commercial-table" : "") + '">' + tableHeader(type) + '<tbody>' + (rows.length ? rows.join("") : '<tr><td colspan="' + columns + '">Add ' + (type === "packing" ? "package groups and contents" : "products") + ' in the form.</td></tr>') + '</tbody></table>';
+  }
+  function summaryStrip(type) {
+    const totals = packingTotals();
+    if (type !== "packing") return '<div class="quantity-strip"><span class="key-label">Goods quantities by sale unit</span><b>' + esc(quantitySummary() || "—") + '</b></div>';
+    return '<div class="packing-strip"><div><span class="key-label">Outer packages</span><b>' + qty(totals.packages) + '</b></div><div><span class="key-label">Total net weight</span><b>' + qty(totals.net) + ' Kg</b></div><div><span class="key-label">Total gross weight</span><b>' + qty(totals.gross) + ' Kg</b></div><div><span class="key-label">Total volume</span><b>' + totals.volumeText + ' m³</b></div></div>';
+  }
+  function pair(label, value) {
+    return '<span class="muted">' + esc(label) + '</span><span>' + show(value) + '</span>';
+  }
+  function signatureBlock() {
+    return '<div class="sign-box"><div class="for-company">For ' + show(state.fields.company) + '</div>' +
+      (state.signature ? '<img alt="Supplied authorised signature" src="' + state.signature + '">' : '<div class="sign-space"></div>') +
+      '<div class="sign-label">Authorised signatory</div></div>';
+  }
+  function bankAndSignature(type) {
+    const d = state.fields;
+    const left = type === "packing"
+      ? '<div><div class="block-label">Packing references</div><div class="bank-grid">' + pair("Invoice", d.ciNo) + pair("Marking / treatment", d.treatmentRef) + pair("Origin", [...new Set(state.items.map(item => item.origin).filter(Boolean))].join(" / ")) + '</div></div>'
+      : '<div><div class="block-label">Bank details</div><div class="bank-grid">' + pair("Account holder", d.bankname) + pair("Account number", d.account) + pair("Bank / branch", d.branch) + pair("IFSC / SWIFT", [d.ifsc, d.swift].filter(Boolean).join(" / ")) + pair("AD code", d.adcode) + '</div></div>';
+    return '<div class="bank-sign">' + left + signatureBlock() + '</div>';
+  }
+  function exportDeclaration() {
+    return state.fields.exportTax === "igst"
+      ? "SUPPLY MEANT FOR EXPORT ON PAYMENT OF INTEGRATED TAX"
+      : "SUPPLY MEANT FOR EXPORT UNDER BOND OR LETTER OF UNDERTAKING WITHOUT PAYMENT OF INTEGRATED TAX";
+  }
+  function totalRow(label, amount, extraClass = "") {
+    return '<div class="total-row ' + extraClass + '"><span class="muted">' + esc(label) + '</span><span>' + money(amount / 100) + '</span></div>';
+  }
+  function financialSummary(type) {
+    const d = state.fields;
+    const t = amounts();
+    const exclude = type === "proforma" && d.quoteTaxBasis === "exclude";
+    const pending = !exclude && t.pending;
+    const displayedTotal = exclude || pending ? t.taxableTotal : t.grand;
+    let rows = totalRow("Items subtotal", t.subtotal);
+    if (t.discount) rows += totalRow("Order discount", -t.discount);
+    if (t.freight) rows += totalRow("Freight", t.freight);
+    if (t.insurance) rows += totalRow("Insurance", t.insurance);
+    if (!exclude || t.discount || t.freight || t.insurance) rows += totalRow(exclude ? "Quote value before tax" : "Taxable value", t.taxableTotal);
+    if (exclude) rows += '<div class="tax-note">Applicable taxes are excluded from this quotation.</div>';
+    else if (pending) rows += '<div class="tax-note">Tax rates pending confirmation. The amount below is before all taxes.</div>';
+    else {
+      Object.keys(t.groups).sort((a, b) => num(a) - num(b)).forEach(rate => {
+        rows += totalRow((d.reverseCharge === "yes" ? "RCM tax " : "IGST ") + rate + "%", t.groups[rate]);
+      });
+    }
+    const caption = exclude ? "Quotation value · taxes excluded" : pending ? "Amount before taxes · review pending" : (type === "proforma" ? "Estimated quotation total" : "Total invoice value");
+    rows += '<div class="grand-total"><span class="total-caption">' + caption + ' · INR</span><strong>' + money(displayedTotal / 100) + '</strong></div>';
+    if (type === "commercial" && t.advance) {
+      rows += totalRow("Advance received", t.advance);
+      if (!pending) rows += totalRow("Balance payable", t.balance, "balance-row");
+    }
+    rows += '<div class="amount-words">' + esc(amountWords(displayedTotal)) + '</div>';
+    return '<div class="totals">' + rows + '</div>';
+  }
+  function tailHTML(type) {
+    const d = state.fields;
+    let content = summaryStrip(type);
+    if (type === "packing") {
+      content += '<div class="packing-remarks"><div class="block-label">Packing / handling remarks</div><div>' + show(d.packingNotes) + '</div>' +
+        '<p class="small-note">Weights and package counts are shown once per group. Continued contents refer to the same numbered packages.</p></div>';
+    } else {
+      const terms = pair("Payment terms", d.payment) +
+        (type === "proforma" ? pair("Validity", dateText(d.validUntil)) + pair("Lead time", d.leadTime) : pair("Due date", dateText(d.dueDate))) +
+        pair("Incoterms", [d.incoterms, d.incotermPlace].filter(Boolean).join(" · ")) +
+        pair("Loading", d.loading) + pair("Discharge", d.discharge) + pair("Part shipment", d.shipment);
+      content += '<div class="totals-layout"><div><div class="block-label">' + (type === "proforma" ? "Quotation & delivery terms" : "Payment & delivery") + '</div><div class="terms-grid">' + terms + '</div>' +
+        (d.documentNotes ? '<div class="small-note">' + esc(d.documentNotes) + '</div>' : "") + '</div>' + financialSummary(type) + '</div>';
+      if (type === "proforma") content += '<div class="export-declaration quotation-note">PROFORMA INVOICE · QUOTATION FOR ORDER CONFIRMATION. Final commercial invoice and shipment documents follow the agreed supply.</div>';
+      else {
+        content += '<div class="export-declaration">' + esc(exportDeclaration()) +
+          (d.exportTax !== "igst" && d.lutRef ? '<br>LUT / Bond reference ' + esc(d.lutRef) : "") + '</div>';
+        if (d.eInvoice === "required") content += '<div class="einvoice-box"><div class="irn-data"><span class="key-label">Official e-invoice references</span><b>IRN</b> ' + show(d.irn) + '<br><b>Acknowledgement</b> ' + show(d.ackNo) + ' · ' + dateText(d.ackDate) + '</div>' +
+          (state.qrImage ? '<img alt="Signed QR image supplied by the authorised IRP" src="' + state.qrImage + '">' : "") + '</div>';
+      }
+    }
+    if (d.productCertificates) content += '<div class="certificate-references"><span class="key-label">Actual certificate references</span>' + esc(d.productCertificates) + '</div>';
+    if (type === "commercial" && state.items.some(item => productKind(item) === "hive")) content += '<div class="equipment-note">Empty hive equipment · without live bees · included parts per packing-list set schedule.</div>';
+    content += bankAndSignature(type);
+    return '<div class="end-block">' + content + '</div>';
+  }
+  function kitHTML(item) {
+    const index = itemIndex(item.id) + 1;
+    const parts = PARTS.filter(part => num(item.parts[part[0]]) > 0);
+    return '<section class="kit-block"><div class="kit-heading"><div><span class="key-label">Included in sales item ' + String(index).padStart(2, "0") + '</span><strong>' + show(item.description) + '</strong><div class="item-detail">' + show(item.model) + '</div></div><div class="kit-count">' + qty(item.quantity) + ' sets</div></div>' +
+      '<div class="kit-spec">' + reference("Wood / finish", item.wood) + reference("Dimensions", item.dimensions) + reference("Lot / SKU", item.batch) + '</div>' +
+      '<table class="kit-table"><thead><tr><th>Included component</th><th class="num">Per set</th><th class="num">For ' + qty(item.quantity) + ' sets</th><th>Unit</th></tr></thead><tbody>' +
+      parts.map(part => '<tr><td>' + esc(partName(item, part)) + '</td><td class="num">' + qty(item.parts[part[0]]) + '</td><td class="num">' + qty(num(item.parts[part[0]]) * num(item.quantity)) + '</td><td>' + esc(part[2]) + '</td></tr>').join("") +
+      '</tbody></table><div class="kit-bottom">Empty equipment · without live bees. Component counts describe the included set contents and do not add outer shipping packages.</div></section>';
+  }
+  function outerHeight(element) {
+    const style = getComputedStyle(element);
+    return element.getBoundingClientRect().height + num(parseFloat(style.marginTop)) + num(parseFloat(style.marginBottom));
+  }
+  function measure(type, rows, kits) {
+    const host = document.createElement("div");
+    host.className = "measure-host";
+    host.innerHTML = '<article class="invoice-page' + (printRequest ? ' print-layout' : '') + '"><div class="page-content">' + fullHeader(type) + continuationHeader(type) + table(type, rows) + tailHTML(type) +
+      '<div class="kit-measure">' + kits.join("") + '</div></div></article>';
+    document.body.appendChild(host);
+    const page = host.querySelector(".invoice-page");
+    const style = getComputedStyle(page);
+    const headers = page.querySelectorAll(".paper-header");
+    const data = {
+      available: page.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom) - 4,
+      firstHeader: outerHeight(headers[0]),
+      otherHeader: outerHeight(headers[1]),
+      tableHead: page.querySelector(".item-table thead").getBoundingClientRect().height,
+      rowHeights: Array.from(page.querySelectorAll(".item-table tbody tr")).map(row => row.getBoundingClientRect().height),
+      tail: outerHeight(page.querySelector(".end-block")),
+      kitHeights: Array.from(page.querySelectorAll(".kit-block")).map(outerHeight)
+    };
+    host.remove();
+    return data;
+  }
+  function paginateRows(heights, firstCapacity, otherCapacity, reserve) {
+    const pages = [];
+    let current = [];
+    let used = 0;
+    let capacity = firstCapacity;
+    heights.forEach((height, index) => {
+      if (current.length && used + height > capacity) {
+        pages.push(current);
+        current = [];
+        used = 0;
+        capacity = otherCapacity;
+      }
+      current.push(index);
+      used += height;
+    });
+    pages.push(current);
+    const lastIndex = pages.length - 1;
+    const lastCapacity = lastIndex === 0 ? firstCapacity : otherCapacity;
+    const usedLast = pages[lastIndex].reduce((sum, index) => sum + heights[index], 0);
+    if (usedLast + reserve > lastCapacity) {
+      const finalRows = pages[lastIndex];
+      const trailingIndex = finalRows[finalRows.length - 1];
+      if (finalRows.length > 1 && heights[trailingIndex] + reserve <= otherCapacity) pages.push([finalRows.pop()]);
+      else pages.push([]);
+    }
+    return pages.length ? pages : [[]];
+  }
+  function buildDocument(type) {
+    const rows = type === "packing" ? packingRows() : financialRows(type);
+    const useKits = type === "packing" || type === "proforma";
+    const kits = useKits ? state.items.filter(item => productKind(item) === "hive" && num(item.quantity) > 0).map(kitHTML) : [];
+    const measurements = measure(type, rows, kits);
+    const firstCapacity = measurements.available - measurements.firstHeader - measurements.tableHead - 14;
+    const otherCapacity = measurements.available - measurements.otherHeader - measurements.tableHead - 14;
+    const rowHeights = rows.length ? measurements.rowHeights : [];
+    const pageRows = paginateRows(rowHeights, firstCapacity, otherCapacity, measurements.tail + 12);
+    if (rowHeights.some(height => height > Math.max(firstCapacity, otherCapacity))) layoutWarnings.push(TYPE_LABELS[type] + " has a description taller than one A4 page. Shorten the specification text.");
+    if (measurements.tail > measurements.available - measurements.otherHeader - 30) layoutWarnings.push(TYPE_LABELS[type] + " remarks are too long for the final page. Shorten the notes.");
+    const bodies = pageRows.map((indices, index) => ({
+      header: index === 0 ? fullHeader(type) : continuationHeader(type),
+      content: '<div class="items-section">' + table(type, indices.map(rowIndex => rows[rowIndex])) + '</div>' +
+        (index === pageRows.length - 1 ? tailHTML(type) : ""),
+      appendix: false
+    }));
+    const kitCapacity = measurements.available - measurements.otherHeader - 16;
+    let kitPage = [];
+    let kitHeight = 0;
+    measurements.kitHeights.forEach((height, index) => {
+      if (kitPage.length && kitHeight + height > kitCapacity) {
+        bodies.push({ header: continuationHeader(type, true), content: '<div class="kit-page">' + kitPage.join("") + '</div>', appendix: true });
+        kitPage = [];
+        kitHeight = 0;
+      }
+      if (height > kitCapacity) layoutWarnings.push("Shorten the hive-set description so the contents schedule fits A4.");
+      kitPage.push(kits[index]);
+      kitHeight += height;
+    });
+    if (kitPage.length) bodies.push({ header: continuationHeader(type, true), content: '<div class="kit-page">' + kitPage.join("") + '</div>', appendix: true });
+    const info = documentInfo(type);
+    const verification = printRequest ? printRequest.verification : "";
+    return bodies.map((body, index) => '<div class="paper-wrap" data-document="' + type + '"><article class="invoice-page' + (printRequest ? ' print-layout' : '') + '" aria-label="' + esc(TYPE_LABELS[type]) + ' page ' + (index + 1) + '"><div class="page-content">' + body.header + body.content + '</div>' +
+      '<footer class="paper-footer"><div class="paper-footer-meta"><span>' + show(state.fields.company) + ' · ' + show(info.number) + (state.status[type] === "ready" ? "" : " · Draft") + (body.appendix ? " · Set contents" : "") +
+      '</span><span>Page ' + (index + 1) + ' of ' + bodies.length + '</span></div>' + verification + '</footer></article></div>').join("");
+  }
+  function fitPages() {
+    const available = byId("paperPages").clientWidth;
+    if (!available) return;
+    document.querySelectorAll("#paperPages .paper-wrap").forEach(wrapper => {
+      const page = wrapper.firstElementChild;
+      if (!page.offsetWidth) return;
+      const scale = Math.min(1, available / page.offsetWidth);
+      page.style.transform = "scale(" + scale + ")";
+      wrapper.style.width = page.offsetWidth * scale + "px";
+      wrapper.style.height = page.offsetHeight * scale + "px";
+    });
+  }
+  function renderReview() {
+    const result = validate(activeDocument);
+    const issues = result.errors.concat(layoutWarnings);
+    byId("reviewBox").innerHTML = '<strong>' + esc(TYPE_LABELS[activeDocument]) + ' review</strong>' +
+      (issues.length ? '<div>' + issues.length + ' check' + (issues.length === 1 ? "" : "s") + ' before Ready</div><ul>' + issues.slice(0, 7).map(issue => '<li>' + esc(issue) + '</li>').join("") + '</ul>' : '<span>Required entries are complete for the local Ready workflow.</span>') +
+      (result.warnings.length ? '<details class="review-notes"><summary>Review notes</summary><ul>' + result.warnings.map(issue => '<li>' + esc(issue) + '</li>').join("") + '</ul></details>' : "");
+    byId("reviewCount").textContent = issues.length ? issues.length + " checks" : "Entries complete";
+  }
+  function renderDocuments() {
+    layoutWarnings = [];
+    const types = printRequest ? printRequest.types : [activeDocument];
+    byId("paperPages").innerHTML = types.map(buildDocument).join("");
+    const count = byId("paperPages").querySelectorAll(".invoice-page").length;
+    byId("pageCount").textContent = count + (count === 1 ? " A4 page" : " A4 pages");
+    updateEditorSummaries();
+    updateStatus();
+    renderReview();
+    fitPages();
+  }
+
+
+  function setDocument(type) {
+    activeDocument = type;
+    state.lastDocument = type;
+    renderForm();
+    byId("documentEditor").scrollTop = 0;
+    document.querySelectorAll("[data-document-tab]").forEach(button => {
+      button.setAttribute("aria-pressed", String(button.dataset.documentTab === type));
+    });
+    renderDocuments();
+    save();
+  }
+  function openDocumentForm(type) {
+    byId("workspace").dataset.view = "edit";
+    byId("mobileSwitch").textContent = "View document";
+    if (type !== activeDocument) setDocument(type);
+  }
+  function readImage(file, key) {
+    if (!file) return;
+    if (!/^image\/(?:png|jpeg)$/.test(file.type) || file.size > 1800000) {
+      alert("Choose a PNG or JPG image smaller than 1.8 MB.");
+      return;
+    }
+    const targetShipment = state;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (state !== targetShipment) return;
+      state[key] = safeImage(String(reader.result));
+      changed(key === "qrImage" ? ["commercial"] : undefined);
+      renderDocuments();
+      save();
+    };
+    reader.onerror = () => alert("The image could not be read.");
+    reader.readAsDataURL(file);
+  }
+  function downloadData(content, filename, type) {
+    const address = URL.createObjectURL(new Blob([content], { type }));
+    const link = document.createElement("a");
+    link.href = address;
+    link.download = filename;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(address), 1000);
+  }
+  function exportBackup() {
+    save();
+    const backup = { app: BACKUP_APP, version: 2, exported: new Date().toISOString(), shipment: state };
+    downloadData(JSON.stringify(backup, null, 2), "USOA-export-shipment-backup.json", "application/json");
+  }
+  function importBackup(file) {
+    if (!file) return;
+    const requestId = ++importRequest;
+    if (file.size > 10000000) {
+      alert("Choose a shipment backup smaller than 10 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (requestId !== importRequest) return;
+      try {
+        const restored = restore(JSON.parse(String(reader.result)));
+        clearTimeout(saveTimer);
+        clearTimeout(renderTimer);
+        state = restored;
+        setDocument(state.lastDocument || "proforma");
+      } catch (error) {
+        alert(error.message || "This backup could not be opened.");
+      }
+    };
+    reader.onerror = () => alert("The backup file could not be read.");
+    reader.readAsText(file);
+  }
+  function refreshPackageEditor() {
+    renderPackages();
+    updateEditorSummaries();
+  }
+  function fieldDocuments(key) {
+    if (activeDocument === "packing") return ["packing"];
+    if (activeDocument === "commercial") {
+      const linkedDispatch = ["ciNo", "ciDate", "vehicleNo", "dispatchDate", "lrNo", "lrDate", "ewayNo", "ewayDate"];
+      return linkedDispatch.includes(key) ? ["commercial", "packing"] : ["commercial"];
+    }
+    if (["piDate", "validUntil", "quoteTaxBasis", "leadTime", "poDate"].includes(key)) return ["proforma"];
+    const invoiceFields = [
+      "piNo", "poNo", "loading", "discharge", "payment", "creditDays", "incoterms", "incotermPlace", "shipment",
+      "discount", "freight", "freightGST", "insurance", "insuranceGST", "exportTax", "reverseCharge", "documentNotes",
+      "bankname", "account", "branch", "ifsc", "swift", "adcode"
+    ];
+    return invoiceFields.includes(key) ? ["proforma", "commercial"] : Object.keys(TYPE_LABELS);
+  }
+  function handleInput(event) {
+    const input = event.target;
+    if (input.dataset.field) {
+      const key = input.dataset.field;
+      if (key === "reviewed") {
+        state.reviewed[activeDocument] = input.checked;
+        if (!input.checked) state.status[activeDocument] = "draft";
+        clearTimeout(renderTimer);
+        renderDocuments();
+        save();
+        return;
+      }
+      state.fields[key] = input.type === "checkbox" ? input.checked : input.value;
+      if (key === "ciDate" || key === "creditDays") {
+        state.fields.dueDate = addDays(state.fields.ciDate, state.fields.creditDays);
+        const dueDate = byId("dueDate");
+        if (dueDate) dueDate.value = state.fields.dueDate;
+      }
+      if (key === "creditDays") {
+        state.fields.payment = state.fields.payment.replace(/Net\s+\d+\s+Days/i, "Net " + qty(state.fields.creditDays) + " Days");
+        byId("payment").value = state.fields.payment;
+      }
+      if (key === "shipSame") syncDelivery();
+      changed(fieldDocuments(key));
+      updateEditorSummaries();
+      return;
+    }
+    if (input.dataset.item) {
+      const item = getItem(input.dataset.item);
+      if (!item) return;
+      if (input.dataset.part || input.dataset.partName) {
+        const nameKey = input.dataset.partName;
+        if (nameKey) {
+          item.partNames[nameKey] = input.value.trim();
+          const name = partName(item, PARTS.find(part => part[0] === nameKey));
+          input.nextElementSibling.setAttribute("aria-label", name + " per set");
+          document.querySelectorAll('[data-part-item="' + item.id + '"] option[value="' + nameKey + '"]').forEach(option => {
+            option.textContent = name + " · pieces";
+          });
+        } else {
+          item.parts[input.dataset.part] = input.value;
+        }
+        item.specificationConfirmed = false;
+        item.classificationConfirmed = false;
+      } else {
+        const key = input.dataset.key;
+        item[key] = input.type === "checkbox" ? input.checked : input.value;
+        if (["hsn", "gst", "description", "model", "wood", "dimensions", "sheetSize", "cellSize", "thickness", "grade", "purity", "variety", "unit"].includes(key)) item.classificationConfirmed = false;
+        if (["model", "wood", "dimensions", "sheetSize", "cellSize", "thickness", "grade", "purity", "variety", "unit"].includes(key)) item.specificationConfirmed = false;
+      }
+      const classification = byId(item.id + "_classificationConfirmed");
+      const specification = byId(item.id + "_specificationConfirmed");
+      if (classification) classification.checked = item.classificationConfirmed;
+      if (specification) specification.checked = item.specificationConfirmed;
+      changed();
+      updateEditorSummaries();
+      return;
+    }
+    if (input.dataset.package) {
+      const pack = state.packages.find(value => value.id === input.dataset.package);
+      if (!pack) return;
+      const key = input.dataset.key;
+      const oldWeight = groupWeights(pack);
+      pack[key] = input.value;
+      if (key === "weightBasis") {
+        const factor = pack.weightBasis === "each" ? Math.max(1, num(pack.count)) : 1;
+        pack.net = String(Math.round(oldWeight.net / factor * 1000) / 1000);
+        pack.gross = String(Math.round(oldWeight.gross / factor * 1000) / 1000);
+        byId(pack.id + "_net").value = pack.net;
+        byId(pack.id + "_gross").value = pack.gross;
+      }
+      changed(["packing"]);
+      updateEditorSummaries();
+      return;
+    }
+    if (input.dataset.content) {
+      const pack = state.packages.find(value => value.id === input.dataset.content);
+      const index = Number(input.dataset.index);
+      if (!pack || !pack.allocations[index]) return;
+      const key = input.dataset.key;
+      pack.allocations[index][key] = input.value;
+      if (key === "itemId") {
+        pack.allocations[index].component = "units";
+        refreshPackageEditor();
+      }
+      changed(["packing"]);
+      updateEditorSummaries();
+    }
+  }
+  function addAllocation(pack) {
+    if (pack.allocations.length >= 200) return;
+    pack.allocations.push({ itemId: state.items[0] ? state.items[0].id : "", component: "units", quantity: "" });
+  }
+  function oneGroupPerItem() {
+    if (!state.items.length) {
+      alert("Add the products first.");
+      return;
+    }
+    if (state.packages.length && !confirm("Replace the current package plan with one blank-weight group per product? Export a backup first to keep the current plan.")) return;
+    state.packages = state.items.map(item => {
+      const pack = newPackage(nextId("P"));
+      pack.type = productKind(item) === "hive" ? "Crate" : "Carton";
+      pack.allocations = [{ itemId: item.id, component: "units", quantity: item.quantity }];
+      return pack;
+    });
+    refreshPackageEditor();
+    changed(["packing"]);
+  }
+  function handleAction(event) {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+    const action = button.dataset.action;
+    if (action === "openProforma" || action === "openCommercial") {
+      const type = action === "openProforma" ? "proforma" : "commercial";
+      openDocumentForm(type);
+      document.querySelector('[data-document-tab="' + type + '"]').focus();
+      return;
+    }
+    const id = button.dataset.id;
+    const item = getItem(id);
+    const pack = state.packages.find(value => value.id === id);
+    if (action === "addItem" && state.items.length < 200) {
+      state.items.push(newItem(button.dataset.product, nextId("I")));
+      renderItems();
+      refreshPackageEditor();
+    } else if (action === "duplicateItem" && item && state.items.length < 200) {
+      const duplicate = JSON.parse(JSON.stringify(item));
+      duplicate.id = nextId("I");
+      duplicate.classificationConfirmed = false;
+      duplicate.specificationConfirmed = false;
+      state.items.splice(itemIndex(id) + 1, 0, duplicate);
+      renderItems();
+      refreshPackageEditor();
+    } else if (action === "removeItem" && item) {
+      state.items = state.items.filter(value => value.id !== id);
+      state.packages.forEach(group => { group.allocations = group.allocations.filter(value => value.itemId !== id); });
+      renderItems();
+      refreshPackageEditor();
+    } else if (action === "addPackage" && state.packages.length < 300) {
+      const created = newPackage(nextId("P"));
+      addAllocation(created);
+      state.packages.push(created);
+      refreshPackageEditor();
+    } else if (action === "duplicatePackage" && pack && state.packages.length < 300) {
+      const duplicate = JSON.parse(JSON.stringify(pack));
+      duplicate.id = nextId("P");
+      state.packages.splice(state.packages.indexOf(pack) + 1, 0, duplicate);
+      refreshPackageEditor();
+    } else if (action === "removePackage" && pack) {
+      state.packages = state.packages.filter(value => value.id !== id);
+      refreshPackageEditor();
+    } else if (action === "addContent" && pack) {
+      addAllocation(pack);
+      refreshPackageEditor();
+    } else if (action === "removeContent" && pack) {
+      pack.allocations.splice(Number(button.dataset.index), 1);
+      refreshPackageEditor();
+    } else if (action === "generatePackages") {
+      oneGroupPerItem();
+      return;
+    } else if (action === "removeSignature") {
+      state.signature = "";
+      byId("signatureUpload").value = "";
+    } else if (action === "removeQR") {
+      state.qrImage = "";
+      byId("qrUpload").value = "";
+    } else return;
+    changed(activeDocument === "proforma" ? undefined : [activeDocument]);
+  }
+  function showReview(type) {
+    const result = validate(type);
+    byId("reviewDialogBody").innerHTML = '<p>Review the following entries for ' + esc(TYPE_LABELS[type]) + '.</p><ul>' +
+      result.errors.concat(layoutWarnings).slice(0, 35).map(error => '<li>' + esc(error) + '</li>').join("") + '</ul>';
+    byId("reviewDialog").showModal();
+  }
+  function markReady() {
+    clearTimeout(renderTimer);
+    renderDocuments();
+    if (state.status[activeDocument] === "ready") {
+      state.status[activeDocument] = "draft";
+      renderDocuments();
+      save();
+      return;
+    }
+    const result = validate(activeDocument);
+    if (result.errors.length || layoutWarnings.length) {
+      showReview(activeDocument);
+      return;
+    }
+    state.status[activeDocument] = "ready";
+    renderDocuments();
+    save();
+  }
+  function newShipment(sample) {
+    if (!confirm("Start a " + (sample ? "sample" : "new blank") + " shipment? Export a backup first to keep the current one.")) return;
+    clearTimeout(renderTimer);
+    clearTimeout(saveTimer);
+    importRequest += 1;
+    state = freshState(state.serial + 1, sample);
+    setDocument("proforma");
+  }
+  function showPrintStatus(message) {
+    const status = byId("printStatus");
+    status.textContent = message;
+    status.hidden = !message;
+  }
+  function printVerification(vpin) {
+    const scanURL = VERIFY_URL + "#vpin=" + encodeURIComponent(vpin) + "&auto=1";
+    const qr = qrcode(0, "M");
+    qr.addData(scanURL);
+    qr.make();
+    const svg = qr.createSvgTag({ cellSize: 1, margin: 4, scalable: true });
+    return '<div class="verification-line"><span>Please verify this document by entering its VPIN <strong>' + esc(vpin) +
+      '</strong> at <a href="' + VERIFY_URL + '">usoagroup.in/verify</a></span><a class="verification-qr" aria-label="Scan or open document verification" href="' +
+      esc(scanURL) + '">' + svg + '</a></div>';
+  }
+  function startPrintJob(types, vpin) {
+    clearTimeout(renderTimer);
+    types.forEach(type => {
+      if (state.status[type] === "ready" && validate(type).errors.length) state.status[type] = "draft";
+    });
+    printRequest = { types, verification: printVerification(vpin) };
+    renderDocuments();
+    save();
+  }
+  function printDocuments(types) {
+    if (printRequest || printTimer !== null) return;
+    const now = Date.now();
+    const vpin = takePrintVPIN(now);
+    if (!vpin) {
+      showPrintStatus("Waiting for the next minute so this PDF gets a new VPIN.");
+      printTimer = setTimeout(() => {
+        printTimer = null;
+        printDocuments(types);
+      }, 60000 - now % 60000);
+      return;
+    }
+    showPrintStatus("");
+    startPrintJob(types, vpin);
+    window.print();
+  }
+  function wire() {
+    byId("invoiceForm").addEventListener("submit", event => event.preventDefault());
+    byId("invoiceForm").addEventListener("input", handleInput);
+    byId("invoiceForm").addEventListener("click", handleAction);
+    byId("invoiceForm").addEventListener("change", event => {
+      if (event.target.id === "signatureUpload") readImage(event.target.files[0], "signature");
+      if (event.target.id === "qrUpload") readImage(event.target.files[0], "qrImage");
+    });
+    document.querySelectorAll("[data-document-tab]").forEach(button => button.addEventListener("click", () => openDocumentForm(button.dataset.documentTab)));
+    byId("readyButton").addEventListener("click", markReady);
+    byId("printButton").addEventListener("click", () => printDocuments([activeDocument]));
+    byId("bundleButton").addEventListener("click", () => printDocuments(["commercial", "packing"]));
+    byId("allButton").addEventListener("click", () => printDocuments(["proforma", "commercial", "packing"]));
+    const selection = byId("printSelectionForm");
+    const options = Array.from(selection.querySelectorAll('input[name="document"]'));
+    const selectionDialog = byId("printSelectionDialog");
+    const selectionSubmit = byId("printSelectionSubmit");
+    byId("choosePrintButton").addEventListener("click", () => {
+      options.forEach(option => { option.checked = option.value === activeDocument; });
+      selectionSubmit.disabled = false;
+      selectionDialog.showModal();
+    });
+    byId("cancelPrintSelection").addEventListener("click", () => selectionDialog.close());
+    selection.addEventListener("change", () => { selectionSubmit.disabled = !options.some(option => option.checked); });
+    selection.addEventListener("submit", event => {
+      event.preventDefault();
+      const types = options.filter(option => option.checked).map(option => option.value);
+      if (!types.length) return;
+      selectionDialog.close();
+      printDocuments(types);
+    });
+    byId("exportButton").addEventListener("click", exportBackup);
+    byId("importButton").addEventListener("click", () => byId("backupFile").click());
+    byId("backupFile").addEventListener("change", event => {
+      importBackup(event.target.files[0]);
+      event.target.value = "";
+    });
+    byId("downloadAppButton").addEventListener("click", () => downloadData(APP_SOURCE, "next.html", "text/html;charset=utf-8"));
+    byId("newButton").addEventListener("click", () => newShipment(false));
+    byId("sampleButton").addEventListener("click", () => newShipment(true));
+    byId("aboutButton").addEventListener("click", () => byId("aboutDialog").showModal());
+    byId("closeAbout").addEventListener("click", () => byId("aboutDialog").close());
+    byId("closeReview").addEventListener("click", () => byId("reviewDialog").close());
+    byId("mobileSwitch").addEventListener("click", () => {
+      const edit = byId("workspace").dataset.view !== "edit";
+      byId("workspace").dataset.view = edit ? "edit" : "preview";
+      byId("mobileSwitch").textContent = edit ? "View document" : "Edit details";
+      fitPages();
+    });
+    window.addEventListener("resize", fitPages);
+    window.addEventListener("beforeunload", save);
+    window.addEventListener("keydown", event => {
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === "p") {
+        event.preventDefault();
+        printDocuments([activeDocument]);
+      }
+    });
+    window.addEventListener("beforeprint", () => {
+      if (printRequest) return;
+      const vpin = printTimer === null ? takePrintVPIN(Date.now()) : "";
+      if (vpin) {
+        startPrintJob([activeDocument], vpin);
+      } else {
+        byId("printStatus").setAttribute("data-print-blocked", "");
+        showPrintStatus("A new VPIN is available next minute. Use Print current / PDF to queue the document.");
+      }
+    });
+    window.addEventListener("afterprint", () => {
+      byId("printStatus").removeAttribute("data-print-blocked");
+      if (printTimer === null) showPrintStatus("");
+      printRequest = null;
+      renderDocuments();
+    });
+  }
+
+  load();
+  activeDocument = state.lastDocument || "proforma";
+  Object.keys(TYPE_LABELS).forEach(type => {
+    if (state.status[type] === "ready" && validate(type).errors.length) state.status[type] = "draft";
+  });
+  setDocument(activeDocument);
+  wire();
+})();
+
+</script>
+</body>
+</html>
