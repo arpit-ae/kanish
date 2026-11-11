@@ -7,7 +7,6 @@ const bucket = "portal-private-pdfs";
 const money = new Intl.NumberFormat("en-IN", {style: "currency", currency: "INR"});
 const statuses = ["unfulfilled", "processing", "dispatched", "delivered", "cancelled"];
 const permissions = ["orders", "documents", "customers"];
-const guestKey = "usoa-guest-cart-v1";
 const products = new Map();
 let client, session, profile, factorId;
 let cart = new Map();
@@ -57,45 +56,25 @@ async function result(request) {
 }
 
 function show(...sections) {
+  byId("customer-shortcuts").hidden = !sections.includes("shop");
   for (const id of ["login", "recovery", "mfa", "shop", "orders", "documents", "customers"]) {
     byId(id).hidden = !sections.includes(id);
   }
 }
 
-function guestCart() {
-  try {
-    return new Map(JSON.parse(localStorage.getItem(guestKey) || "[]").filter(([id, quantity]) =>
-      typeof id === "string" && Number.isInteger(quantity) && quantity >= 1 && quantity <= 100));
-  } catch {
-    return new Map();
-  }
-}
-
 async function loadCart() {
-  const guest = guestCart();
-  cart = guest;
-  if (!session) return;
   const saved = await result(client.from("portal_cart").select("product_id,quantity").eq("user_id", session.user.id));
   cart = new Map(saved.map(row => [row.product_id, row.quantity]));
-  if (!guest.size) return;
-  const additions = Array.from(guest, ([id, quantity]) => ({
-    user_id: session.user.id, product_id: id, quantity: Math.max(cart.get(id) || 0, quantity)
-  }));
-  await result(client.from("portal_cart").upsert(additions));
-  for (const row of additions) cart.set(row.product_id, row.quantity);
-  localStorage.removeItem(guestKey);
 }
 
 async function setQuantity(id, quantity) {
-  if (session) {
-    const table = client.from("portal_cart");
-    await result(quantity
-      ? table.upsert({user_id: session.user.id, product_id: id, quantity})
-      : table.delete().eq("user_id", session.user.id).eq("product_id", id));
-  }
+  if (!session || admin) throw new Error("Sign in to use your cart.");
+  const table = client.from("portal_cart");
+  await result(quantity
+    ? table.upsert({user_id: session.user.id, product_id: id, quantity})
+    : table.delete().eq("user_id", session.user.id).eq("product_id", id));
   if (quantity) cart.set(id, quantity);
   else cart.delete(id);
-  if (!session) localStorage.setItem(guestKey, JSON.stringify([...cart]));
   renderCart();
 }
 
@@ -123,7 +102,8 @@ function renderCart() {
   }
   byId("cart-items").replaceChildren(...(rows.length ? rows : [element("p", "Your cart is empty.")]));
   byId("cart-total").textContent = rows.length ? money.format(total) : "";
-  byId("cart-note").textContent = unavailable ? "Remove unavailable products to continue." : !session && rows.length ? "Sign in to check out." : "";
+  byId("cart-count").textContent = "(" + [...cart.values()].reduce((sum, quantity) => sum + quantity, 0) + ")";
+  byId("cart-note").textContent = unavailable ? "Remove unavailable products to continue." : "";
   byId("checkout-form").hidden = !session || !rows.length || unavailable;
 }
 
@@ -210,11 +190,7 @@ async function openPortal() {
   session = (await result(client.auth.getSession())).session;
   byId("logout").hidden = !session;
   byId("portal-title").textContent = admin ? "Administration" : "Customer account";
-  show(...(!admin ? ["shop"] : []), ...(!session ? ["login"] : []));
-  if (!admin) {
-    await loadCart();
-    renderCart();
-  }
+  show(...(!session ? ["login"] : []));
   if (!session) return;
   profile = await result(client.from("portal_profiles").select("role,permissions").eq("user_id", session.user.id).maybeSingle());
   if (!profile) {
@@ -222,7 +198,10 @@ async function openPortal() {
     profile = {role: "customer", permissions: []};
   }
   if (!admin) {
+    await loadCart();
+    renderCart();
     show("shop", "orders", "documents");
+    if (view === "cart") byId("shop").scrollIntoView();
     await Promise.all([renderOrders(), renderDocuments()]);
     return;
   }
@@ -288,9 +267,8 @@ async function start() {
   }
   const response = await fetch("/api/portal/config");
   if (!response.ok) {
-    show("login", ...(!admin ? ["shop"] : []));
-    if (!admin) { cart = guestCart(); renderCart(); }
-    status("Sign-in will open once account setup is complete. You can still browse products and use the guest cart.");
+    show("login");
+    status("Sign-in will open once account setup is complete.");
     return;
   }
   const config = await response.json();

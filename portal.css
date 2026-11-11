@@ -5,6 +5,10 @@ body{background:#f8f4e9;color:#183a2a}
 .portal-header nav,.portal-actions{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
 .portal-main{max-width:1100px;margin:auto;padding:38px 20px 60px}
 .portal-main h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;margin:0 0 12px}
+.portal-shortcuts{display:flex;justify-content:flex-start;flex-wrap:wrap;gap:10px;min-height:0}
+.portal-shortcuts a{padding:8px 13px;border-radius:8px;background:#e8efdf;color:#173d2c;font-weight:700;text-decoration:none}
+.portal-shortcuts a:focus-visible{outline:2px solid #173d2c;outline-offset:3px}
+.portal-panel{scroll-margin-top:12px}
 .portal-panel{background:white;border:1px solid #e5ddc8;border-radius:20px;padding:clamp(16px,3vw,28px);margin-top:18px}
 .portal-panel h2,.portal-panel h3{margin:0 0 12px}
 .portal-panel form{display:grid;gap:12px;max-width:550px;margin:14px 0}

@@ -11,10 +11,15 @@
   <script defer src="/portal.js"></script>
 </head>
 <body>
-  <header class="portal-header"><a href="/"><strong>USOA GROUP</strong></a><nav><a href="/products.html">Products</a><a href="/portal.html?view=cart">Cart</a><a href="/portal.html">Account</a><a href="/portal.html?view=admin">Admin</a><button id="logout" hidden>Sign out</button></nav></header>
+  <header class="portal-header"><a href="/"><strong>USOA GROUP</strong></a><nav aria-label="Portal navigation"><a href="/products.html">Products</a><a href="/login">Account</a><a href="/admin/login">Admin</a><button id="logout" hidden>Sign out</button></nav></header>
   <main class="portal-main">
     <h1 id="portal-title">Customer account</h1>
     <p id="portal-status" role="status" aria-live="polite"></p>
+    <nav id="customer-shortcuts" class="portal-shortcuts" aria-label="Your account" hidden>
+      <a href="#shop">Shop &amp; cart <span id="cart-count"></span></a>
+      <a href="#orders">My orders</a>
+      <a href="#documents">My documents</a>
+    </nav>
     <section id="login" class="portal-panel">
       <h2>Sign in</h2>
       <form id="login-form"><fieldset id="login-fields" disabled><label>Email <input name="email" type="email" autocomplete="username" required></label><label>Password <input name="password" type="password" autocomplete="current-password" required></label><div class="portal-actions"><button class="portal-primary">Sign in</button><button type="button" id="reset">Reset password</button></div></fieldset></form>
