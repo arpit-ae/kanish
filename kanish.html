@@ -73,7 +73,7 @@ button.small{padding:6px 9px;font-size:11px}
 .preview-note{font-size:10px;color:#7f8b80;line-height:1.5;text-align:right}
 .paper-wrap{position:relative;margin:0 auto 20px}
 .invoice-page{width:210mm;height:297mm;padding:11mm 11mm 14mm;background:#fff;box-shadow:0 4px 25px #263c3014;position:relative;font-family:Arial,Helvetica,sans-serif;color:#233b30;font-size:10.2px;line-height:1.42;transform-origin:top left}
-.invoice-page.print-layout{height:296mm;padding-bottom:34mm}
+.invoice-page.print-layout{height:296mm;padding-bottom:37mm}
 .page-content{height:100%;display:flex;flex-direction:column}
 .paper-header{flex:none}
 .sheet-top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;border-bottom:2px solid var(--ink);gap:18px}
@@ -145,9 +145,9 @@ button.small{padding:6px 9px;font-size:11px}
 .sign-box .sign-label{font-size:7.5px;color:#7f8a7b;margin-top:2px}
 .paper-footer{position:absolute;bottom:6mm;left:11mm;right:11mm;border-top:1px solid #e4e9e0;padding-top:5px;font-size:7px;color:#87917f}
 .paper-footer-meta{display:flex;justify-content:space-between;gap:10px}
-.verification-line{display:none;align-items:center;justify-content:space-between;gap:12px;font-size:9px;color:#233b30;margin-top:3px}
+.verification-line{font-size:9px;color:#233b30;margin-top:3px;text-align:center;font-weight:700;line-height:1.35}
 .verification-line a{color:#173d32;text-decoration:underline}
-.verification-qr{flex:none}
+.verification-qr{display:block;flex:none;width:22mm;height:22mm}
 .verification-qr svg{display:block;width:22mm;height:22mm;shape-rendering:crispEdges}
 .print-status{margin:0;padding:8px 18px;background:#f7f3e9;color:#795e2d;font-size:12px}
 .einvoice-box{display:flex;gap:12px;border:1px solid #dce4da;padding:8px;margin-bottom:9px}
@@ -176,7 +176,6 @@ dialog a{color:#386449}
  .paper-wrap:last-child{break-after:auto;page-break-after:auto}
  .invoice-page{height:296mm;transform:none!important;box-shadow:none;margin:0;break-inside:avoid}
  .paper-footer{bottom:4mm}
- .verification-line{display:flex}
  .print-status{display:none}
  .print-status[data-print-blocked]{display:block;margin:11mm}
  .print-status[data-print-blocked]~.workspace{display:none!important}
@@ -317,6 +316,17 @@ dialog a{color:#386449}
 .quantity-strip{margin-bottom:7px}
 .bank-grid{gap:2px 7px}
 .bank-sign .block-label{margin-bottom:4px}
+
+/* Document typography and reserved print verification space */
+.invoice-page{color:#172820;font-weight:700}
+.invoice-page :is(.muted,.item-detail,.small-note,.key-label,.block-label,.bank-grid .muted,.sign-label,.amount-words,.kit-spec,.kit-bottom,.paper-footer){color:#293b31;font-weight:700}
+.invoice-page :is(th,td,.for-company,.export-declaration,.kit-table th){font-weight:700}
+.packing-hive-label{padding:9px 12px;font-weight:700}
+.bank-sign.with-verification{grid-template-columns:minmax(0,1.55fr) 24mm minmax(0,1fr);align-items:start}
+.bank-sign.with-verification .verification-qr{justify-self:center}
+.standalone-qr{display:flex;justify-content:center;margin:0 0 2mm}
+.paper-footer:has(.standalone-qr){border-top:0}
+.paper-footer:has(.standalone-qr) .paper-footer-meta{border-top:1px solid #e4e9e0;padding-top:5px}
 </style>
 </head>
 <body>
@@ -3250,13 +3260,15 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
         if (d.exportTax === "igst" && (item.gst === "" || !Number.isFinite(Number(item.gst)) || num(item.gst) < 0 || num(item.gst) > 100)) errors.push(prefix + " needs its confirmed GST rate.");
       }
       if (financial && item.gst !== "" && (num(item.gst) < 0 || num(item.gst) > 100)) errors.push(prefix + " GST rate must be between 0 and 100.");
-      if (!item.specificationConfirmed) errors.push(prefix + " product specifications and included parts need confirmation.");
+      if (!item.specificationConfirmed) errors.push(prefix + " product specifications need confirmation.");
       if (type !== "proforma" && ["honey", "wax", "sheets"].includes(productKind(item)) && !item.batch.trim()) errors.push(prefix + " needs its batch / lot reference.");
       if (productKind(item) === "hive") {
         if (item.unit !== "SET") errors.push(prefix + " complete hive equipment must use the Sets sale unit.");
-        const required = ["bottom", "brood", "broodFrames", "super", "superFrames", "inner", "roof"];
-        if (required.some(key => !Number.isSafeInteger(num(item.parts[key])) || num(item.parts[key]) < 1)) errors.push(prefix + " complete hive set needs floor, brood, super, frames, inner cover and roof.");
-        if (PARTS.some(part => !Number.isSafeInteger(num(item.parts[part[0]])) || num(item.parts[part[0]]) < 0)) errors.push(prefix + " part counts must be whole numbers.");
+        if (type === "packing") {
+          const required = ["bottom", "brood", "broodFrames", "super", "superFrames", "inner", "roof"];
+          if (required.some(key => !Number.isSafeInteger(num(item.parts[key])) || num(item.parts[key]) < 1)) errors.push(prefix + " complete hive set needs floor, brood, super, frames, inner cover and roof.");
+          if (PARTS.some(part => !Number.isSafeInteger(num(item.parts[part[0]])) || num(item.parts[part[0]]) < 0)) errors.push(prefix + " part counts must be whole numbers.");
+        }
         if (!item.wood.trim() || !item.dimensions.trim()) warnings.push(prefix + " wood type and actual hive dimensions still need review.");
       }
       if (productKind(item) === "sheets" && (!item.sheetSize.trim() || !item.cellSize.trim())) warnings.push(prefix + " foundation sheet dimensions and cell size still need review.");
@@ -3410,10 +3422,9 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
           itemField(item, "batch", "Batch / lot / SKU") +
           itemField(item, "origin", "Country of origin", "text", { full: true })) +
         '<details class="subdetails"><summary>Product specifications</summary>' + productSpecifications(item) + '</details>' +
-        partsEditor(item) +
         '<div class="product-confirm">' +
           itemField(item, "classificationConfirmed", "HSN and tax classification verified", "checkbox") +
-          itemField(item, "specificationConfirmed", "Specifications and included parts verified", "checkbox") +
+          itemField(item, "specificationConfirmed", "Product specifications verified", "checkbox") +
         '</div><div class="allocation-note" data-coverage="' + item.id + '">' +
           (allocation.complete ? "Packing quantity matched" : "Packing allocation needs review") +
         '</div><div class="actions"><button type="button" class="small" data-action="duplicateItem" data-id="' + item.id + '">Duplicate item</button><button type="button" class="small" data-action="removeItem" data-id="' + item.id + '">Remove item</button></div></details>';
@@ -3424,7 +3435,7 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
   function contentEditor(pack, content, index) {
     const selected = getItem(content.itemId);
     const choices = [["units", "Complete items · " + (selected ? UNIT_LABELS[selected.unit] || selected.unit : "sale units")]];
-    if (selected && productKind(selected) === "hive") PARTS.filter(part => num(selected.parts[part[0]]) > 0).forEach(part => choices.push([part[0], partName(selected, part) + " · pieces"]));
+    if (selected && productKind(selected) === "hive") PARTS.filter(part => (num(selected.parts[part[0]]) > 0 || part[0] === content.component)).forEach(part => choices.push([part[0], partName(selected, part) + " · pieces"]));
     return '<div class="content-row">' +
       '<select aria-label="Packed product" data-content="' + pack.id + '" data-index="' + index + '" data-key="itemId">' +
         '<option value="">Choose product</option>' +
@@ -3537,10 +3548,17 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
       field("irn", "IRN from authorised IRP", "text", { full: true, max: 64 }) + field("ackNo", "Acknowledgement number") + field("ackDate", "Acknowledgement date", "date")
     ) + '<p class="helper">These references appear on the commercial invoice when applicable. Upload the signed QR image supplied by the authorised IRP.</p><div class="actions"><input type="file" id="qrUpload" accept="image/png,image/jpeg" aria-label="Signed QR image"><button type="button" class="small" data-action="removeQR">Remove QR image</button></div>');
   }
+  function packingHiveSets() {
+    const hives = state.items.filter(item => productKind(item) === "hive");
+    if (!hives.length) return "";
+    return section("Hive set contents", hives.map(item =>
+      '<div class="item-card"><div class="packing-hive-label">' + esc(itemLabel(item)) + '</div>' + partsEditor(item) + '</div>'
+    ).join(""), true);
+  }
   function packingForm() {
     return section("Packing list details", grid(
       field("plNo", "Packing list number", "text", { max: 16 }) + field("plDate", "Packing list date", "date")
-    ), true) + linkedShipmentForm("packing") + section("Packing groups & contents", grid(
+    ), true) + linkedShipmentForm("packing") + packingHiveSets() + section("Packing groups & contents", grid(
       field("marksPrefix", "Shipping marks prefix") + field("firstPackageNo", "First package number", "number") +
       field("woodPackaging", "Solid-wood outer packaging", "select", { full: true, choices: [["review", "Review packaging material"], ["no", "Confirmed no regulated solid-wood packaging"], ["yes", "Solid-wood packaging used"]] }) +
       field("treatmentRef", "Treatment / marking reference", "text", { full: true })
@@ -3652,15 +3670,7 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
     const lines = [];
     const identifiers = [item.batch ? "Lot " + item.batch : "", item.origin ? "Origin " + item.origin : ""].filter(Boolean);
     if (identifiers.length) lines.push(identifiers.join(" · "));
-    if (productKind(item) === "hive") {
-      const broodCount = qty(item.parts.broodFrames);
-      const superCount = qty(item.parts.superFrames);
-      const broodName = item.partNames.broodFrames;
-      const superName = item.partNames.superFrames;
-      const brood = broodName ? broodName + " × " + broodCount : "Brood " + broodCount + " frames";
-      const honeySuper = superName ? superName + " × " + superCount : "Super " + superCount + " frames";
-      lines.push(brood + " · " + honeySuper);
-    } else if (item.model) lines.push(item.model);
+    if (item.model) lines.push(item.model);
     if (productKind(item) === "honey" && item.grade) lines.push(item.grade);
     if (productKind(item) === "wax" && item.grade) lines.push(item.grade);
     if (productKind(item) === "sheets") {
@@ -3733,7 +3743,8 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
     const left = type === "packing"
       ? '<div><div class="block-label">Packing references</div><div class="bank-grid">' + pair("Invoice", d.ciNo) + pair("Marking / treatment", d.treatmentRef) + pair("Origin", [...new Set(state.items.map(item => item.origin).filter(Boolean))].join(" / ")) + '</div></div>'
       : '<div><div class="block-label">Bank details</div><div class="bank-grid">' + pair("Account holder", d.bankname) + pair("Account number", d.account) + pair("Bank / branch", d.branch) + pair("IFSC / SWIFT", [d.ifsc, d.swift].filter(Boolean).join(" / ")) + pair("AD code", d.adcode) + '</div></div>';
-    return '<div class="bank-sign">' + left + signatureBlock() + '</div>';
+    const qr = printRequest ? printRequest.verification.qr : "";
+    return '<div class="bank-sign' + (qr ? ' with-verification' : '') + '">' + left + qr + signatureBlock() + '</div>';
   }
   function exportDeclaration() {
     return state.fields.exportTax === "igst"
@@ -3859,7 +3870,7 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
   }
   function buildDocument(type) {
     const rows = type === "packing" ? packingRows() : financialRows(type);
-    const useKits = type === "packing" || type === "proforma";
+    const useKits = type === "packing";
     const kits = useKits ? state.items.filter(item => productKind(item) === "hive" && num(item.quantity) > 0).map(kitHTML) : [];
     const measurements = measure(type, rows, kits);
     const firstCapacity = measurements.available - measurements.firstHeader - measurements.tableHead - 14;
@@ -3872,7 +3883,8 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
       header: index === 0 ? fullHeader(type) : continuationHeader(type),
       content: '<div class="items-section">' + table(type, indices.map(rowIndex => rows[rowIndex])) + '</div>' +
         (index === pageRows.length - 1 ? tailHTML(type) : ""),
-      appendix: false
+      appendix: false,
+      hasSignature: index === pageRows.length - 1
     }));
     const kitCapacity = measurements.available - measurements.otherHeader - 16;
     let kitPage = [];
@@ -3889,10 +3901,11 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
     });
     if (kitPage.length) bodies.push({ header: continuationHeader(type, true), content: '<div class="kit-page">' + kitPage.join("") + '</div>', appendix: true });
     const info = documentInfo(type);
-    const verification = printRequest ? printRequest.verification : "";
+    const verification = printRequest?.verification;
     return bodies.map((body, index) => '<div class="paper-wrap" data-document="' + type + '"><article class="invoice-page' + (printRequest ? ' print-layout' : '') + '" aria-label="' + esc(TYPE_LABELS[type]) + ' page ' + (index + 1) + '"><div class="page-content">' + body.header + body.content + '</div>' +
-      '<footer class="paper-footer"><div class="paper-footer-meta"><span>' + show(state.fields.company) + ' · ' + show(info.number) + (state.status[type] === "ready" ? "" : " · Draft") + (body.appendix ? " · Set contents" : "") +
-      '</span><span>Page ' + (index + 1) + ' of ' + bodies.length + '</span></div>' + verification + '</footer></article></div>').join("");
+      '<footer class="paper-footer">' + (verification && !body.hasSignature ? '<div class="standalone-qr">' + verification.qr + '</div>' : '') +
+      '<div class="paper-footer-meta"><span>' + show(state.fields.company) + ' · ' + show(info.number) + (state.status[type] === "ready" ? "" : " · Draft") + (body.appendix ? " · Set contents" : "") +
+      '</span><span>Page ' + (index + 1) + ' of ' + bodies.length + '</span></div>' + (verification ? verification.line : '') + '</footer></article></div>').join("");
   }
   function fitPages() {
     const available = byId("paperPages").clientWidth;
@@ -4055,10 +4068,18 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
             option.textContent = name + " · pieces";
           });
         } else {
-          item.parts[input.dataset.part] = input.value;
+          const key = input.dataset.part;
+          item.parts[key] = input.value;
+          const label = partName(item, PARTS.find(part => part[0] === key)) + " · pieces";
+          document.querySelectorAll('[data-part-item="' + item.id + '"]').forEach(select => {
+            const option = Array.from(select.options).find(entry => entry.value === key);
+            if (num(input.value) > 0 && !option) select.add(new Option(label, key));
+            if (num(input.value) <= 0 && option && !option.selected) option.remove();
+          });
         }
-        item.specificationConfirmed = false;
-        item.classificationConfirmed = false;
+        changed(["packing"]);
+        updateEditorSummaries();
+        return;
       } else {
         const key = input.dataset.key;
         item[key] = input.type === "checkbox" ? input.checked : input.value;
@@ -4239,9 +4260,12 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
     qr.addData(scanURL);
     qr.make();
     const svg = qr.createSvgTag({ cellSize: 1, margin: 4, scalable: true });
-    return '<div class="verification-line"><span>Please verify this document by entering its VPIN <strong>' + esc(vpin) +
-      '</strong> at <a href="' + VERIFY_URL + '">usoagroup.in/verify</a></span><a class="verification-qr" aria-label="Scan or open document verification" href="' +
-      esc(scanURL) + '">' + svg + '</a></div>';
+    return {
+      line: '<div class="verification-line">Please verify this document by entering its VPIN <strong>' + esc(vpin) +
+        '</strong> at <a href="' + VERIFY_URL + '">usoagroup.in/verify</a></div>',
+      qr: '<a class="verification-qr" aria-label="Scan or open document verification" href="' +
+        esc(scanURL) + '">' + svg + '</a>'
+    };
   }
   function startPrintJob(types, vpin) {
     clearTimeout(renderTimer);
