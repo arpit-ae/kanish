@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Account portal · USOA Group</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/portal.css">
+  <script defer src="/vendor/supabase-portal.js"></script>
+  <script defer src="/portal.js"></script>
+</head>
+<body>
+  <header class="portal-header"><a href="/"><strong>USOA GROUP</strong></a><nav><a href="/products.html">Products</a><a href="/portal.html?view=cart">Cart</a><a href="/portal.html">Account</a><a href="/portal.html?view=admin">Admin</a><button id="logout" hidden>Sign out</button></nav></header>
+  <main class="portal-main">
+    <h1 id="portal-title">Customer account</h1>
+    <p id="portal-status" role="status" aria-live="polite"></p>
+    <section id="login" class="portal-panel" hidden>
+      <h2>Sign in</h2>
+      <form id="login-form"><label>Email <input name="email" type="email" autocomplete="username" required></label><label>Password <input name="password" type="password" autocomplete="current-password" required></label><div class="portal-actions"><button class="portal-primary">Sign in</button><button type="button" id="reset">Reset password</button></div></form>
+      <p>Use the email address on your invitation.</p>
+    </section>
+    <section id="recovery" class="portal-panel" hidden>
+      <h2>Set your password</h2>
+      <form id="recovery-form"><label>New password <input name="password" type="password" autocomplete="new-password" minlength="12" required></label><button class="portal-primary">Save password</button></form>
+    </section>
+    <section id="mfa" class="portal-panel" hidden>
+      <h2>Verify with your authenticator</h2>
+      <img id="mfa-qr" width="180" height="180" alt="Authenticator setup QR code" hidden>
+      <form id="mfa-form"><label>Six-digit code <input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" required></label><button class="portal-primary">Verify</button></form>
+    </section>
+    <section id="shop" class="portal-panel" hidden><h2>Shop and cart</h2><div id="shop-items" class="portal-grid"></div>
+      <h3>Your cart</h3><div id="cart-items"></div><strong id="cart-total"></strong>
+      <p id="cart-note"></p>
+      <form id="checkout-form" hidden><label>Contact name <input name="name" autocomplete="name" maxlength="100" required></label><label>Mobile number <input name="phone" type="tel" autocomplete="tel-national" pattern="[0-9]{10}" required></label><button class="portal-primary">Continue to Cashfree</button></form>
+    </section>
+    <section id="orders" class="portal-panel" hidden><h2 id="orders-title">My orders</h2><div id="order-items"></div></section>
+    <section id="documents" class="portal-panel" hidden><h2 id="documents-title">My documents</h2><div id="document-items"></div>
+      <form id="document-form" hidden><h3>Assign a PDF</h3><label>Customer account ID <input name="customer" required></label><label>Document title <input name="title" maxlength="150" required></label><label>PDF <input name="file" type="file" accept="application/pdf,.pdf" required></label><button class="portal-primary">Upload and assign</button></form>
+    </section>
+    <section id="customers" class="portal-panel" hidden><h2>Customers and staff</h2>
+      <form id="invite-form" hidden><label>Invite by email <input name="email" type="email" maxlength="254" required></label><button class="portal-primary">Send invitation</button></form>
+      <div id="customer-items"></div>
+    </section>
+  </main>
+</body>
+</html>

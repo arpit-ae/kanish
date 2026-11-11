@@ -124,7 +124,7 @@ function validEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ""));
 }
 
-async function createCashfreeOrder(request, env, data) {
+async function createCashfreeOrder(request, env, data, account = null) {
   const environment = cashfreeEnvironment(env);
 
   if (environment === "invalid") {
@@ -134,9 +134,16 @@ async function createCashfreeOrder(request, env, data) {
     }, 500);
   }
 
-  const product = PRODUCTS[data?.productId];
+  const product = Object.hasOwn(PRODUCTS, data?.productId) ? PRODUCTS[data.productId] : null;
+  const items = account
+    ? data.items.map(({id, quantity}) => ({id, quantity, name: PRODUCTS[id].name, unitPrice: PRODUCTS[id].amount}))
+    : [];
+  const orderAmount = account
+    ? items.reduce((cents, item) => cents + Math.round(item.unitPrice * 100) * item.quantity, 0) / 100
+    : product?.amount;
+  const orderName = account ? "USOA Group cart" : product?.name;
 
-  if (!product) {
+  if (!orderAmount) {
     return jsonResponse({
       success: false,
       message: "Invalid product."
@@ -149,7 +156,7 @@ async function createCashfreeOrder(request, env, data) {
     .trim()
     .slice(0, 100);
 
-  const email = String(customer.email || "")
+  const email = String(account?.email || customer.email || "")
     .trim()
     .toLowerCase();
 
@@ -178,11 +185,17 @@ async function createCashfreeOrder(request, env, data) {
   }
 
   const origin = new URL(request.url).origin;
-  const orderId = makeOrderId();
+  const orderId = account ? makeOrderId().replace("USOA_", "USOA_PORTAL_") : makeOrderId();
+  if (account) {
+    await portalOrders(env, "", {
+      method: "POST",
+      body: JSON.stringify({id: orderId, user_id: account.id, items, amount: orderAmount})
+    });
+  }
 
   const payload = {
     order_id: orderId,
-    order_amount: product.amount,
+    order_amount: orderAmount,
     order_currency: "INR",
 
     customer_details: {
@@ -200,11 +213,11 @@ async function createCashfreeOrder(request, env, data) {
         `${origin}/api/cashfree-webhook`
     },
 
-    order_note: product.name,
+    order_note: orderName,
 
     order_tags: {
-      product_id: product.id,
-      product_name: product.name
+      product_id: account ? "portal-cart" : product.id,
+      product_name: orderName
     }
   };
 
@@ -253,10 +266,70 @@ async function createCashfreeOrder(request, env, data) {
     success: true,
     order_id: result.order_id,
     payment_session_id: result.payment_session_id,
-    product: product.name,
-    amount: product.amount,
+    product: orderName,
+    amount: orderAmount,
     payment_environment: environment
   });
+}
+
+async function portalOrders(env, query, options) {
+  const key = env.PORTAL_SUPABASE_SECRET_KEY;
+  if (!key || !env.PORTAL_SUPABASE_URL) throw new Error("Portal order storage is unavailable");
+  const response = await fetch(env.PORTAL_SUPABASE_URL + "/rest/v1/portal_orders" + query, {
+    ...options,
+    headers: {apikey: key, "Content-Type": "application/json"}
+  });
+  if (!response.ok) throw new Error("Portal order storage failed");
+}
+
+async function portalCheckout(request, env) {
+  if (request.headers.get("Origin") !== new URL(request.url).origin) return jsonResponse({message: "Invalid origin."}, 403);
+  const authorization = request.headers.get("Authorization");
+  if (!authorization?.startsWith("Bearer ")) return jsonResponse({message: "Sign in to check out."}, 401);
+  if (!env.PORTAL_SUPABASE_URL || !env.PORTAL_SUPABASE_PUBLISHABLE_KEY || !credentialsConfigured(env)) {
+    return jsonResponse({message: "Portal checkout is not configured."}, 503);
+  }
+  const auth = await fetch(env.PORTAL_SUPABASE_URL + "/auth/v1/user", {
+    headers: {apikey: env.PORTAL_SUPABASE_PUBLISHABLE_KEY, Authorization: authorization}
+  });
+  if (!auth.ok) return jsonResponse({message: "Sign in again to check out."}, 401);
+  const account = await auth.json();
+  if (!account.id || !account.email_confirmed_at || !account.email) return jsonResponse({message: "Verify your email before checkout."}, 403);
+  const data = await request.json();
+  const items = data?.items;
+  if (!Array.isArray(items) || !items.length || items.length > 30 ||
+      items.some(item => !item || typeof item.id !== "string" || !Object.hasOwn(PRODUCTS, item.id) ||
+        !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 100) ||
+      new Set(items.map(item => item.id)).size !== items.length) {
+    return jsonResponse({message: "Review the products and quantities in your cart."}, 400);
+  }
+  return createCashfreeOrder(request, env, data, account);
+}
+
+async function portalInvite(request, env) {
+  const origin = new URL(request.url).origin;
+  if (request.headers.get("Origin") !== origin) return jsonResponse({message: "Invalid origin."}, 403);
+  const authorization = request.headers.get("Authorization");
+  if (!authorization?.startsWith("Bearer ")) return jsonResponse({message: "Sign in as owner."}, 401);
+  const key = env.PORTAL_SUPABASE_SECRET_KEY;
+  const base = env.PORTAL_SUPABASE_URL;
+  if (!key || !base || !env.PORTAL_SUPABASE_PUBLISHABLE_KEY) return jsonResponse({message: "Invitations are not configured."}, 503);
+  const permission = await fetch(base + "/rest/v1/rpc/portal_can_invite", {
+    method: "POST",
+    headers: {apikey: env.PORTAL_SUPABASE_PUBLISHABLE_KEY, Authorization: authorization, "Content-Type": "application/json"},
+    body: "{}"
+  });
+  if (!permission.ok || await permission.json() !== true) return jsonResponse({message: "Owner access and authenticator verification are required."}, 403);
+  const body = await request.json();
+  const email = String(body?.email || "").trim().toLowerCase();
+  if (email.length > 254 || !validEmail(email)) return jsonResponse({message: "Enter a valid email."}, 400);
+  const invite = await fetch(base + "/auth/v1/invite?redirect_to=" + encodeURIComponent(origin + "/portal.html"), {
+    method: "POST",
+    headers: {apikey: key, "Content-Type": "application/json"},
+    body: JSON.stringify({email})
+  });
+  if (!invite.ok) return jsonResponse({message: "Could not send the invite. Check whether the account already exists and email delivery is configured."}, 502);
+  return jsonResponse({success: true});
 }
 
 async function getOrderStatus(env, orderId) {
@@ -320,6 +393,32 @@ async function verifyWebhookSignature(
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const portalViews = {"/login": "", "/account": "", "/cart": "?view=cart", "/admin": "?view=admin", "/admin/login": "?view=admin"};
+    if (request.method === "GET" && Object.hasOwn(portalViews, url.pathname)) {
+      return Response.redirect(url.origin + "/portal.html" + portalViews[url.pathname], 302);
+    }
+    if (url.pathname === "/api/portal/config" && request.method === "GET") {
+      if (!env.PORTAL_SUPABASE_URL || !env.PORTAL_SUPABASE_PUBLISHABLE_KEY) return jsonResponse({message: "Portal setup is pending."}, 503);
+      return jsonResponse({
+        url: env.PORTAL_SUPABASE_URL,
+        publishableKey: env.PORTAL_SUPABASE_PUBLISHABLE_KEY,
+        paymentEnvironment: cashfreeEnvironment(env)
+      });
+    }
+    if (url.pathname === "/api/portal/checkout" && request.method === "POST") {
+      try {
+        return await portalCheckout(request, env);
+      } catch {
+        return jsonResponse({message: "Could not start checkout. Please try again."}, 503);
+      }
+    }
+    if (url.pathname === "/api/portal/invite" && request.method === "POST") {
+      try {
+        return await portalInvite(request, env);
+      } catch {
+        return jsonResponse({message: "Could not send the invite."}, 503);
+      }
+    }
     if (url.pathname.startsWith('/api/documents/')) return handleDocuments(request, env);
     const page = documentPage(request, env);
     if (page) return page;
@@ -554,6 +653,19 @@ export default {
       try {
         const event =
           JSON.parse(rawBody);
+
+        const orderId = event?.data?.order?.order_id;
+        if (env.PORTAL_SUPABASE_SECRET_KEY && typeof orderId === "string" && /^USOA_PORTAL_[A-Za-z0-9_]+$/.test(orderId) &&
+            event?.data?.payment?.payment_status === "SUCCESS") {
+          try {
+            await portalOrders(env, "?id=eq." + encodeURIComponent(orderId), {
+              method: "PATCH",
+              body: JSON.stringify({payment_status: "PAID"})
+            });
+          } catch {
+            return jsonResponse({message: "Payment update could not be saved."}, 503);
+          }
+        }
 
         console.log(
           "Verified Cashfree webhook",
