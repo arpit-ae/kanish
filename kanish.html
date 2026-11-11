@@ -74,6 +74,9 @@ button.small{padding:6px 9px;font-size:11px}
 .paper-wrap{position:relative;margin:0 auto 20px}
 .invoice-page{width:210mm;height:297mm;padding:11mm 11mm 14mm;background:#fff;box-shadow:0 4px 25px #263c3014;position:relative;font-family:Arial,Helvetica,sans-serif;color:#233b30;font-size:10.2px;line-height:1.42;transform-origin:top left}
 .invoice-page.print-layout{height:296mm;padding-bottom:37mm}
+.print-layout .page-content{height:auto}
+.print-layout .items-section{flex:none}
+.print-layout .paper-footer{position:static;margin-top:3mm}
 .page-content{height:100%;display:flex;flex-direction:column}
 .paper-header{flex:none}
 .sheet-top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;border-bottom:2px solid var(--ink);gap:18px}
@@ -4262,7 +4265,7 @@ const DEFAULT_SIGNATURE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR8AAAC
     const svg = qr.createSvgTag({ cellSize: 1, margin: 4, scalable: true });
     return {
       line: '<div class="verification-line">Please verify this document by entering its VPIN <strong>' + esc(vpin) +
-        '</strong> at <a href="' + VERIFY_URL + '">usoagroup.in/verify</a></div>',
+        '</strong> at <a href="' + VERIFY_URL + '">usoagroup.in/verify</a>, or scan the QR code above for direct verification.</div>',
       qr: '<a class="verification-qr" aria-label="Scan or open document verification" href="' +
         esc(scanURL) + '">' + svg + '</a>'
     };
