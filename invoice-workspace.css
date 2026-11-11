@@ -72,3 +72,43 @@
 .invoice-editor .row-card summary .amt { color: #173d32; }
 .invoice-editor .preview-wrap { min-width: 0; }
 .invoice-editor .page { box-shadow: 0 10px 26px #173d3226; }
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  @keyframes invoice-control-arrival {
+    from { opacity: .55; transform: translateY(7px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes invoice-backdrop-arrival {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .invoice-editor .panel > :is(.topbar,h1,.muted,.group) {
+    animation: invoice-control-arrival 370ms cubic-bezier(.2,.7,.3,1) backwards;
+  }
+  .invoice-editor .panel > h1 { animation-delay: 35ms; }
+  .invoice-editor .panel > .muted { animation-delay: 65ms; }
+  .invoice-editor .panel > .group { animation-delay: 95ms; }
+  .invoice-editor .panel > .group + .group { animation-delay: 125ms; }
+  .invoice-editor .panel > .group + .group + .group { animation-delay: 155ms; }
+  .invoice-editor .panel > :focus-within { animation: none; }
+
+  .invoice-editor .save-state,
+  .invoice-editor .group,
+  .invoice-editor .row-card,
+  .invoice-editor .row-card summary {
+    transition: color 150ms, background-color 180ms, border-color 180ms;
+  }
+  .invoice-editor .group:focus-within { border-color: #8fad97; }
+  .invoice-editor .row-card summary:focus-visible { background-color: #e8f0e6; }
+  .invoice-editor :is(input,select,textarea) {
+    transition: border-color 150ms, box-shadow 170ms;
+  }
+  .invoice-editor button {
+    transition: transform 150ms, filter 170ms, background-color 170ms;
+  }
+  .invoice-editor button:not(:disabled):active { transform: scale(.98); }
+
+  .invoice-editor dialog[open] { animation: invoice-control-arrival 240ms ease-out; }
+  .invoice-editor dialog[open]::backdrop { animation: invoice-backdrop-arrival 220ms ease-out; }
+}

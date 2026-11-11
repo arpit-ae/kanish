@@ -53,3 +53,27 @@
   outline: 3px solid #b16b21;
   outline-offset: 3px;
 }
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  @keyframes checkout-arrival {
+    from { opacity: .5; transform: translateY(9px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .checkout-workspace .card {
+    animation: checkout-arrival 400ms cubic-bezier(.2,.7,.3,1) backwards;
+  }
+  .checkout-workspace .card :is(.product,.secure,.icon,.order) {
+    animation: checkout-arrival 320ms 80ms cubic-bezier(.2,.7,.3,1) backwards;
+  }
+  .checkout-workspace .card:focus-within { animation: none; }
+  .checkout-workspace .message:not(:empty) { animation: checkout-arrival 200ms ease-out; }
+  .checkout-workspace input {
+    transition: border-color 160ms, box-shadow 170ms;
+  }
+  .checkout-workspace input:focus { border-color: #587e66; box-shadow: 0 0 0 3px #e1eee0; }
+  .checkout-workspace :is(button,.button) {
+    transition: background-color 180ms, transform 150ms;
+  }
+  .checkout-workspace :is(button:not(:disabled),.button):active { transform: scale(.98); }
+}

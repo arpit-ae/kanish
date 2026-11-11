@@ -188,3 +188,75 @@ footer .footbrand + p { margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  @keyframes usoa-enter {
+    from { opacity: .63; translate: 0 14px; }
+    to { opacity: 1; translate: 0 0; }
+  }
+  @keyframes usoa-picture {
+    from { opacity: .62; transform: scale(.97); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes usoa-bee {
+    0%, 100% { transform: translate(0, 0) rotate(0); }
+    35% { transform: translate(10px, -9px) rotate(12deg); }
+    68% { transform: translate(5px, 5px) rotate(-6deg); }
+  }
+  @keyframes usoa-sun {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.055); }
+  }
+  @keyframes usoa-trail { to { stroke-dashoffset: -36; } }
+  @keyframes usoa-detail {
+    from { opacity: .6; translate: 0 -4px; }
+    to { opacity: 1; translate: 0 0; }
+  }
+
+  .marketing-page .motion-enter {
+    animation: usoa-enter .56s cubic-bezier(.2,.7,.25,1) var(--motion-delay, 0ms) backwards;
+  }
+  .marketing-page .hero :is(.eyebrow, h1, .lead, .buttons, .hero-caption) {
+    animation: usoa-enter .64s cubic-bezier(.2,.7,.25,1) var(--hero-delay, 0ms) backwards;
+  }
+  .marketing-page .hero h1 { --hero-delay: 75ms; }
+  .marketing-page .hero .lead { --hero-delay: 140ms; }
+  .marketing-page .hero .buttons { --hero-delay: 210ms; }
+  .marketing-page .hero .hero-caption { --hero-delay: 260ms; }
+  .marketing-page .hero :is(.hero-artwork, .visual) { animation: usoa-picture .78s ease-out 120ms backwards; }
+  .marketing-page .hero .bubble { animation: usoa-enter .53s ease-out var(--bubble-delay, 190ms) backwards; }
+  .marketing-page .hero .b2 { --bubble-delay: 260ms; }
+  .marketing-page .hero .b3 { --bubble-delay: 330ms; }
+  .marketing-page .art-bee, .marketing-page .art-sun { transform-box: fill-box; transform-origin: center; }
+  .marketing-page .art-bee { animation: usoa-bee 2.1s ease-in-out 2; }
+  .marketing-page .art-sun { animation: usoa-sun 2.2s ease-in-out 2; }
+  .marketing-page .art-trail { animation: usoa-trail 2s linear 2; }
+  .marketing-page .faq details[open] > :not(summary) { animation: usoa-detail .25s ease-out; }
+
+  .marketing-page :is(.btn, .wa, .quick-link, .card, .fact, .credential, .menu, .to-top, .faq details) {
+    transition: transform .22s ease-out, background-color .22s ease-out, border-color .22s ease-out, box-shadow .22s ease-out;
+  }
+  .marketing-page .product .pic svg, .marketing-page .quick-icon, .marketing-page .mark svg {
+    transition: transform .28s cubic-bezier(.2,.7,.25,1);
+  }
+  .marketing-page .links a, .marketing-page footer a { transition: color .18s ease-out; }
+  .marketing-page :is(.btn, .menu, .to-top):active { transform: scale(.98); }
+  .marketing-page :is(.motion-enter, .hero .buttons):focus-within,
+  .marketing-page .motion-enter:target { animation: none; }
+}
+
+@media screen and (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .marketing-page :is(.grid2, .grid3, .grid4, .facts, .credentials) > :is(.card, .fact, .credential):hover:not(:focus-within) {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+  }
+  .marketing-page :is(.btn, .wa, .to-top):hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .marketing-page .product:hover .pic svg { transform: translateY(-5px) rotate(-5deg) scale(1.08); }
+  .marketing-page .quick-link:hover .quick-icon { transform: translateY(-3px) scale(1.06); }
+  .marketing-page .brand:hover .mark svg { transform: rotate(-12deg) scale(1.08); }
+  .marketing-page .faq details:hover { border-color: #b9cdbb; }
+}
+
+@media screen and (max-width: 850px) and (prefers-reduced-motion: no-preference) {
+  .marketing-page .links.open { animation: usoa-detail .22s ease-out; }
+}

@@ -47,3 +47,31 @@ if (enquiry) {
     window.open("https://wa.me/919142703535?text=" + encodeURIComponent(details.join("\n")), "_blank", "noopener,noreferrer");
   });
 }
+
+const marketing = document.querySelector(".marketing-page");
+
+if (marketing && "IntersectionObserver" in window &&
+    window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
+  const reveal = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const element = entry.target;
+      if (!element.matches(":focus-within") && !element.querySelector(":target") && !element.closest(":target")) {
+        element.classList.add("motion-enter");
+      }
+      reveal.unobserve(element);
+    }
+  }, { threshold: 0.08 });
+
+  const groups = marketing.querySelectorAll(".grid2, .grid3, .grid4, .credentials, .facts, .faq, .quick-grid");
+  for (const group of groups) {
+    const items = group.querySelectorAll(":scope > :is(.card, .fact, .credential, .quick-link, details)");
+    items.forEach((item, index) => {
+      item.style.setProperty("--motion-delay", Math.min(index, 5) * 45 + "ms");
+      reveal.observe(item);
+    });
+  }
+
+  marketing.querySelectorAll("main :is(.title, .ctaBand .row, .prose > h2, .policy-links), footer .footgrid > div")
+    .forEach(element => reveal.observe(element));
+}

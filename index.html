@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="styles.css">
   <script src="site.js" defer></script>
 </head>
-<body>
+<body class="marketing-page">
 <a class="skip-link" href="#main-content">Skip to content</a>
 <div class="top"><div class="container">
   <span>USOA GROUP · Muzaffarpur, Bihar, India</span>
@@ -50,8 +50,10 @@
   </defs>
   <rect width="570" height="505" fill="url(#art-bg)"/>
   <path d="M0 0h570v505H0z" fill="url(#comb)"/>
-  <circle cx="424" cy="120" r="78" fill="#d9aa55" opacity=".92"/>
-  <circle cx="424" cy="120" r="63" fill="none" stroke="#f7d38d" stroke-opacity=".55"/>
+  <g class="art-sun">
+    <circle cx="424" cy="120" r="78" fill="#d9aa55" opacity=".92"/>
+    <circle cx="424" cy="120" r="63" fill="none" stroke="#f7d38d" stroke-opacity=".55"/>
+  </g>
   <path d="M0 396c100-20 188-15 276 4s196 27 294-14v119H0z" fill="#0d281e" opacity=".7"/>
   <ellipse cx="286" cy="433" rx="208" ry="32" fill="#081f17" opacity=".55"/>
   <g stroke="#573d29" stroke-width="2.5" stroke-linejoin="round">
@@ -73,7 +75,10 @@
     <path d="M105 310c2-7 5-11 10-15m-13 98v7c0 6 5 10 12 11" stroke="#ffedb2" stroke-width="4" stroke-linecap="round" fill="none"/>
     <path d="M156 344c6 10 10 13 10 17a10 10 0 0 1-20 0c0-4 4-7 10-17z" fill="#e2a843" stroke-width="1.5"/>
   </g>
-  <g fill="none" stroke="#f9d892" stroke-width="2" opacity=".8"><path d="M113 183c47-62 112-62 151-17s79 8 89-10" stroke-dasharray="4 8"/><path d="M357 151c-10-10 2-20 9-9 2-13 17-9 14 1"/><ellipse cx="371" cy="153" rx="13" ry="7" transform="rotate(-18 371 153)"/></g>
+  <g fill="none" stroke="#f9d892" stroke-width="2" opacity=".8">
+    <path class="art-trail" d="M113 183c47-62 112-62 151-17s79 8 89-10" stroke-dasharray="4 8"/>
+    <g class="art-bee"><path d="M357 151c-10-10 2-20 9-9 2-13 17-9 14 1"/><ellipse cx="371" cy="153" rx="13" ry="7" transform="rotate(-18 371 153)"/></g>
+  </g>
   <path d="M40 54h45M40 62h27M485 453h44M502 461h27" fill="none" stroke="#e9c781" stroke-width="2" opacity=".8"/>
 </svg>
     </div>

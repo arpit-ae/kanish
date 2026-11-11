@@ -35,3 +35,53 @@
   .utility-page header .links a,
   .utility-page header .links a:first-child { display: inline-flex; }
 }
+
+@media screen and (prefers-reduced-motion: no-preference) {
+  @keyframes document-arrival {
+    from { opacity: .5; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .utility-page .documents-hero > *,
+  .utility-page .documents-actions,
+  .utility-page .document-help .card,
+  .utility-page .document-panel,
+  .utility-page .document-viewer:not([hidden]) {
+    animation: document-arrival 420ms cubic-bezier(.2,.7,.3,1) backwards;
+  }
+  .utility-page .documents-hero h1 { animation-delay: 45ms; }
+  .utility-page .documents-hero .lead { animation-delay: 90ms; }
+  .utility-page .documents-actions,
+  .utility-page .document-help .card { animation-delay: 130ms; }
+  .utility-page .document-help .card:nth-child(2) { animation-delay: 170ms; }
+  .utility-page .document-help .card:nth-child(3) { animation-delay: 210ms; }
+  .utility-page :is(.documents-actions,.document-panel,.document-viewer):focus-within {
+    animation: none;
+  }
+
+  .utility-page .documents-form input {
+    transition: border-color 160ms, box-shadow 180ms, background-color 160ms;
+  }
+  .utility-page .documents-form .btn,
+  .utility-page .viewer-heading .btn {
+    transition: transform 160ms, background-color 180ms, box-shadow 180ms;
+  }
+  .utility-page .documents-form .btn:active:not(:disabled),
+  .utility-page .viewer-heading .btn:active { transform: scale(.98); }
+  .utility-page .form-message:not(:empty) { animation: document-arrival 220ms ease-out; }
+
+  .utility-page .document-icon,
+  .utility-page .document-link {
+    transition: transform 200ms ease-out;
+  }
+  .utility-page .document-card:focus-visible .document-icon { transform: rotate(-7deg); }
+  @media (hover: hover) and (pointer: fine) {
+    .utility-page .document-card:hover .document-icon { transform: rotate(-7deg); }
+    .utility-page .document-card:hover .document-link { transform: translateX(4px); }
+  }
+}
+
+@media screen and (prefers-reduced-motion: reduce), screen and (hover: none) {
+  .utility-page .document-card { transition: none; }
+  .utility-page .document-card:hover { transform: none; }
+}
