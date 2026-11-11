@@ -33,6 +33,12 @@ button { cursor: pointer; }
 .top-links { display: flex; flex-wrap: wrap; gap: 8px 18px; }
 header { position: sticky; top: 0; z-index: 100; background: #fffefa; border-bottom: 1px solid var(--line); }
 nav { display: flex; align-items: center; justify-content: space-between; gap: 22px; min-height: 72px; }
+.account-links { display: flex; align-items: center; gap: 12px; margin-left: auto; white-space: nowrap; font-weight: 700; }
+.account-links .cta { padding: 8px 13px; border-radius: 8px; background: var(--ink); color: white; }
+@media (max-width: 900px) {
+  nav:has(.account-links) { gap: 10px; }
+  nav:has(.account-links) .menu { order: 3; }
+}
 .brand { display: inline-flex; align-items: center; flex: none; gap: 10px; font-weight: 850; letter-spacing: -.04em; font-size: 1.25rem; }
 .brand span { color: var(--amber); }
 .brand .mark { color: var(--gold2); }

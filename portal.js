@@ -277,6 +277,7 @@ async function checkout(fields) {
 }
 
 async function start() {
+  byId("portal-title").textContent = admin ? "Admin login" : "Customer account";
   const catalogue = await fetch("/api/products").then(response => response.json()).catch(() => ({}));
   for (const product of catalogue.products || []) {
     products.set(product.id, product);
@@ -287,8 +288,9 @@ async function start() {
   }
   const response = await fetch("/api/portal/config");
   if (!response.ok) {
-    if (!admin) { show("shop"); cart = guestCart(); renderCart(); }
-    status("Account sign-in is being set up.");
+    show("login", ...(!admin ? ["shop"] : []));
+    if (!admin) { cart = guestCart(); renderCart(); }
+    status("Sign-in will open once account setup is complete. You can still browse products and use the guest cart.");
     return;
   }
   const config = await response.json();
@@ -355,6 +357,7 @@ async function start() {
     if (event === "TOKEN_REFRESHED") session = nextSession;
     if (event === "PASSWORD_RECOVERY") show("recovery");
   });
+  byId("login-fields").disabled = false;
   await openPortal();
 }
 

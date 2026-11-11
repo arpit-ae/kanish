@@ -8,6 +8,8 @@ body{background:#f8f4e9;color:#183a2a}
 .portal-panel{background:white;border:1px solid #e5ddc8;border-radius:20px;padding:clamp(16px,3vw,28px);margin-top:18px}
 .portal-panel h2,.portal-panel h3{margin:0 0 12px}
 .portal-panel form{display:grid;gap:12px;max-width:550px;margin:14px 0}
+.portal-panel fieldset{display:grid;gap:12px;min-width:0;border:0;padding:0;margin:0}
+.portal-panel :disabled{opacity:.65;cursor:not-allowed}
 .portal-panel label{display:grid;gap:4px;font-weight:700}
 .portal-panel input,.portal-panel select,.portal-panel button,.portal-header button{font:inherit;border:1px solid #a4ae9c;border-radius:8px;padding:8px 10px;background:white;color:#173d2c}
 .portal-panel button,.portal-header button{cursor:pointer}
