@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" role="img" aria-label="Import logistics and international trade illustration">
+<defs><linearGradient id="sky" x2="1" y2="1"><stop stop-color="#f1e6cd"/><stop offset="1" stop-color="#fbf7e9"/></linearGradient><linearGradient id="sea" x2="0" y2="1"><stop stop-color="#78b4ad"/><stop offset="1" stop-color="#286b69"/></linearGradient><linearGradient id="wood" x2="0" y2="1"><stop stop-color="#badcaa"/><stop offset="1" stop-color="#c4924d"/></linearGradient></defs>
+<rect width="800" height="480" fill="url(#sky)"/><circle cx="608" cy="125" r="94" fill="#f8ddb1" opacity=".85"/><circle cx="610" cy="139" r="85" fill="none" stroke="#27634d" stroke-width="4" opacity=".27"/><path d="M529 131q70-95 149 0M531 148q67 88 147 0M610 54v170M527 139h164" fill="none" stroke="#27634d" stroke-width="3" opacity=".22"/>
+<g fill="#71a78d" opacity=".58"><path d="M571 84q-28 22-19 58l25 12 12-20 24 6 7-34-23-14z"/><path d="m632 156 33-16 20 25-31 32-20-19z"/></g>
+<path d="M0 340q166-37 310 0t490 0v140H0z" fill="url(#sea)"/><path d="M0 375q190-34 370 0t430-6" fill="none" stroke="#bad9cd" stroke-width="5" opacity=".5"/>
+<path d="M117 309h484l-60 79H205z" fill="#19483f"/><path d="M117 310h480" stroke="#e9c581" stroke-width="12" stroke-linecap="round"/>
+<path d="M270 224h95v85h-95zM370 224h95v85h-95z" fill="#b97f3c"/><path d="M270 224h95v85h-95zM370 224h95v85h-95z" fill="none" stroke="#fff5d4" stroke-width="5"/><path d="M265 214h205v13H265z" fill="#cda35e"/><path d="M311 209v-53h101v53" fill="none" stroke="#19483f" stroke-width="8"/>
+<path d="M482 237h65v73h-65z" fill="#e8c385"/><path d="M485 241h59v20h-59z" fill="#d4a252"/><path d="M498 271v26m34-26v26" stroke="#7e5a39" stroke-width="4"/>
+<g stroke="#1e5c4d" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M473 160h-83m28-28-28 28 28 28"/></g>
+<g transform="translate(100 114)"><rect x="0" y="0" width="105" height="155" rx="15" fill="#f8f4d9" stroke="#2e6851" stroke-width="5"/><rect x="17" y="-11" width="70" height="24" rx="6" fill="#b48445"/><rect x="12" y="46" width="81" height="76" rx="12" fill="url(#wood)"/><path d="M24 74h58M27 91h52" stroke="#fff0c6" stroke-width="6" stroke-linecap="round"/><path d="M52 56c16 18 16 27 0 42-16-15-16-24 0-42Z" fill="#fff0bc"/></g>
+<path d="M65 412h670" stroke="#d2e8d9" stroke-width="4" stroke-linecap="round" stroke-dasharray="11 16" opacity=".5"/>
+</svg>
