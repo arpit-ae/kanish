@@ -44,6 +44,8 @@
       margin-bottom: 20px;
     }
 
+    .product-summary { display: flex; align-items: center; gap: 16px; }
+    .product-image { width: 108px; height: 108px; flex: 0 0 108px; object-fit: cover; border-radius: 10px; background: #e7ebdf; }
     .product-name {
       font-size: 18px;
       font-weight: bold;
@@ -115,12 +117,17 @@
     <h1>Order checkout</h1>
 
     <div class="product">
+      <div class="product-summary">
+        <img class="product-image" id="productImage" width="108" height="108" alt="" decoding="async" hidden>
+        <div>
       <div class="product-name" id="productName">
         Loading...
       </div>
 
       <div class="price" id="productPrice">
         ₹0
+      </div>
+        </div>
       </div>
     </div>
 
@@ -214,6 +221,17 @@
     }
   };
 
+  const PRODUCT_IMAGES = {
+    honey500: "uso-honey-hero.jpg",
+    apisCeranaColony: "uso-bee-colonies.jpg",
+    beeHivesBoxes: "uso-hive-boxes.jpg",
+    honeyExtractor: "uso-honey-extractor.jpg",
+    beekeepingGloves: "uso-equipment.jpg",
+    beeswax1kg: "uso-beeswax.jpg",
+    beekeepingToolkits: "uso-equipment.jpg",
+    melipheraCeranaColony: "uso-bee-colonies.jpg"
+  };
+
   const params = new URLSearchParams(
     window.location.search
   );
@@ -226,6 +244,13 @@
 
   const productName =
     document.getElementById("productName");
+
+  const productImage = document.getElementById("productImage");
+  if (Object.hasOwn(PRODUCT_IMAGES, productId)) {
+    productImage.src = "/images/" + PRODUCT_IMAGES[productId];
+    productImage.alt = PRODUCTS[productId].name + " product image";
+    productImage.hidden = false;
+  }
 
   const productPrice =
     document.getElementById("productPrice");
