@@ -347,3 +347,19 @@ footer .footbrand + p { margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) {
   .uso-photo-tile > img.uso-cover-photo { transition: none; }
 }
+
+
+/* Editorial photography: responsive, accessible product and feature imagery */
+.product .pic { height: 190px; overflow: hidden; background: #e7dcc2; }
+.product .pic img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+.product:hover .pic img { transform: scale(1.045); }
+.hero-artwork { object-fit: cover; object-position: center; max-height: 505px; }
+.visual { isolation: isolate; overflow: hidden; font-size: inherit; }
+.visual > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.visual::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(135deg,rgba(17,48,34,.22),transparent 58%); }
+.visual .bubble { z-index: 2; }
+.card-media { display: block; width: 100%; height: 145px; border-radius: 12px; margin-bottom: 13px; object-fit: cover; background: #eadbb8; }
+.contact-hero { display: grid; grid-template-columns: 1fr minmax(280px,.85fr); align-items: center; gap: clamp(20px,5vw,65px); }
+.contact-hero-image { display: block; width: 100%; height: 240px; object-fit: cover; border-radius: 20px; box-shadow: var(--shadow); }
+@media (max-width: 850px) { .contact-hero { grid-template-columns: 1fr; } .contact-hero-image { height: 220px; } }
+@media (prefers-reduced-motion: reduce) { .product:hover .pic img { transform: none; } }
