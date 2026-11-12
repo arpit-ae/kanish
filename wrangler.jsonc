@@ -5,7 +5,17 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
-    "run_worker_first": ["/api/documents/*", "/documents", "/upload", "/verify", "/documents.html", "/upload.html", "/verify.html"]
+    "run_worker_first": [
+      "/api/documents/*",
+      "/documents",
+      "/upload",
+      "/verify",
+      "/documents.html",
+      "/upload.html",
+      "/verify.html",
+      "/services",
+      "/services/"
+    ]
   },
   "vars": {
     "CASHFREE_ENV": "production",
@@ -15,5 +25,3 @@
     "DOCS_MAX_UPLOAD_BYTES": "10485760"
   }
 }
-
-
