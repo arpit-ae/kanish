@@ -440,3 +440,23 @@ footer .footbrand + p { margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) {
   .uso-service-media img { transition: none; }
 }
+
+/* USOA GROUP photographic hive-box badge: presentation-only, no interaction changes. */
+.product .pic.usoa-hive-photo { position: relative; isolation: isolate; }
+.product .pic.usoa-hive-photo::after {
+  content: "";
+  display: block;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+  width: min(52%, 188px);
+  height: 72px;
+  left: 40%;
+  top: 51%;
+  background: url("images/uso-branded-hive-mark.svg") center/contain no-repeat;
+  transform: rotate(-3deg);
+  filter: drop-shadow(1px 3px 3px rgba(13,43,28,.23));
+}
+@media (max-width: 700px) {
+  .product .pic.usoa-hive-photo::after { width: min(48%, 190px); height: 65px; left: 43%; top: 50%; }
+}
