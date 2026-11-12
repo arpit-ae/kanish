@@ -393,6 +393,10 @@ async function verifyWebhookSignature(
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if ((url.pathname === "/services" || url.pathname === "/services/") && request.method === "GET" && env.ASSETS) {
+      const assetUrl = new URL("/services.html", request.url);
+      return env.ASSETS.fetch(new Request(assetUrl, request));
+    }
     const portalViews = {"/login": "", "/account": "", "/cart": "?view=cart", "/admin": "?view=admin", "/admin/login": "?view=admin"};
     if (request.method === "GET" && Object.hasOwn(portalViews, url.pathname)) {
       return Response.redirect(url.origin + "/portal.html" + portalViews[url.pathname], 302);
