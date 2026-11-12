@@ -57,7 +57,7 @@ async function result(request) {
 
 function show(...sections) {
   byId("customer-shortcuts").hidden = !sections.includes("shop");
-  for (const id of ["login", "recovery", "mfa", "shop", "orders", "documents", "customers"]) {
+  for (const id of ["login", "signup", "recovery", "mfa", "shop", "orders", "documents", "customers"]) {
     byId(id).hidden = !sections.includes(id);
   }
 }
@@ -194,7 +194,7 @@ async function openPortal() {
   if (!session) return;
   profile = await result(client.from("portal_profiles").select("role,permissions").eq("user_id", session.user.id).maybeSingle());
   if (!profile) {
-    await result(client.from("portal_profiles").insert({user_id: session.user.id, display_name: (session.user.email || "").slice(0, 100)}));
+    await result(client.from("portal_profiles").insert({user_id: session.user.id, display_name: (session.user.user_metadata?.full_name || session.user.email || "").slice(0, 100)}));
     profile = {role: "customer", permissions: []};
   }
   if (!admin) {
@@ -276,6 +276,33 @@ async function start() {
   client = window.supabase.createClient(config.url, config.publishableKey, {
     auth: {storageKey: "usoa-portal-auth", detectSessionInUrl: true}
   });
+  byId("signup-prompt").hidden = admin;
+  byId("signup-trigger").onclick = () => { status(); show("signup"); };
+  byId("signup-back").onclick = () => { status(); show("login"); };
+  submit("signup-form", async (fields, form) => {
+    const displayName = String(fields.get("display_name") || "").trim();
+    const email = String(fields.get("email") || "").trim();
+    const password = String(fields.get("password") || "");
+    if (displayName.length < 2) throw new Error("Enter your full name.");
+    if (password !== fields.get("confirm_password")) throw new Error("Passwords do not match.");
+    const data = await result(client.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {full_name: displayName},
+        emailRedirectTo: location.origin + "/portal.html"
+      }
+    }));
+    form.reset();
+    if (data.session) {
+      await openPortal();
+      status("Your customer account is ready.");
+    } else {
+      show("login");
+      status("Registration submitted. Check your email for a confirmation link, then sign in.");
+      byId("login-form").elements.email.value = email;
+    }
+  });
   submit("login-form", async fields => {
     await result(client.auth.signInWithPassword(Object.fromEntries(fields)));
     byId("login-form").reset();
@@ -336,6 +363,7 @@ async function start() {
     if (event === "PASSWORD_RECOVERY") show("recovery");
   });
   byId("login-fields").disabled = false;
+  byId("signup-fields").disabled = false;
   await openPortal();
 }
 
