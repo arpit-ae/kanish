@@ -287,3 +287,63 @@ footer .footbrand + p { margin-top: 8px; }
 .uso-footer-email a { text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 880px) { .uso-email-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 620px) { .uso-email-grid, .uso-email-grid-compact { grid-template-columns: 1fr; } .uso-email-card { padding: 17px; } .uso-footer-email { justify-content: flex-start; } }
+
+
+/* USOA image system — responsive, readable and optimized for photography. */
+.hero-artwork.uso-generated-hero {
+  height: auto;
+  object-fit: cover;
+  object-position: center;
+  aspect-ratio: 570 / 505;
+}
+.product .pic.uso-photo-tile {
+  display: block;
+  height: 188px;
+  overflow: hidden;
+  background: #e9dfc4;
+  font-size: 0;
+}
+.uso-photo-tile > img.uso-cover-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform .4s ease;
+}
+.product:hover .uso-cover-photo { transform: scale(1.035); }
+.visual.uso-visual-photo { position: relative; background: #c2b88e; font-size: 0; }
+.visual.uso-visual-photo > img.uso-cover-photo {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+.visual.uso-visual-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(22,47,36,.25));
+  pointer-events: none;
+  z-index: 1;
+}
+.visual.uso-visual-photo .bubble { z-index: 2; color: #173d32; }
+.hero.compact.uso-compact-photo {
+  background-color: #f8f5ec;
+  background-image: linear-gradient(90deg,#f8f5ec 10%,rgba(248,245,236,.94) 43%,rgba(248,245,236,.64) 78%),var(--uso-photo-url);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.hero.compact.uso-compact-photo > .container { position: relative; z-index: 1; }
+@media (max-width: 680px) {
+  .product .pic.uso-photo-tile { height: 190px; }
+  .hero.compact.uso-compact-photo {
+    background-image: linear-gradient(90deg,rgba(248,245,236,.98),rgba(248,245,236,.89)),var(--uso-photo-url);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .uso-photo-tile > img.uso-cover-photo { transition: none; }
+}

@@ -151,3 +151,99 @@ if (marketing && "IntersectionObserver" in window &&
     footer.appendChild(contacts);
   }
 })();
+
+
+/* USOA editorial photography: marketing pages only; preserve original illustrations as fallback. */
+(function enhanceUsoaPhotography() {
+  const base = "/images/";
+  const photos = {
+    honey: base + "uso-honey-hero.jpg",
+    beeswax: base + "uso-beeswax.jpg",
+    boxes: base + "uso-hive-boxes.jpg",
+    colonies: base + "uso-bee-colonies.jpg",
+    extractor: base + "uso-honey-extractor.jpg",
+    equipment: base + "uso-equipment.jpg",
+    wholesale: base + "uso-wholesale.jpg"
+  };
+  const descriptions = {
+    honey: "Golden honey jar and fresh natural honeycomb in an orchard apiary",
+    beeswax: "Natural beeswax blocks and foundation sheets",
+    boxes: "Handcrafted wooden hive boxes in a green apiary",
+    colonies: "Honey bees on a living brood comb frame",
+    extractor: "Stainless-steel honey extractor for beekeeping",
+    equipment: "Beekeeper protective equipment, gloves and tools",
+    wholesale: "Honey and bee product cartons prepared for wholesale"
+  };
+  function makeImage(category, eager) {
+    const img = document.createElement("img");
+    img.src = photos[category];
+    img.alt = descriptions[category];
+    img.loading = eager ? "eager" : "lazy";
+    img.decoding = "async";
+    if (eager) img.setAttribute("fetchpriority", "high");
+    return img;
+  }
+  function replacePlaceholder(element, category) {
+    if (!element || !photos[category]) return;
+    const old = Array.from(element.childNodes);
+    const img = makeImage(category, false);
+    img.className = "uso-cover-photo";
+    img.addEventListener("error", () => {
+      img.remove();
+      old.forEach((node) => element.appendChild(node));
+      element.classList.remove("uso-photo-tile");
+    }, { once: true });
+    element.replaceChildren(img);
+    element.classList.add("uso-photo-tile");
+  }
+  function enhanceVisual(element, category) {
+    if (!element || !photos[category]) return;
+    const img = makeImage(category, true);
+    img.className = "uso-cover-photo";
+    img.addEventListener("error", () => {
+      img.remove();
+      element.classList.remove("uso-visual-photo");
+    }, { once: true });
+    element.prepend(img);
+    element.classList.add("uso-visual-photo");
+  }
+  function apply() {
+    if (!document.body.classList.contains("marketing-page")) return;
+    const page = location.pathname.split("/").pop() || "index.html";
+    if (page === "index.html") {
+      const art = document.querySelector("#home .hero-artwork");
+      if (art) {
+        const img = makeImage("honey", true);
+        img.className = art.getAttribute("class") + " uso-generated-hero";
+        img.addEventListener("error", () => img.replaceWith(art), { once: true });
+        art.replaceWith(img);
+      }
+      const categories = ["honey", "colonies", "boxes", "extractor", "equipment", "wholesale"];
+      document.querySelectorAll("#products .product .pic").forEach((pic, idx) => replacePlaceholder(pic, categories[idx]));
+    } else if (page === "products.html") {
+      enhanceVisual(document.querySelector(".hero .visual"), "honey");
+      const categories = {
+        honey: "honey", colonies: "colonies", boxes: "boxes",
+        extractors: "extractor", equipment: "equipment", beeswax: "beeswax",
+        toolkits: "equipment", mellifera: "colonies", trade: "wholesale"
+      };
+      Object.entries(categories).forEach(([id, category]) =>
+        replacePlaceholder(document.querySelector("#" + id + " .pic"), category));
+    } else if (page === "about.html") {
+      enhanceVisual(document.querySelector(".hero .visual"), "colonies");
+    } else if (page === "services.html") {
+      enhanceVisual(document.querySelector(".hero .visual"), "wholesale");
+    } else if (page === "contact.html" || page === "faq.html") {
+      const hero = document.querySelector(".hero.compact");
+      if (hero) {
+        hero.classList.add("uso-compact-photo");
+        hero.style.setProperty("--uso-photo-url", 'url("' + photos[page === "contact.html" ? "honey" : "boxes"] + '")');
+      }
+    }
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", apply, { once: true });
+  } else {
+    apply();
+  }
+})();
