@@ -266,3 +266,24 @@ footer .footbrand + p { margin-top: 8px; }
 @media screen and (max-width: 850px) and (prefers-reduced-motion: no-preference) {
   .marketing-page .links.open { animation: usoa-detail .22s ease-out; }
 }
+
+
+/* USOA business email directory */
+.uso-email-directory .title { max-width: 780px; }
+.uso-email-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; margin-top: 23px; }
+.uso-email-grid-compact { grid-template-columns: repeat(2,minmax(0,1fr)); max-width: 850px; margin-inline: auto; }
+.uso-email-card { display: flex; align-items: flex-start; gap: 13px; min-width: 0; padding: 22px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--white); box-shadow: 0 8px 24px rgb(23 61 50 / 6%); transition: transform .18s ease,box-shadow .18s ease,border-color .18s ease; }
+.uso-email-card:hover { transform: translateY(-3px); border-color: var(--green); box-shadow: var(--shadow); }
+.uso-email-card:focus-visible { outline-offset: 3px; }
+.uso-email-symbol { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 40px; background: var(--soft); border-radius: 12px; color: var(--ink); font-size: 1.15rem; font-weight: 700; }
+.uso-email-copy { display: grid; gap: 7px; min-width: 0; }
+.uso-email-copy strong { line-height: 1.35; font-size: .98rem; }
+.uso-email-address { color: var(--green); font-size: .92rem; font-weight: 700; line-height: 1.4; overflow-wrap: anywhere; }
+.uso-email-description { color: var(--muted); font-size: .85rem; line-height: 1.5; }
+.uso-email-arrow { margin-left: auto; color: var(--green); flex: 0 0 auto; font-size: 1rem; }
+.uso-email-all { text-align: center; margin-top: 22px; }
+.uso-email-all a { font-weight: 700; color: var(--green); text-decoration: underline; text-underline-offset: 4px; }
+.uso-footer-email { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 22px; padding-block: 16px; margin-top: 18px; border-top: 1px solid rgb(255 255 255 / 24%); font-size: .88rem; }
+.uso-footer-email a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 880px) { .uso-email-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 620px) { .uso-email-grid, .uso-email-grid-compact { grid-template-columns: 1fr; } .uso-email-card { padding: 17px; } .uso-footer-email { justify-content: flex-start; } }
