@@ -23,7 +23,21 @@
     <section id="login" class="portal-panel">
       <h2>Sign in</h2>
       <form id="login-form"><fieldset id="login-fields" disabled><label>Email <input name="email" type="email" autocomplete="username" required></label><label>Password <input name="password" type="password" autocomplete="current-password" required></label><div class="portal-actions"><button class="portal-primary">Sign in</button><button type="button" id="reset">Reset password</button></div></fieldset></form>
-      <p>Use the email address on your invitation.</p>
+      <p id="signup-prompt">New to USOA Group? <button type="button" id="signup-trigger">Create an account</button> — no invitation required.</p>
+    </section>
+    <section id="signup" class="portal-panel" hidden>
+      <h2>Create your customer account</h2>
+      <p>Anyone can register with an email address. No invitation is required.</p>
+      <form id="signup-form">
+        <fieldset id="signup-fields" disabled>
+          <label>Full name <input name="display_name" type="text" autocomplete="name" minlength="2" maxlength="100" required></label>
+          <label>Email address <input name="email" type="email" autocomplete="email" maxlength="254" required></label>
+          <label>Password <input name="password" type="password" autocomplete="new-password" minlength="12" required></label>
+          <label>Confirm password <input name="confirm_password" type="password" autocomplete="new-password" minlength="12" required></label>
+          <div class="portal-actions"><button class="portal-primary">Create account</button><button type="button" id="signup-back">Back to sign in</button></div>
+        </fieldset>
+      </form>
+      <p>For your security, please confirm your email if a verification link is sent.</p>
     </section>
     <section id="recovery" class="portal-panel" hidden>
       <h2>Set your password</h2>
