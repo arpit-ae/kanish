@@ -76,6 +76,9 @@ async function setQuantity(id, quantity) {
   if (quantity) cart.set(id, quantity);
   else cart.delete(id);
   renderCart();
+  const title = quantity ? "Cart updated" : "Item removed";
+  status(title + ".");
+  await StoreReceipts.dialog(title,[["Product",products.get(id)?.name || id],["Quantity",String(quantity)],["Cart total",byId("cart-total").textContent || money.format(0)]],"Done");
 }
 
 function renderCart() {
@@ -128,6 +131,7 @@ async function renderOrders() {
       row.append(select, button("Update", async () => {
         await result(client.from("portal_orders").update({fulfilment_status: select.value}).eq("id", order.id).select("id").single());
         await renderOrders();
+        await StoreReceipts.dialog("Order updated",[["Order",order.id],["Status",select.value]],"Done");
       }));
     }
     return row;
@@ -180,6 +184,7 @@ async function renderCustomers() {
       const selected = role.value === "staff" ? options.filter(option => option.check.checked).map(option => option.permission) : [];
       await result(client.from("portal_profiles").update({role: role.value, permissions: selected}).eq("user_id", person.user_id).select("user_id").single());
       await renderCustomers();
+      await StoreReceipts.dialog("Permissions saved",[["Account",person.display_name || person.user_id],["Role",role.value]],"Done");
     }));
     return row;
   });
@@ -234,6 +239,12 @@ async function openPortal() {
 }
 
 async function checkout(fields) {
+  const customer = {...Object.fromEntries(fields), email:session.user.email};
+  const items = Array.from(cart, ([id, quantity]) => ({id, quantity}));
+  const lines = items.map(item => products.get(item.id).name+" × "+item.quantity).join(", ");
+  const form = byId("checkout-form");
+  const requestKey = StoreReceipts.requestKey(form,{items,customer});
+  if (!await StoreReceipts.reviewOrder(customer,lines,byId("cart-total").textContent)) return;
   if (typeof window.Cashfree !== "function") {
     await new Promise((resolve, reject) => {
       const sdk = document.createElement("script");
@@ -247,12 +258,14 @@ async function checkout(fields) {
   const response = await fetch("/api/portal/checkout", {
     method: "POST",
     headers: {"Content-Type": "application/json", Authorization: "Bearer " + session.access_token},
-    body: JSON.stringify({items: Array.from(cart, ([id, quantity]) => ({id, quantity})), customer: Object.fromEntries(fields)})
+    body: JSON.stringify({items,customer,requestKey})
   });
   const order = await response.json();
   if (!response.ok || !order.payment_session_id) throw new Error(order.message || "Checkout is unavailable.");
+  StoreReceipts.receiptToken(order.order_id, requestKey);
   const gateway = window.Cashfree({mode: order.payment_environment});
-  await gateway.checkout({paymentSessionId: order.payment_session_id, redirectTarget: "_self"});
+  const checkoutResult = await gateway.checkout({paymentSessionId: order.payment_session_id, redirectTarget: "_self"});
+  if (checkoutResult?.error) throw new Error(checkoutResult.error.message || "Payment could not be opened.");
 }
 
 async function start() {
@@ -302,6 +315,7 @@ async function start() {
       status("Registration submitted. Check your email for a confirmation link, then sign in.");
       byId("login-form").elements.email.value = email;
     }
+    await StoreReceipts.dialog("Registration submitted",[["Account email",email]],"Done",false,byId("portal-status").textContent);
   });
   submit("login-form", async fields => {
     await result(client.auth.signInWithPassword(Object.fromEntries(fields)));
@@ -313,6 +327,7 @@ async function start() {
     if (!email.reportValidity()) return;
     await result(client.auth.resetPasswordForEmail(email.value, {redirectTo: location.origin + "/portal.html"}));
     status("If the address has an account, a reset email will arrive shortly.");
+    await StoreReceipts.dialog("Password reset requested",[["Email",email.value]],"Done",false,byId("portal-status").textContent);
   });
   submit("recovery-form", async fields => {
     await result(client.auth.updateUser({password: fields.get("password")}));
@@ -334,6 +349,7 @@ async function start() {
     if (!response.ok) throw new Error(invitation.message);
     form.reset();
     status("Invitation sent.");
+    await StoreReceipts.dialog("Invitation sent",[["Recipient",fields.get("email")]],"Done");
   });
   submit("document-form", async (fields, form) => {
     const file = fields.get("file");

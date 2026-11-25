@@ -23,5 +23,17 @@
     "DOCS_SUPABASE_URL": "https://eamrwaqgbjrddhkzittb.supabase.co",
     "DOCS_SUPABASE_BUCKET": "private-documents",
     "DOCS_MAX_UPLOAD_BYTES": "10485760"
+  },
+  "d1_databases": [
+    {
+      "binding": "STORE_RECEIPTS",
+      "database_name": "usoa-store-receipts",
+      "database_id": "7d07571d-7538-4e9e-bdb1-ec51ec41e4ef"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "*/10 * * * *"
+    ]
   }
 }

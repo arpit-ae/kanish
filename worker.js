@@ -1,3 +1,4 @@
+import {createEnquiry, deliveryAddress, saveReceipt, confirmPaid, mayReadReceipt, retryMail} from "./store-receipts.js";
 import { handleInvoices } from './invoices.js';
 import { handleDocuments, documentPage } from './documents-api.js';
 const CASHFREE_API_VERSION = "2025-01-01";
@@ -110,12 +111,6 @@ function makeOrderId() {
     .slice(0, 12)}`;
 }
 
-function makeCustomerId() {
-  return `CUST_${crypto.randomUUID()
-    .replaceAll("-", "")
-    .slice(0, 20)}`;
-}
-
 function validPhone(phone) {
   return /^\d{10}$/.test(String(phone || ""));
 }
@@ -137,7 +132,7 @@ async function createCashfreeOrder(request, env, data, account = null) {
   const product = Object.hasOwn(PRODUCTS, data?.productId) ? PRODUCTS[data.productId] : null;
   const items = account
     ? data.items.map(({id, quantity}) => ({id, quantity, name: PRODUCTS[id].name, unitPrice: PRODUCTS[id].amount}))
-    : [];
+    : product ? [{id:product.id, quantity:1, name:product.name, unitPrice:product.amount}] : [];
   const orderAmount = account
     ? items.reduce((cents, item) => cents + Math.round(item.unitPrice * 100) * item.quantity, 0) / 100
     : product?.amount;
@@ -170,7 +165,7 @@ async function createCashfreeOrder(request, env, data, account = null) {
     }, 400);
   }
 
-  if (!validEmail(email)) {
+  if (email.length > 254 || !validEmail(email)) {
     return jsonResponse({
       success: false,
       message: "Enter a valid email address."
@@ -185,10 +180,16 @@ async function createCashfreeOrder(request, env, data, account = null) {
   }
 
   const origin = new URL(request.url).origin;
-  const orderId = account ? makeOrderId().replace("USOA_", "USOA_PORTAL_") : makeOrderId();
+  const candidate = account ? makeOrderId().replace("USOA_", "USOA_PORTAL_") : makeOrderId();
+  const receipt = await saveReceipt(env, "order", data.requestKey, candidate, {
+    name, email, mobile:phone, address:deliveryAddress(customer), items, amount:orderAmount,
+    accountId:account?.id || null
+  });
+  const orderId = receipt.id;
   if (account) {
     await portalOrders(env, "", {
       method: "POST",
+      headers: {Prefer:"resolution=ignore-duplicates"},
       body: JSON.stringify({id: orderId, user_id: account.id, items, amount: orderAmount})
     });
   }
@@ -199,7 +200,7 @@ async function createCashfreeOrder(request, env, data, account = null) {
     order_currency: "INR",
 
     customer_details: {
-      customer_id: makeCustomerId(),
+      customer_id: orderId.replace("USOA_", "CUST_"),
       customer_name: name,
       customer_email: email,
       customer_phone: phone
@@ -228,7 +229,7 @@ async function createCashfreeOrder(request, env, data, account = null) {
 
       headers: cashfreeHeaders(env, {
         "x-request-id": crypto.randomUUID(),
-        "x-idempotency-key": crypto.randomUUID()
+        "x-idempotency-key": data.requestKey
       }),
 
       body: JSON.stringify(payload)
@@ -238,11 +239,7 @@ async function createCashfreeOrder(request, env, data, account = null) {
   const result = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    console.error(
-      "Cashfree create order failed",
-      response.status,
-      result
-    );
+    console.error("Cashfree create order failed", response.status, result?.code);
 
     const upstreamMessage = String(
       result?.message || "Unable to create Cashfree order."
@@ -262,6 +259,10 @@ async function createCashfreeOrder(request, env, data, account = null) {
     }, 502);
   }
 
+  if (result.order_id !== orderId || !result.payment_session_id || result.order_currency !== "INR" ||
+      Number(result.order_amount) !== orderAmount) {
+    return jsonResponse({success:false, message:"Payment session details could not be verified."},502);
+  }
   return jsonResponse({
     success: true,
     order_id: result.order_id,
@@ -277,7 +278,7 @@ async function portalOrders(env, query, options) {
   if (!key || !env.PORTAL_SUPABASE_URL) throw new Error("Portal order storage is unavailable");
   const response = await fetch(env.PORTAL_SUPABASE_URL + "/rest/v1/portal_orders" + query, {
     ...options,
-    headers: {apikey: key, "Content-Type": "application/json"}
+    headers: {apikey: key, "Content-Type": "application/json", ...options.headers}
   });
   if (!response.ok) throw new Error("Portal order storage failed");
 }
@@ -391,11 +392,15 @@ async function verifyWebhookSignature(
 }
 
 export default {
+  async scheduled(event, env, ctx) { ctx.waitUntil(retryMail(env)); },
   async fetch(request, env) {
     const url = new URL(request.url);
-    if ((url.pathname === "/services" || url.pathname === "/services/") && request.method === "GET" && env.ASSETS) {
-      const assetUrl = new URL("/services.html", request.url);
-      return env.ASSETS.fetch(new Request(assetUrl, request));
+    if (url.pathname === "/api/enquiries" && request.method === "POST") {
+      try {
+        return jsonResponse({success:true,...await createEnquiry(request, env)});
+      } catch (error) {
+        return jsonResponse({message:error.status ? error.message : "Could not save your enquiry. Please try again."},error.status || 503);
+      }
     }
     const portalViews = {"/login": "", "/account": "", "/cart": "?view=cart", "/admin": "?view=admin", "/admin/login": "?view=admin"};
     if (request.method === "GET" && Object.hasOwn(portalViews, url.pathname)) {
@@ -412,8 +417,8 @@ export default {
     if (url.pathname === "/api/portal/checkout" && request.method === "POST") {
       try {
         return await portalCheckout(request, env);
-      } catch {
-        return jsonResponse({message: "Could not start checkout. Please try again."}, 503);
+      } catch (error) {
+        return jsonResponse({message: error.status ? error.message : "Could not start checkout. Please try again."}, error.status || 503);
       }
     }
     if (url.pathname === "/api/portal/invite" && request.method === "POST") {
@@ -514,6 +519,7 @@ export default {
       }
 
       try {
+        if (request.headers.get("Origin") !== url.origin) return jsonResponse({message:"Open checkout on this website."},403);
         const data = await request.json();
 
         return await createCashfreeOrder(
@@ -523,6 +529,7 @@ export default {
         );
 
       } catch (error) {
+        if (error.status) return jsonResponse({message:error.message},error.status);
         console.error(
           "Create order error",
           error
@@ -587,8 +594,17 @@ export default {
           }, 502);
         }
 
+        let receipt;
+        if (data.order_status === "PAID") {
+          const confirmation = await confirmPaid(env,orderId,data);
+          if (confirmation && await mayReadReceipt(request,confirmation.row)) {
+            const {email,items,address} = confirmation.details;
+            receipt = {email,items,address,sent:confirmation.sent,office:"usoagroup@gmail.com",from:"sales@usoagroup.in"};
+          }
+        }
         return jsonResponse({
           success: true,
+          receipt,
           order_id: orderId,
           order_status:
             data.order_status || "UNKNOWN",
@@ -659,6 +675,11 @@ export default {
           JSON.parse(rawBody);
 
         const orderId = event?.data?.order?.order_id;
+        if (event?.data?.payment?.payment_status === "SUCCESS" && typeof orderId === "string" && /^USOA_[A-Za-z0-9_]+$/.test(orderId)) {
+          const verified = await getOrderStatus(env, orderId);
+          if (!verified.response.ok || verified.data.order_status !== "PAID") return jsonResponse({message:"Payment verification pending."},503);
+          await confirmPaid(env, orderId, verified.data);
+        }
         if (env.PORTAL_SUPABASE_SECRET_KEY && typeof orderId === "string" && /^USOA_PORTAL_[A-Za-z0-9_]+$/.test(orderId) &&
             event?.data?.payment?.payment_status === "SUCCESS") {
           try {
@@ -685,9 +706,10 @@ export default {
 
       } catch (error) {
         console.error(
-          "Webhook JSON error",
+          "Webhook processing error",
           error
         );
+        return jsonResponse({message:"Webhook could not be processed."},503);
       }
 
       return jsonResponse({

@@ -1,0 +1,70 @@
+:root {
+  --glass-ink: #193d30;
+  --glass-honey: #995c17;
+  --glass-edge: rgba(93, 117, 85, .24);
+  --glass-surface: linear-gradient(145deg, rgba(255, 255, 252, .96), rgba(246, 248, 235, .82));
+  --glass-shadow: inset 0 1px 0 #fffffff2, 0 14px 38px -22px #244a3580;
+  --hive-light: radial-gradient(ellipse at 3% 8%, #f9e9bb 0%, transparent 51%), radial-gradient(ellipse at 96% 70%, #cee2cf 0%, transparent 48%), #f6f6e9;
+}
+body.marketing-page, body.utility-page, body.checkout-workspace, body:has(.portal-main),
+body.invoice-editor, body:has(#documentEditor) { background: var(--hive-light); }
+.marketing-page > header, .utility-page > header, .portal-header, header.topbar {
+  background: linear-gradient(118deg,#fffff5f5,#edf3e7ed);
+  color: var(--glass-ink); border-bottom: 1px solid var(--glass-edge);
+  box-shadow: 0 5px 26px -18px #1b3d2fb3; backdrop-filter: blur(18px) saturate(125%);
+}
+.marketing-page .hero, .utility-page .documents-hero {
+  background: radial-gradient(ellipse at 12% 12%,#ffeec98c,transparent 54%), radial-gradient(ellipse at 91% 18%,#bfd9bc80,transparent 53%),linear-gradient(135deg,#fff9ec,#eff4e9);
+}
+.marketing-page .hero h1 span { color:#82501c; }
+.marketing-page .hero :is(.visual,.hero-artwork,.contact-hero-image,.about-hero-image) {
+  border:1px solid #ffffffdc; border-radius:clamp(18px,3vw,36px);
+  box-shadow:0 26px 52px -26px #173d3280,0 3px 10px #28261012;
+}
+.marketing-page .section.white { background: #fffff8c9; }
+.marketing-page .section.soft { background: linear-gradient(115deg,#ebf1e6d9,#faf2dbb5); }
+.marketing-page :is(.card,.fact,.credential,.faq details,.uso-email-card,.uso-service-card,.notice,.prose),
+.portal-panel,.portal-card,.utility-page :is(.document-card,.card,.document-panel),.checkout-workspace .card {
+  border:1px solid var(--glass-edge); background:var(--glass-surface);
+  box-shadow:var(--glass-shadow); border-radius:20px;
+}
+.marketing-page .quick-links {background:linear-gradient(120deg,#e7eedfee,#f6f2dc);border-color:var(--glass-edge)}
+.marketing-page .quick-icon,.marketing-page .bubble {background:#fffff0e8;border:1px solid #fff;box-shadow:var(--glass-shadow)}
+.marketing-page :is(.btn,.wa), .portal-primary, .checkout-workspace .button {border-radius:999px}
+.marketing-page .btn.dark,.marketing-page .wa,.portal-panel button.portal-primary,.checkout-workspace #payButton {
+  background:linear-gradient(155deg,#36634b,#153b30);color:white;box-shadow:inset 0 1px 0 #ffffff36,0 5px 13px #23463227;
+}
+.marketing-page .btn.gold {background:linear-gradient(130deg,#fae1a4,#efc56e);color:#3f2b12;border-color:#d6ae63}
+.marketing-page .product-enquiry {display:inline-block;margin:.65rem 0 0;color:#28553c;text-decoration:underline;text-underline-offset:.22em}
+.portal-main h1,.checkout-workspace h1,.store-dialog h2 {font-family:Georgia,"Times New Roman",serif;letter-spacing:-.038em;font-weight:500}
+.invoice-editor .panel, #documentEditor {background:linear-gradient(160deg,#fffff9f5,#edf2e9ed);border-color:var(--glass-edge)}
+.checkout-workspace .container {max-width:610px}
+.checkout-workspace input,.portal-main input,.marketing-page .form :is(input,textarea,select) {background:#fffefbf2;border-color:#a4b4a7;color:#173d32}
+.delivery-fields {display:grid;gap:.8rem;min-width:0;margin:1rem 0;padding:1rem;border:1px solid var(--glass-edge);border-radius:15px;text-align:left}
+.delivery-fields legend {padding:0 .4rem;font-weight:700;color:var(--glass-ink)}
+.delivery-fields label {display:grid;gap:.3rem;margin:0;font-weight:600}
+.delivery-fields input {margin:0;width:100%;min-width:0;font:inherit}
+.delivery-pair {display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.store-trap {position:absolute;width:1px;height:1px;clip-path:inset(100%);overflow:hidden}
+#enquiryForm {scroll-margin-top:6rem}
+#enquiry-status:not(:empty) {margin-top:1rem;padding:1rem;border:1px solid var(--glass-edge);border-radius:14px;background:#f1f5e9;color:var(--glass-ink)}
+.store-dialog {box-sizing:border-box;width:min(92vw,510px);max-height:85dvh;margin:auto;padding:clamp(20px,4vw,32px);
+  border:1px solid #e4e4cb;border-radius:24px;overflow:auto;color:var(--glass-ink);background:linear-gradient(145deg,#fffffa,#f3f5e7);box-shadow:0 30px 100px #10291d62;text-align:left;font:1rem/1.5 system-ui,sans-serif}
+.store-dialog::backdrop {background:#10291f78;backdrop-filter:blur(5px)}
+.receipt-brand {margin:0 0 .5rem;color:#79531b;font-size:.8rem;font-weight:800;letter-spacing:.16em}
+.store-dialog h2 {margin:0 0 1rem;font-size:clamp(1.8rem,5vw,2.45rem);line-height:1.1}
+.receipt-lines {display:grid;grid-template-columns:minmax(7rem,.65fr) minmax(0,1.35fr);gap:.45rem .75rem;margin:.65rem 0;text-align:left}
+.receipt-lines dt {font-weight:650;color:#365443}.receipt-lines dd {margin:0;overflow-wrap:anywhere;white-space:pre-line}
+.receipt-note {margin:1rem 0 0;font-size:.96rem;color:#405747}
+.receipt-actions {display:flex;justify-content:flex-end;gap:.55rem;flex-wrap:wrap;margin-top:1.4rem}
+.store-dialog .receipt-actions button {width:auto;min-height:44px;margin:0;padding:.6rem 1.15rem;font:650 .95rem system-ui;border:1px solid #a0b09c;border-radius:999px;cursor:pointer}
+.store-dialog .receipt-edit {background:#fffef8;color:#214d37}
+.store-dialog .receipt-primary {background:#1f5039;color:white}
+@media (prefers-reduced-motion:no-preference) {
+  .store-dialog[open] {animation:receipt-in .19s ease-out}
+  @keyframes receipt-in {from{opacity:.45;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+  .marketing-page .btn {transition:box-shadow .18s ease,transform .18s ease}
+  @media (hover:hover){.marketing-page .btn:hover {transform:translateY(-2px);box-shadow:0 9px 24px -12px #27463488}}
+}
+@media(max-width:420px){.delivery-pair{grid-template-columns:1fr}.receipt-lines{grid-template-columns:1fr;gap:.05rem}.receipt-lines dd{margin-bottom:.45rem}}
+.marketing-page .darksec :is(.card,.credential) {background:linear-gradient(145deg,#2f5746,#1e4237);color:#fffef8;border-color:#557261;box-shadow:inset 0 1px 0 #ffffff1c,0 12px 34px -22px #061c13cc}

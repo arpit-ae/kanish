@@ -1,4 +1,5 @@
 worker.js
+store-receipts.js
 invoices.js
 documents-api.js
 scripts/

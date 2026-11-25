@@ -104,6 +104,8 @@
     }
   </style>
 <link rel="stylesheet" href="checkout-workspace.css" media="screen">
+<link rel="stylesheet" href="/store-glass.css" media="screen">
+<script src="/receipt-ui.js"></script>
 </head>
 
 <body class="checkout-workspace">
@@ -160,8 +162,15 @@
         placeholder="10-digit mobile number"
       >
 
+      <fieldset class="delivery-fields"><legend>Delivery address</legend>
+        <label>House, street and locality<input name="street" autocomplete="street-address" minlength="5" maxlength="220" required></label>
+        <div class="delivery-pair"><label>Town or city<input name="city" autocomplete="address-level2" minlength="2" maxlength="80" required></label>
+        <label>State or province<input name="region" autocomplete="address-level1" minlength="2" maxlength="80" required></label></div>
+        <div class="delivery-pair"><label>PIN / postal code<input name="postcode" autocomplete="postal-code" minlength="3" maxlength="12" required></label>
+        <label>Country<input name="country" autocomplete="country-name" value="India" minlength="2" maxlength="80" required></label></div>
+      </fieldset>
       <button type="submit" id="payButton">
-        Pay Securely
+        Review order
       </button>
 
     </form>
@@ -345,8 +354,14 @@
       }
 
       payButton.disabled = true;
-      payButton.textContent =
-        "Creating Payment...";
+      const form = document.getElementById("paymentForm");
+      const customer = {...Object.fromEntries(new FormData(form)), name, email, phone};
+      const requestKey = StoreReceipts.requestKey(form, {customer, productId});
+      if (!await StoreReceipts.reviewOrder(customer, product.name, catalogueCurrency.format(product.amount))) {
+        payButton.disabled = false;
+        return;
+      }
+      payButton.textContent = "Opening Cashfree…";
 
       message.textContent = "";
 
@@ -366,11 +381,7 @@
 
               productId: productId,
 
-              customer: {
-                name: name,
-                email: email,
-                phone: phone
-              }
+              customer, requestKey
 
             })
 
@@ -403,13 +414,14 @@
           );
         }
 
+        StoreReceipts.receiptToken(data.order_id, requestKey);
         const cashfree =
           Cashfree({
             mode: paymentEnvironment
           });
 
 
-        await cashfree.checkout({
+        const checkoutResult = await cashfree.checkout({
 
           paymentSessionId:
             data.payment_session_id,
@@ -419,6 +431,7 @@
 
         });
 
+        if (checkoutResult?.error) throw new Error(checkoutResult.error.message || "Payment could not be opened.");
       } catch (error) {
 
         console.error(error);
@@ -430,7 +443,7 @@
         payButton.disabled = false;
 
         payButton.textContent =
-          "Pay Securely";
+          "Review order";
       }
 
     });

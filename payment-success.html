@@ -83,6 +83,8 @@
     }
   </style>
 <link rel="stylesheet" href="checkout-workspace.css" media="screen">
+<link rel="stylesheet" href="/store-glass.css" media="screen">
+<script src="/receipt-ui.js"></script>
 </head>
 
 <body class="checkout-workspace">
@@ -176,7 +178,7 @@ async function checkPayment() {
     const response =
       await fetch(
         "/api/order-status?order_id=" +
-        encodeURIComponent(orderId)
+        encodeURIComponent(orderId), {headers:{"X-Receipt-Key":StoreReceipts.receiptToken(orderId)}}
       );
 
     const data =
@@ -217,13 +219,21 @@ async function checkPayment() {
       message.textContent =
         "Your payment has been successfully verified by Cashfree.";
 
+      if (data.receipt) {
+        const r = data.receipt;
+        const rows = [["Order reference",orderId],["Items",r.items.map(i => i.name+" × "+i.quantity).join(", ")],["Paid",amount.textContent],
+          ["Delivery address",r.address],["Your receipt",r.email],["Business copy",r.office],["From",r.from]];
+        const note = StoreReceipts.mailNote(r.sent);
+        message.replaceChildren(StoreReceipts.summary(rows),document.createTextNode(note));
+        await StoreReceipts.dialog("Order confirmed",rows,"Done",false,note);
+      }
       return;
     }
 
 
     if (
       paymentStatus === "FAILED" ||
-      paymentStatus === "CANCELLED"
+      ["CANCELLED","EXPIRED","TERMINATED"].includes(paymentStatus)
     ) {
 
       icon.textContent = "❌";

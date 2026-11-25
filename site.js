@@ -19,7 +19,6 @@ if (menu && links) {
   });
 }
 
-const enquiry = document.getElementById("enquiryForm");
 const topButton = document.getElementById("topBtn");
 
 if (topButton) {
@@ -27,25 +26,6 @@ if (topButton) {
   updateTopButton();
   window.addEventListener("scroll", updateTopButton, { passive: true });
   topButton.addEventListener("click", () => window.scrollTo({ top: 0 }));
-}
-
-if (enquiry) {
-  enquiry.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const field = (id) => document.getElementById(id)?.value.trim() || "Not specified";
-    const details = [
-      "Namaste USOA GROUP,",
-      "",
-      "Name: " + field("name"),
-      "Mobile: " + field("mobile"),
-      "Requirement: " + field("requirement"),
-      "Quantity: " + field("quantity"),
-      "Location: " + field("location"),
-      "Message: " + field("message")
-    ];
-    window.open("https://wa.me/919142703535?text=" + encodeURIComponent(details.join("\n")), "_blank", "noopener,noreferrer");
-  });
 }
 
 const marketing = document.querySelector(".marketing-page");

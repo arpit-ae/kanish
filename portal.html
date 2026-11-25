@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="/portal.css">
   <script defer src="/vendor/supabase-portal.js"></script>
   <script defer src="/portal.js"></script>
+<link rel="stylesheet" href="/store-glass.css" media="screen">
+<script src="/receipt-ui.js"></script>
 </head>
 <body>
   <header class="portal-header"><a href="/"><strong>USOA GROUP</strong></a><nav aria-label="Portal navigation"><a href="/products.html">Products</a><a href="/login">Account</a><a href="/admin/login">Admin</a><button id="logout" hidden>Sign out</button></nav></header>
@@ -51,7 +53,13 @@
     <section id="shop" class="portal-panel" hidden><h2>Shop and cart</h2><div id="shop-items" class="portal-grid"></div>
       <h3>Your cart</h3><div id="cart-items"></div><strong id="cart-total"></strong>
       <p id="cart-note"></p>
-      <form id="checkout-form" hidden><label>Contact name <input name="name" autocomplete="name" maxlength="100" required></label><label>Mobile number <input name="phone" type="tel" autocomplete="tel-national" pattern="[0-9]{10}" required></label><button class="portal-primary">Continue to Cashfree</button></form>
+      <form id="checkout-form" hidden><label>Contact name <input name="name" autocomplete="name" maxlength="100" required></label><label>Mobile number <input name="phone" type="tel" autocomplete="tel-national" pattern="[0-9]{10}" required></label><fieldset class="delivery-fields"><legend>Delivery address</legend>
+        <label>House, street and locality<input name="street" autocomplete="street-address" minlength="5" maxlength="220" required></label>
+        <div class="delivery-pair"><label>Town or city<input name="city" autocomplete="address-level2" minlength="2" maxlength="80" required></label>
+        <label>State or province<input name="region" autocomplete="address-level1" minlength="2" maxlength="80" required></label></div>
+        <div class="delivery-pair"><label>PIN / postal code<input name="postcode" autocomplete="postal-code" minlength="3" maxlength="12" required></label>
+        <label>Country<input name="country" autocomplete="country-name" value="India" minlength="2" maxlength="80" required></label></div>
+      </fieldset><button class="portal-primary">Review order</button></form>
     </section>
     <section id="orders" class="portal-panel" hidden><h2 id="orders-title">My orders</h2><div id="order-items"></div></section>
     <section id="documents" class="portal-panel" hidden><h2 id="documents-title">My documents</h2><div id="document-items"></div>
