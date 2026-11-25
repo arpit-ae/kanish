@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#152c46">
+  <title>USOA GROUP Invoice Studio</title>
+  <link rel="stylesheet" href="/assets/orbit-billing.css">
+  <script src="/assets/orbit-editor.js" defer></script>
+  <script src="/assets/domestic-workspace.js" defer></script>
+</head>
+<body>
+
+<div id="billing-content">
+<header class="mast">
+  <div class="mast-inner"><div class="brand"><span class="monogram" aria-hidden="true">UG</span><strong>USOA GROUP</strong></div>
+    <button id="saved-bills" class="mast-action">Saved bills</button></div>
+</header>
+<main class="wrap">
+  <div class="workspace-head no-print">
+    <div><h1 id="studio-heading" tabindex="-1">Invoice studio</h1><div class="draft-line"><strong id="document-ref"></strong><span class="status" id="status" role="status">Loading editor…</span></div></div>
+    <div class="amount"><span id="amount-label">Grand total</span><strong id="running-amount">₹0.00</strong></div>
+  </div>
+  <div class="toolbar no-print">
+    <div class="switch" aria-label="Document view"><button id="edit-view" aria-pressed="true">Edit bill</button><button id="preview-view" aria-pressed="false">Preview</button></div>
+    <div class="actions"><button id="new">New document</button><button id="print">Print / Save PDF</button><button class="primary" id="save-online">Save to history</button></div>
+  </div>
+  <noscript>Enable JavaScript to create invoices and delivery challans.</noscript>
+  <div class="editor" id="editor"><section class="card"><h2>Invoice details</h2><div class="grid" id="meta"></div></section>
+<section class="card"><h2>Buyer / Bill to</h2><div class="grid two" id="buyer"></div></section>
+<section class="card item-section"><h2>Items &amp; services</h2><p class="hint">Rates exclude GST. Discount is a percentage of the line value. Choose the applicable GST rate for each item.</p><div class="tablewrap"><table id="items"><thead><tr><th>Description</th><th>HSN / SAC</th><th>Qty</th><th>Unit</th><th>Rate ₹</th><th>Discount %</th><th>GST %</th><th>Taxable ₹</th><th></th></tr></thead><tbody></tbody></table></div><button id="add" style="margin-top:16px">+ Add item</button></section>
+<section class="card tax-section"><div class="summary"><div><h2>Tax & totals</h2><p id="taxhint" class="hint"></p><div id="warnings" class="notice" style="margin-top:15px" hidden></div></div><div id="totals" class="totals" aria-live="polite"></div></div></section>
+<details class="card extra-details" id="extra-details">
+  <summary>
+    <strong class="when-closed">More details</strong><strong class="when-open">More details</strong>
+    <span class="hint">Seller, payment and optional details</span>
+  </summary>
+  <div class="extra-content">
+    <section><h2>Seller / From</h2><div class="grid two" id="seller"></div></section>
+    <section><h2>Payment & finishing details</h2><div class="grid" id="payment"></div></section>
+    <section>
+      <h2>Optional invoice and buyer details</h2>
+      <div class="grid" id="optional"></div>
+      <label class="check"><input type="checkbox" id="round">Round grand total to nearest rupee</label>
+    </section>
+    <p class="hint">Save to history stores a separate document on this phone. Download a backup for your own records. This file does not submit GST returns or generate an IRN/e-way bill.</p>
+  </div>
+</details>
+    <div class="backup-tools"><button id="backup">Download backup</button><button id="restore-button">Restore backup</button><input type="file" id="restore" accept="application/json,.json" hidden></div>
+  </div>
+  <article class="paper" id="paper" aria-label="Document preview"></article>
+</main>
+<dialog id="cloud-dialog" aria-labelledby="cloud-title">
+  <div class="dialog-head"><h2 id="cloud-title">Saved bills</h2><button id="close-cloud" aria-label="Close saved bills">×</button></div>
+  <div id="bill-list"></div></dialog>
+</div>
+</body></html>
