@@ -36,7 +36,7 @@ public final class MainActivity extends Activity {
         FrameLayout root = new FrameLayout(this);
         web = new WebView(this);
         records=getSharedPreferences("billing-records",MODE_PRIVATE);
-        android.widget.LinearLayout layout=new android.widget.LinearLayout(this);layout.setOrientation(1);
+        android.widget.LinearLayout layout=new android.widget.LinearLayout(this);layout.setOrientation(android.widget.LinearLayout.VERTICAL);
         android.widget.LinearLayout bar=new android.widget.LinearLayout(this);
         for(String label:new String[]{"Export","India GST","Backup","History"}){
             android.widget.Button b=new android.widget.Button(this);b.setText(label);b.setAllCaps(false);
@@ -183,7 +183,7 @@ public final class MainActivity extends Activity {
     @Override protected void onResume(){super.onResume();if(printing&&leftForPrint)resetPrint();if(records!=null)queueBackup();}
     @Override protected void onActivityResult(int request,int result,Intent data){
         super.onActivityResult(request,result,data);
-        if(request==CLOUD&&result==RESULT_OK&&data!=null&&data.getData()!=null){try{Uri u=data.getData();getContentResolver().takePersistableUriPermission(u,data.getFlags()&(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION));records.edit().putString("uri",u.toString()).apply();queueBackup();}catch(Exception e){toast("Provider cannot retain backup access");}}
+        if(request==CLOUD&&result==RESULT_OK&&data!=null&&data.getData()!=null){try{Uri u=data.getData();if((data.getFlags() & Intent.FLAG_GRANT_WRITE_URI_PERMISSION)==0)throw new SecurityException("No write permission");getContentResolver().takePersistableUriPermission(u,Intent.FLAG_GRANT_WRITE_URI_PERMISSION);records.edit().putString("uri",u.toString()).apply();queueBackup();}catch(Exception e){toast("Provider cannot retain backup access");}}
         if(request==IMPORT&&result==RESULT_OK&&data!=null&&data.getData()!=null)importArchive(data.getData());
         if(request==OPEN && picker!=null){picker.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result,data));picker=null;}
         if(request==SAVE){
