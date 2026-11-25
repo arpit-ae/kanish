@@ -1,0 +1,32 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'in.usoagroup.exportbilling'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'in.usoagroup.exportbilling'
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName '1.0'
+    }
+    sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/portal'))
+}
+
+def portal = rootProject.file('../kanish.html')
+def generated = layout.buildDirectory.dir('generated/portal')
+tasks.register('preparePortal') {
+    inputs.file(portal)
+    outputs.dir(generated)
+    doLast {
+        def html = portal.getText('UTF-8')
+        assert html.contains('window.print();')
+        assert html.contains('function downloadData(content, filename, type) {')
+        html = html.replace('window.print();', 'if (window.AndroidExport) AndroidExport.print(); else window.print();')
+        html = html.replace('function downloadData(content, filename, type) {', 'function downloadData(content, filename, type) { if (window.AndroidExport) { AndroidExport.save(String(content), String(filename), String(type)); return; }')
+        def out = generated.get().asFile
+        out.mkdirs()
+        new File(out, 'kanish.html').setText(html, 'UTF-8')
+    }
+}
+tasks.named('preBuild').configure { dependsOn('preparePortal') }
