@@ -7,8 +7,8 @@ android {
         applicationId 'in.usoagroup.exportbilling'
         minSdk 23
         targetSdk 35
-        versionCode 1
-        versionName '1.0'
+        versionCode 2
+        versionName '2.0'
     }
     sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/portal'))
 }
@@ -24,6 +24,7 @@ tasks.register('preparePortal') {
         assert html.contains('function downloadData(content, filename, type) {')
         html = html.replace('window.print();', 'if (window.AndroidExport) AndroidExport.print(); else window.print();')
         html = html.replace('function downloadData(content, filename, type) {', 'function downloadData(content, filename, type) { if (window.AndroidExport) { AndroidExport.save(String(content), String(filename), String(type)); return; }')
+        html = html.replace('  load();\n  activeDocument', '  window.AndroidFlush = save; window.AndroidArchive = () => { save(); AndroidExport.archive("export",JSON.stringify(state)); }; window.AndroidRestore = raw => { try { state=restore(JSON.parse(raw)); clearTimeout(saveTimer); clearTimeout(renderTimer); activeDocument=state.lastDocument||"proforma"; setDocument(activeDocument); save(); } catch(e){ alert("Invalid record"); } };\n  load();\n  activeDocument')
         def out = generated.get().asFile
         out.mkdirs()
         new File(out, 'kanish.html').setText(html, 'UTF-8')
