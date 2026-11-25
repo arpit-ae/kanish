@@ -7,8 +7,8 @@ android {
         applicationId 'in.usoagroup.exportbilling'
         minSdk 26
         targetSdk 35
-        versionCode 3
-        versionName '2.1'
+        versionCode 4
+        versionName '3.0'
     }
     sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/portal'))
 }
@@ -31,3 +31,8 @@ tasks.register('preparePortal') {
     }
 }
 tasks.named('preBuild').configure { dependsOn('preparePortal') }
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-auth:22.0.0'
+    implementation 'androidx.work:work-runtime:2.10.1'
+}
