@@ -19,9 +19,23 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
-      - uses: android-actions/setup-android@v3
       - name: Android SDK
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        shell: bash
+        run: |
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          mkdir -p "$ANDROID_HOME/cmdline-tools"
+          SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' | head -n 1)
+          if [ -z "$SDKMANAGER" ]; then
+            curl -fLsS https://dl.google.com/android/repository/commandlinetools-linux-12266719_latest.zip -o /tmp/android-tools.zip
+            unzip -q /tmp/android-tools.zip -d /tmp/android-tools
+            mv /tmp/android-tools/cmdline-tools "$ANDROID_HOME/cmdline-tools/manual"
+            SDKMANAGER="$ANDROID_HOME/cmdline-tools/manual/bin/sdkmanager"
+          fi
+          (yes || true) | "$SDKMANAGER" --sdk_root="$ANDROID_HOME" --licenses >/dev/null
+          "$SDKMANAGER" --sdk_root="$ANDROID_HOME" "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "sdk.dir=$ANDROID_HOME" > android-app/local.properties
       - name: Build and lint
         run: gradle -p android-app :app:assembleDebug :app:lintDebug --no-daemon
       - name: Verify signature
