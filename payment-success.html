@@ -148,6 +148,7 @@ const message =
   document.getElementById("message");
 
 
+let checks = 0;
 if (!orderId) {
 
   icon.textContent = "❌";
@@ -175,6 +176,7 @@ async function checkPayment() {
 
   try {
 
+    checks++;
     const response =
       await fetch(
         "/api/order-status?order_id=" +
@@ -259,15 +261,23 @@ async function checkPayment() {
       icon.textContent = "⏳";
 
       title.textContent =
-        "Payment Processing";
+        "Awaiting payment confirmation";
 
       status.textContent =
         paymentStatus;
 
-      message.textContent =
-        "Payment is still being processed. Checking again...";
-
-      setTimeout(checkPayment, 3000);
+      message.textContent = "Cashfree has not yet confirmed payment for this order.";
+      if (checks < 6) {
+        setTimeout(checkPayment, 4000);
+      } else {
+        message.append(document.createElement("br"));
+        const recheck = document.createElement("button");
+        recheck.type = "button";
+        recheck.className = "button";
+        recheck.textContent = "Check payment status";
+        recheck.onclick = () => {recheck.disabled = true; checkPayment();};
+        message.append(recheck);
+      }
 
       return;
     }

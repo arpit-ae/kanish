@@ -57,7 +57,10 @@
   document.addEventListener("DOMContentLoaded",()=>{
     const form=document.getElementById("enquiryForm");
     if (!form) return;
-    const category=new URLSearchParams(location.search).get("category");
+    const params=new URLSearchParams(location.search);
+    const category=params.get("category");
+    const item=params.get("item")?.trim().slice(0,100);
+    if (item && !form.elements.message.value) form.elements.message.value="I would like details about "+item+".";
     if (category && Array.from(form.elements.requirement.options).some(o=>o.value===category)) form.elements.requirement.value=category;
     const status=document.getElementById("enquiry-status");
     const submit=form.querySelector('[type="submit"]');

@@ -73,8 +73,13 @@ if (marketing && "IntersectionObserver" in window &&
   ];
 
   const byAddress = Object.fromEntries(desks.map((desk) => [desk.address, desk]));
+  function deskLink(address) {
+    if (address === "enquiry@usoagroup.in") return "/contact#enquiryForm";
+    if (address === "sales@usoagroup.in") return "/contact?category=Wholesale#enquiryForm";
+    return "mailto:"+address;
+  }
   const card = (desk, compact) =>
-    '<a class="uso-email-card' + (compact ? ' uso-email-card-compact' : '') + '" href="mailto:' + desk.address + '">' +
+    '<a class="uso-email-card' + (compact ? ' uso-email-card-compact' : '') + '" href="' + deskLink(desk.address) + '">' +
       (compact ? '' : '<span class="uso-email-symbol" aria-hidden="true">' + desk.symbol + '</span>') +
       '<span class="uso-email-copy"><strong>' + desk.label + '</strong>' +
       '<span class="uso-email-address">' + desk.address + '</span>' +
