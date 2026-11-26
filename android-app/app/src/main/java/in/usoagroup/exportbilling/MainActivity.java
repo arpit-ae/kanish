@@ -234,6 +234,9 @@ public final class MainActivity extends Activity {
     private final class Bridge {
         @JavascriptInterface public void archive(String kind,String payload){MainActivity.this.archive(kind,payload);}
         @JavascriptInterface public String history(String kind){return historyRows(kind).toString();}
+        @JavascriptInterface public String masters(String kind){try{if(!archiveReady)throw new IOException("Archive unavailable");return store.masterRows(kind).toString();}catch(Exception e){return "!Master read failed";}}
+        @JavascriptInterface public String saveMaster(String kind,String id,String payload){try{if(!archiveReady)throw new IOException("Archive unavailable");return store.saveMaster(kind,id,payload);}catch(Exception e){return "!"+(e.getMessage()==null?"Master save failed":e.getMessage());}}
+
         @JavascriptInterface public String readDraft(String kind){
             try{if(!archiveReady)throw new IOException("Archive unavailable");return store.readDraft(kind);}
             catch(Exception e){message("Draft read failed; existing data retained");return "!Draft storage unavailable";}
