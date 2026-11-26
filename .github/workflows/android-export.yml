@@ -4,6 +4,9 @@ on:
     branches: [android-v4-production]
     paths: ['android-app/**', 'kanish.html', '.github/workflows/android-export.yml']
   workflow_dispatch:
+concurrency:
+  group: usoa-v4-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
@@ -39,8 +42,9 @@ jobs:
       - name: Foundation unit tests
         run: |
           mkdir -p /tmp/usoa-tests
-          javac -d /tmp/usoa-tests android-app/app/src/main/java/in/usoagroup/exportbilling/FiscalNumbers.java android-app/tests/FiscalNumbersTest.java
+          javac -d /tmp/usoa-tests android-app/app/src/main/java/in/usoagroup/exportbilling/FiscalNumbers.java android-app/tests/FiscalNumbersTest.java android-app/app/src/main/java/in/usoagroup/exportbilling/BackupCrypto.java android-app/tests/BackupCryptoTest.java
           java -cp /tmp/usoa-tests in.usoagroup.exportbilling.FiscalNumbersTest
+          java -cp /tmp/usoa-tests in.usoagroup.exportbilling.BackupCryptoTest
           cd android-app
           node tests/billing-safeguards.mjs
       - name: Build APK
