@@ -92,4 +92,20 @@ final class BillingStore extends SQLiteOpenHelper {
     }finally{db.endTransaction();}}
     synchronized String readDraft(String kind)throws Exception{if(!kind.equals("export")&&!kind.equals("domestic"))throw new IOException("Invalid draft type");try(Cursor c=getReadableDatabase().rawQuery("SELECT body FROM drafts WHERE kind=?",new String[]{kind})){return c.moveToFirst()?open("draft:"+kind,c.getBlob(0)):"";}}
     synchronized void saveDraft(String kind,String text)throws Exception{if(!kind.equals("export")&&!kind.equals("domestic"))throw new IOException("Invalid draft type");if(text.length()>10000000)throw new IOException("Draft too large");JSONObject draft=new JSONObject(text);if(kind.equals("export")&&(draft.optInt("version")!=2||draft.optJSONObject("fields")==null||draft.optJSONArray("items")==null||draft.optJSONArray("packages")==null))throw new IOException("Invalid export draft");if(kind.equals("domestic")&&(draft.optInt("version")!=1||draft.optJSONObject("seller")==null||draft.optJSONObject("buyer")==null||draft.optJSONArray("items")==null))throw new IOException("Invalid domestic draft");readDraft(kind);ContentValues v=new ContentValues();v.put("kind",kind);v.put("body",seal("draft:"+kind,text));if(getWritableDatabase().insertWithOnConflict("drafts",null,v,SQLiteDatabase.CONFLICT_REPLACE)==-1)throw new IOException("Draft save failed");}
+    synchronized String recoveryCode()throws Exception{
+        String stored=meta(getReadableDatabase(),"recovery_code_v4");
+        return stored.isEmpty()?"":open("recovery-code",android.util.Base64.decode(stored,android.util.Base64.NO_WRAP));
+    }
+    synchronized void setRecoveryCode(String code)throws Exception{
+        String clean=code.trim().replace("-","").replace(" ","").toLowerCase(java.util.Locale.ROOT);
+        BackupCrypto.key(clean);
+        SQLiteDatabase db=getWritableDatabase();db.beginTransaction();
+        try{
+            String old=recoveryCode();
+            if(!old.isEmpty()&&!old.equals(clean))throw new IOException("Existing recovery code cannot be replaced");
+            if(old.isEmpty())meta(db,"recovery_code_v4",android.util.Base64.encodeToString(seal("recovery-code",clean),android.util.Base64.NO_WRAP));
+            db.setTransactionSuccessful();
+        }finally{db.endTransaction();}
+    }
+
 }
