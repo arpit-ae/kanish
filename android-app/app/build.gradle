@@ -7,8 +7,8 @@ android {
         applicationId 'in.usoagroup.exportbilling'
         minSdk 26
         targetSdk 35
-        versionCode 5
-        versionName '4.0-alpha.1'
+        versionCode 6
+        versionName '4.0-alpha.2'
     }
     sourceSets.main.assets.srcDir(layout.buildDirectory.dir('generated/portal'))
 }
@@ -27,6 +27,14 @@ tasks.register('preparePortal') {
         html = html.replace('  load();\n  activeDocument', '  window.AndroidFlush = save; window.AndroidArchive = () => { save(); AndroidExport.archive("export",JSON.stringify(state)); }; window.AndroidRestore = raw => { try { state=restore(JSON.parse(raw)); clearTimeout(saveTimer); clearTimeout(renderTimer); activeDocument=state.lastDocument||"proforma"; setDocument(activeDocument); save(); } catch(e){ alert("Invalid record"); } };\n  load();\n  activeDocument')
         assert html.contains('  load();\n  activeDocument')
         html = html.replace('  load();\n  activeDocument', '  const reserveBtn = document.createElement("button"); reserveBtn.textContent = "Reserve device number"; reserveBtn.addEventListener("click", () => { if (!confirm("Reserve a new number only for an unissued draft?")) return; const pair = {proforma:["piDate","piNo"],commercial:["ciDate","ciNo"],packing:["plDate","plNo"]}[activeDocument]; const n = AndroidExport.reserveNumber(activeDocument,state.fields[pair[0]]); if (n.startsWith("!")) { alert(n.slice(1)); return; } state.fields[pair[1]]=n; changed([activeDocument]); setDocument(activeDocument); }); document.querySelector(".toolbar").appendChild(reserveBtn);\n  load();\n  activeDocument')
+        assert html.contains('const raw = localStorage.getItem(STORAGE_KEY);')
+        assert html.contains('localStorage.setItem(STORAGE_KEY, JSON.stringify(state));')
+        html = html.replace('function load() {', 'let draftReadFailed = false; function load() {')
+        html = html.replace('const raw = localStorage.getItem(STORAGE_KEY);', 'const secure = window.AndroidExport ? AndroidExport.readDraft("export") : ""; if (secure.startsWith("!")) throw new Error(secure); const raw = secure || localStorage.getItem(STORAGE_KEY);')
+        html = html.replace('state = freshState(1, true);', 'draftReadFailed = true; state = freshState(1, false);')
+        html = html.replace('raw ? restore(JSON.parse(raw), true) : freshState(1, true)', 'raw ? restore(JSON.parse(raw), true) : freshState(1, false)')
+        html = html.replace('localStorage.setItem(STORAGE_KEY, JSON.stringify(state));', 'if (draftReadFailed) throw new Error("Original draft could not be read"); if (window.AndroidExport) { if (!AndroidExport.saveDraft("export", JSON.stringify(state))) throw new Error("Encrypted draft save failed"); } else localStorage.setItem(STORAGE_KEY, JSON.stringify(state));')
+        html = html.replace('A sample shipment has been opened', 'Original draft unavailable; storage protected')
         def out = generated.get().asFile
         out.mkdirs()
         new File(out, 'kanish.html').setText(html, 'UTF-8')
