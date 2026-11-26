@@ -18,7 +18,7 @@ public final class DriveSync extends Worker {
     static final String API="https://www.googleapis.com/drive/v3/";
     static final String UPLOAD="https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart";
     static final String PREF="billing-records", ACCOUNT="driveAccount", OWNER="driveOwner", STATUS="driveStatus";
-    private static final int LIMIT=12_000_000;
+    private static final int LIMIT=32_000_000;
     private static final Object SYNC_LOCK=new Object();
     public DriveSync(Context context, WorkerParameters params){super(context,params);}
     static AuthorizationRequest request(){
@@ -71,7 +71,7 @@ public final class DriveSync extends Worker {
     private boolean active(SharedPreferences prefs,String account){return !isStopped()&&account.equals(prefs.getString(ACCOUNT,""));}
     private void upload(String token,String id,String row)throws Exception{
         String boundary="usoa_"+UUID.randomUUID().toString();
-        JSONObject meta=new JSONObject();meta.put("name","usoa-"+id+".json");meta.put("parents",new JSONArray().put("appDataFolder"));meta.put("mimeType","application/json");
+        JSONObject meta=new JSONObject();meta.put("name","usoa-v4-"+id+".json");meta.put("parents",new JSONArray().put("appDataFolder"));meta.put("mimeType","application/json");
         ByteArrayOutputStream out=new ByteArrayOutputStream();
         out.write(("--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+meta+"\r\n--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n").getBytes(StandardCharsets.UTF_8));
         out.write(row.getBytes(StandardCharsets.UTF_8));out.write(("\r\n--"+boundary+"--\r\n").getBytes(StandardCharsets.UTF_8));
@@ -83,6 +83,7 @@ public final class DriveSync extends Worker {
         String bound=prefs.getString(ACCOUNT,"");if(bound.isEmpty())return Result.success();
         try{
             BillingStore store=BillingStore.get(getApplicationContext());store.migrate(prefs);
+            String recovery=store.recoveryCode();if(recovery.isEmpty()){prefs.edit().putString(STATUS,"Set or import business recovery code in Backup before sync").apply();return Result.success();}
             String owner=prefs.getString(OWNER,bound);if(!bound.equals(owner))return Result.failure();
             if(!prefs.contains(OWNER)&&!prefs.edit().putString(OWNER,bound).commit())throw new IOException("Account binding save failed");
             AuthorizationResult auth=Tasks.await(Identity.getAuthorizationClient(getApplicationContext()).authorize(request()),30,TimeUnit.SECONDS);
@@ -96,16 +97,23 @@ public final class DriveSync extends Worker {
                 JSONArray files=listing.optJSONArray("files");
                 if(files!=null)for(int i=0;i<files.length();i++){
                     JSONObject file=files.getJSONObject(i);String name=file.optString("name");
-                    if(!name.matches("usoa-[0-9a-f-]{36}\\.json"))continue;
-                    String id=name.substring(5,name.length()-5);try{if(!UUID.fromString(id).toString().equals(id))continue;}catch(Exception ignored){continue;}
+                    boolean encrypted=name.matches("usoa-v4-[0-9a-f-]{36}\\.json");
+                    if(!encrypted&&!name.matches("usoa-[0-9a-f-]{36}\\.json"))continue;
+                    String id=name.substring(encrypted?8:5,name.length()-5);
+                    try{if(!UUID.fromString(id).toString().equals(id))continue;}catch(Exception ignored){continue;}
                     if(!active(prefs,bound))return Result.success();
-                    if(!store.has(id)){
-                        JSONObject row=json(call(token,API+"files/"+enc(file.getString("id"))+"?alt=media","GET",null,null));
-                        if(!valid(row,id))throw new IOException("Invalid cloud document");
-                        if(!active(prefs,bound))return Result.success();
-                        store.put(row,false);
+                    JSONObject fileData=json(call(token,API+"files/"+enc(file.getString("id"))+"?alt=media","GET",null,null));
+                    JSONObject row=fileData;
+                    if(encrypted){
+                        if(fileData.optInt("version")!=4||!id.equals(fileData.optString("id")))throw new IOException("Invalid encrypted cloud envelope");
+                        try{row=new JSONObject(BackupCrypto.open(recovery,"record:"+id,fileData.getString("ciphertext")));}
+                        catch(Exception e){throw new IOException("Recovery code mismatch or damaged cloud record");}
                     }
-                    remote.add(id);
+                    if(!valid(row,id))throw new IOException("Invalid cloud document");
+                    if(!active(prefs,bound))return Result.success();
+                    store.put(row,false);
+                    if(encrypted)remote.add(id);
+
                 }
                 page=listing.optString("nextPageToken","");
             }while(!page.isEmpty());
@@ -115,12 +123,13 @@ public final class DriveSync extends Worker {
                 if(remote.contains(id))continue;
                 if(!active(prefs,bound))return Result.success();
                 if(!valid(record,id))throw new IOException("Invalid local document");
-                upload(token,id,record.toString());remote.add(id);
+                JSONObject envelope=new JSONObject().put("version",4).put("id",id).put("ciphertext",BackupCrypto.seal(recovery,"record:"+id,record.toString()));
+                upload(token,id,envelope.toString());remote.add(id);
             }
-            if(active(prefs,bound))prefs.edit().putString(STATUS,"Drive synced • "+remote.size()+" saved records • "+new Date()).apply();
+            if(active(prefs,bound))prefs.edit().putString(STATUS,"Encrypted Drive sync • "+remote.size()+" records • "+store.conflictCount()+" duplicate-number groups • "+new Date()).apply();
             return Result.success();
         }catch(Exception e){
-            if(active(prefs,bound))prefs.edit().putString(STATUS,"Drive sync pending • retry when online / reconnect if needed").apply();
+            if(active(prefs,bound))prefs.edit().putString(STATUS,"Drive sync blocked/pending • check recovery code, conflicts or network").apply();
             return Result.retry();
         }
     }
