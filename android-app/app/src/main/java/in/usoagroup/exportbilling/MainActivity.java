@@ -21,6 +21,8 @@ public final class MainActivity extends Activity {
     private static final String BASE="https://appassets.androidplatform.net/", DOMESTIC=BASE+"domestic.html";
     private String current=PAGE;
     private android.content.SharedPreferences records;
+    private BillingStore store;
+    private boolean archiveReady=false;
     private final java.util.concurrent.ExecutorService io=java.util.concurrent.Executors.newSingleThreadExecutor();
     private android.widget.TextView status;
     private android.content.SharedPreferences.OnSharedPreferenceChangeListener syncListener;
@@ -38,12 +40,14 @@ public final class MainActivity extends Activity {
         FrameLayout root = new FrameLayout(this);
         web = new WebView(this);
         records=getSharedPreferences("billing-records",MODE_PRIVATE);
+        store=BillingStore.get(this);
+        try{store.migrate(records);archiveReady=true;}catch(Exception e){toast("Archive migration failed; original v3 data retained");}
         android.widget.LinearLayout layout=new android.widget.LinearLayout(this);layout.setOrientation(android.widget.LinearLayout.VERTICAL);
         android.widget.LinearLayout bar=new android.widget.LinearLayout(this);
-        for(String label:new String[]{"Export","India GST","Backup","History"}){
+        for(String label:new String[]{"Export","India GST","Backup","History","Setup"}){
             android.widget.Button b=new android.widget.Button(this);b.setText(label);b.setAllCaps(false);
             bar.addView(b,new android.widget.LinearLayout.LayoutParams(0,-2,1));
-            b.setOnClickListener(v->{if(printing)return;if(label.equals("Export"))switchPage(PAGE);else if(label.equals("India GST"))switchPage(DOMESTIC);else if(label.equals("Backup"))backupMenu();else historyMenu();});
+            b.setOnClickListener(v->{if(printing)return;if(label.equals("Export"))switchPage(PAGE);else if(label.equals("India GST"))switchPage(DOMESTIC);else if(label.equals("Backup"))backupMenu();else if(label.equals("History"))historyMenu();else setupMenu();});
         }
         status=new android.widget.TextView(this);status.setText(records.getString(DriveSync.STATUS,"Offline workspace • optional backup"));
         syncListener=(prefs,key)->{if(DriveSync.STATUS.equals(key))message(prefs.getString(key,"Offline workspace"));};
@@ -107,19 +111,29 @@ public final class MainActivity extends Activity {
     private void switchPage(String url){if(current.equals(url))return;web.evaluateJavascript("window.AndroidFlush && window.AndroidFlush()",v->{current=url;web.loadUrl(url);});}
     private void message(String text){runOnUiThread(()->status.setText(text));}
     private org.json.JSONArray historyRows(String kind){
-        java.util.ArrayList<org.json.JSONObject> rows=new java.util.ArrayList<>();
-        for(java.util.Map.Entry<String,?> e:records.getAll().entrySet())if(e.getKey().startsWith("r:"))try{org.json.JSONObject r=new org.json.JSONObject((String)e.getValue());if(kind.equals("all")||kind.equals(r.optString("kind")))rows.add(r);}catch(Exception ignored){}
-        rows.sort((a,b)->Long.compare(b.optLong("saved"),a.optLong("saved")));org.json.JSONArray result=new org.json.JSONArray();for(org.json.JSONObject r:rows)result.put(r);return result;
+        if(!archiveReady){message("Archive unavailable; original data retained");return new org.json.JSONArray();}
+        try{return store.rows(kind);}catch(Exception e){message("Archive read failed; do not delete original data");return new org.json.JSONArray();}
+    }
+    private void setupMenu(){
+        if(!archiveReady){toast("Archive unavailable");return;}
+        String series=store.series();
+        new AlertDialog.Builder(this).setTitle("Device setup (development)")
+          .setItems(new String[]{"Device series: "+(series.isEmpty()?"not assigned":series),"Duplicate-number groups: "+store.conflictCount()},(d,w)->{
+              if(w!=0)return;
+              if(!series.isEmpty()){toast("Series already assigned; do not reuse on another device");return;}
+              android.widget.EditText input=new android.widget.EditText(this);input.setHint("A or B");
+              new AlertDialog.Builder(this).setTitle("Assign device series").setMessage("Use a unique series not used on any other business device. Local assignment only, not central registration. Cannot be changed.").setView(input).setNegativeButton("Cancel",null).setPositiveButton("Assign",(x,y)->{try{store.setSeries(input.getText().toString());toast("Device series assigned");}catch(Exception e){toast(e.getMessage());}}).show();
+          }).show();
     }
     private void archive(String kind,String payload){
         io.execute(()->{try{
-            if(payload.length()>10000000||(!kind.equals("export")&&!kind.equals("domestic")))throw new IOException();
-            new org.json.JSONObject(payload);
+            if(!archiveReady)throw new IOException("Archive unavailable");
+            if(payload.length()>10000000)throw new IOException("Record too large");
             String id=java.util.UUID.randomUUID().toString();org.json.JSONObject r=new org.json.JSONObject();
             r.put("id",id);r.put("kind",kind);r.put("payload",payload);r.put("saved",System.currentTimeMillis());
-            if(!records.edit().putString("r:"+id,r.toString()).commit())throw new IOException();
-            message("Document saved locally");queueBackup();DriveSync.schedule(this);
-        }catch(Exception e){message("Save failed");}});
+            String saved=store.put(r,true);
+            message(saved);queueBackup();DriveSync.schedule(this);
+        }catch(Exception e){message(e.getMessage()==null?"Save failed; draft retained":e.getMessage());}});
     }
     private void historyMenu(){
         String kind=current.equals(PAGE)?"export":"domestic";
@@ -162,9 +176,9 @@ public final class MainActivity extends Activity {
         if(token==null){driveConnecting=false;message("Drive access not granted");return;}
         io.execute(()->{
             try{
-                String id=DriveSync.account(token);String existing=records.getString(DriveSync.ACCOUNT,"");
-                if(!existing.isEmpty()&&!existing.equals(id)){message("Different account • disconnect first if you intend to switch");return;}
-                records.edit().putString(DriveSync.ACCOUNT,id).putString(DriveSync.STATUS,"Drive connected • sync queued").commit();
+                String id=DriveSync.account(token);String existing=records.getString(DriveSync.OWNER,records.getString(DriveSync.ACCOUNT,""));
+                if(!existing.isEmpty()&&!existing.equals(id)){message("Different account blocked • archive belongs to original account");return;}
+                records.edit().putString(DriveSync.OWNER,id).putString(DriveSync.ACCOUNT,id).putString(DriveSync.STATUS,"Drive connected • sync queued").commit();
                 DriveSync.schedule(this);
             }catch(Exception e){message("Drive access failed • check API and OAuth configuration");}
             finally{runOnUiThread(()->driveConnecting=false);}
@@ -172,7 +186,7 @@ public final class MainActivity extends Activity {
     }
     private void queueBackup(){
         String target=records.getString("uri","");if(target.isEmpty())return;
-        io.execute(()->{try{org.json.JSONObject r=new org.json.JSONObject();r.put("app","USOA-Billing");r.put("version",1);r.put("records",historyRows("all"));try(OutputStream out=getContentResolver().openOutputStream(Uri.parse(target),"wt")){if(out==null)throw new IOException();out.write(r.toString().getBytes(StandardCharsets.UTF_8));}message("Backup written to provider");}catch(Exception e){message("Backup pending • retry in Backup");}});
+        io.execute(()->{try{org.json.JSONObject r=new org.json.JSONObject();r.put("app","USOA-Billing");r.put("version",1);if(!archiveReady)throw new IOException("Archive unavailable");r.put("records",store.rows("all"));try(OutputStream out=getContentResolver().openOutputStream(Uri.parse(target),"wt")){if(out==null)throw new IOException();out.write(r.toString().getBytes(StandardCharsets.UTF_8));}message("Backup written to provider");}catch(Exception e){message("Backup pending • retry in Backup");}});
     }
     private void importArchive(Uri uri){
         io.execute(()->{try(InputStream in=getContentResolver().openInputStream(uri)){
@@ -180,14 +194,13 @@ public final class MainActivity extends Activity {
             while((n=in.read(b))!=-1){if(buf.size()+n>50000000)throw new IOException();buf.write(b,0,n);}
             org.json.JSONObject root=new org.json.JSONObject(buf.toString("UTF-8"));
             if(!root.optString("app").equals("USOA-Billing")||root.optInt("version")!=1)throw new IOException();
-            org.json.JSONArray rows=root.getJSONArray("records");android.content.SharedPreferences.Editor edit=records.edit();int count=0;
-            for(int i=0;i<rows.length();i++){org.json.JSONObject r=rows.getJSONObject(i);String id=r.getString("id"),kind=r.getString("kind");java.util.UUID.fromString(id);org.json.JSONObject p=new org.json.JSONObject(r.getString("payload"));if(!(kind.equals("export")&&p.optInt("version")==2)&&!(kind.equals("domestic")&&p.optInt("version")==1))throw new IOException();if(!records.contains("r:"+id)){edit.putString("r:"+id,r.toString());count++;}}
-            if(!edit.commit())throw new IOException();message("Imported "+count+" new records");queueBackup();DriveSync.schedule(this);
+            if(!archiveReady)throw new IOException("Archive unavailable");int count=store.merge(root.getJSONArray("records"));message("Imported "+count+" new records");queueBackup();DriveSync.schedule(this);
         }catch(Exception e){message("Backup import failed");}});
     }
     private final class Bridge {
         @JavascriptInterface public void archive(String kind,String payload){MainActivity.this.archive(kind,payload);}
         @JavascriptInterface public String history(String kind){return historyRows(kind).toString();}
+        @JavascriptInterface public String reserveNumber(String type,String date){try{if(!archiveReady)throw new IOException("Archive unavailable");return store.reserve(type,date);}catch(Exception e){return "!"+e.getMessage();}}
 
         @JavascriptInterface public void print(){
             runOnUiThread(()->{
@@ -214,8 +227,8 @@ public final class MainActivity extends Activity {
             });
         }
     }
-    @Override protected void onPause(){super.onPause();if(printing)leftForPrint=true;}
-    @Override protected void onResume(){super.onResume();if(printing&&leftForPrint)resetPrint();if(records!=null){queueBackup();DriveSync.schedule(this);}}
+    @Override protected void onPause(){super.onPause();if(printing)leftForPrint=true;if(web!=null)web.evaluateJavascript("window.AndroidFlush && window.AndroidFlush()",null);}
+    @Override protected void onResume(){super.onResume();if(printing&&leftForPrint)resetPrint();if(records!=null&&archiveReady){queueBackup();DriveSync.schedule(this);}}
     @Override protected void onActivityResult(int request,int result,Intent data){
         super.onActivityResult(request,result,data);
         if(request==DRIVE_AUTH){if(result==RESULT_OK&&data!=null){try{finishDriveConnect(com.google.android.gms.auth.api.identity.Identity.getAuthorizationClient(this).getAuthorizationResultFromIntent(data));}catch(Exception e){driveConnecting=false;message("Drive consent failed");}}else{driveConnecting=false;message("Drive consent cancelled");}}
