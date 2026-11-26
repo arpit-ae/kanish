@@ -200,6 +200,14 @@ public final class MainActivity extends Activity {
     private final class Bridge {
         @JavascriptInterface public void archive(String kind,String payload){MainActivity.this.archive(kind,payload);}
         @JavascriptInterface public String history(String kind){return historyRows(kind).toString();}
+        @JavascriptInterface public String readDraft(String kind){
+            try{if(!archiveReady)throw new IOException("Archive unavailable");return store.readDraft(kind);}
+            catch(Exception e){message("Draft read failed; existing data retained");return "!Draft storage unavailable";}
+        }
+        @JavascriptInterface public boolean saveDraft(String kind,String payload){
+            try{if(!archiveReady)throw new IOException("Archive unavailable");store.saveDraft(kind,payload);return true;}
+            catch(Exception e){message("Encrypted draft save failed; preserve a separate backup");return false;}
+        }
         @JavascriptInterface public String reserveNumber(String type,String date){try{if(!archiveReady)throw new IOException("Archive unavailable");return store.reserve(type,date);}catch(Exception e){return "!"+e.getMessage();}}
 
         @JavascriptInterface public void print(){
