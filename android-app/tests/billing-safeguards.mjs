@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+const source=fs.readFileSync('app/src/main/assets/assets/orbit-editor.js','utf8');
+const start=source.indexOf('function bounded('),end=source.indexOf('const ones=',start);
+assert(start>=0&&end>start);
+const ctx=vm.createContext({isState:x=>['10','07'].includes(x),r2:n=>Math.round((n+Number.EPSILON)*100)/100});
+vm.runInContext(source.slice(start,end),ctx);
+const bill={seller:{state:'10'},pos:'10',items:[{qty:10,rate:100,discount:0,gst:18}],round:false,paid:0};
+assert.equal(ctx.calculate(bill).pre,1180);assert.equal(ctx.calculate(bill).cgst,90);
+bill.pos='07';assert.equal(ctx.calculate(bill).igst,180);
+bill.items[0].discount=150;assert.equal(ctx.calculate(bill).taxable,0);
+bill.items[0].discount=-5;assert.equal(ctx.calculate(bill).taxable,1000);
+bill.items[0].qty=-10;assert.equal(ctx.calculate(bill).taxable,0);
+bill.items[0].qty=Infinity;assert.equal(ctx.calculate(bill).taxable,0);
+console.log('7 calculation assertions passed');
