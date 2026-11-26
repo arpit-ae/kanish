@@ -60,6 +60,7 @@ public class FoundationDeviceTest {
         assertTrue(found);
         String product=db.saveMaster("product","",new JSONObject().put("description","Test honey").put("hsn","0409").put("unit","kg").put("rate",100).put("gst",5).toString());
         assertFalse(product.isEmpty());
+        loadsOfflineEditors();
     }
     private static <T extends View> T find(View v,Class<T> type,String label){
         if(type.isInstance(v)&&(label==null||(v instanceof Button&&label.contentEquals(((Button)v).getText()))))return type.cast(v);
@@ -75,7 +76,7 @@ public class FoundationDeviceTest {
         for(int i=0;i<30;i++){if("true".equals(evaluate(in,w,predicate)))return;Thread.sleep(500);}
         fail("Editor did not initialize: "+predicate);
     }
-    @Test public void loadsOfflineEditors()throws Exception{
+    private void loadsOfflineEditors()throws Exception{
         Instrumentation in=InstrumentationRegistry.getInstrumentation();
         Context c=in.getTargetContext();
         Activity activity=in.startActivitySync(new Intent(c,MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
