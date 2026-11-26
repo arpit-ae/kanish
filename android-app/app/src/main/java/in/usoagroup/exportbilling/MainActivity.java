@@ -146,19 +146,52 @@ public final class MainActivity extends Activity {
         }).show();
     }
     private void backupMenu(){
-        new AlertDialog.Builder(this).setTitle("Backup & transfer").setItems(new String[]{"Connect Google Drive (automatic archive sync)","Sync Google Drive now","Disconnect Google Drive","Connect manual backup file","Retry manual backup","Import / merge backup","Disconnect manual backup"},(d,w)->{
+        new AlertDialog.Builder(this).setTitle("Backup & transfer").setItems(new String[]{"Connect Google Drive (automatic archive sync)","Sync Google Drive now","Disconnect Google Drive","Connect manual backup file","Retry manual backup","Import / merge backup","Disconnect manual backup","Business recovery code"},(d,w)->{
             if(w==0){connectDrive();}
             else if(w==1){DriveSync.schedule(this);message(records.getString(DriveSync.ACCOUNT,"").isEmpty()?"Connect Google Drive first":"Drive sync requested");}
             else if(w==2){DriveSync.disconnect(this);message("Drive disconnected");}
             else if(w==3){Intent i=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json").putExtra(Intent.EXTRA_TITLE,"USOA-"+java.util.UUID.randomUUID().toString().substring(0,8)+".json");i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);startActivityForResult(i,CLOUD);}
             else if(w==4)queueBackup();
             else if(w==5)startActivityForResult(new Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json"),IMPORT);
-            else{records.edit().remove("uri").apply();message("Backup disconnected");}
+            else if(w==6){records.edit().remove("uri").apply();message("Backup disconnected");}
+            else recoveryMenu();
         }).show();
+    }
+    private void recoveryMenu(){
+        if(!archiveReady){toast("Archive unavailable");return;}
+        try{
+            String existing=store.recoveryCode();
+            if(!existing.isEmpty()){showRecovery(existing,false);return;}
+            new AlertDialog.Builder(this).setTitle("Business recovery code")
+                .setMessage("Generate a code only on the first business device. On other devices enter the exact existing code. Without it, encrypted backups cannot be restored.")
+                .setPositiveButton("Generate",(d,w)->showRecovery(BackupCrypto.generate(),true))
+                .setNeutralButton("Enter existing",(d,w)->enterRecovery())
+                .setNegativeButton("Cancel",null).show();
+        }catch(Exception e){toast("Recovery code unavailable");}
+    }
+    private void showRecovery(String code,boolean fresh){
+        android.widget.TextView t=new android.widget.TextView(this);t.setText(code);t.setTextIsSelectable(true);t.setPadding(24,24,24,24);
+        AlertDialog d=new AlertDialog.Builder(this).setTitle(fresh?"Save this recovery code offline":"Existing recovery code")
+            .setMessage("Keep the entire 64-character code in a secure offline location. Do not share it in email or chat. Use the same code on every authorized device.")
+            .setView(t).setNegativeButton("Close",null)
+            .setPositiveButton(fresh?"I saved it":"OK",(x,y)->{if(fresh)saveRecovery(code);}).create();
+        if(d.getWindow()!=null)d.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE);
+        d.show();
+    }
+    private void enterRecovery(){
+        android.widget.EditText input=new android.widget.EditText(this);
+        input.setHint("64-character recovery code");input.setSingleLine(false);input.setInputType(android.text.InputType.TYPE_CLASS_TEXT|android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD|android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        AlertDialog d=new AlertDialog.Builder(this).setTitle("Enter existing code").setMessage("Verify the code carefully. Once saved, it cannot be changed in this development version.").setView(input).setNegativeButton("Cancel",null).setPositiveButton("Save",(x,y)->saveRecovery(input.getText().toString())).create();
+        if(d.getWindow()!=null)d.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE);d.show();
+    }
+    private void saveRecovery(String code){
+        try{store.setRecoveryCode(code);message("Business recovery code saved");queueBackup();DriveSync.schedule(this);}
+        catch(Exception e){toast("Invalid or conflicting recovery code");}
     }
     private void connectDrive(){
         if(driveConnecting)return;
-        new AlertDialog.Builder(this).setTitle("Connect Google Drive").setMessage("Sync sends your saved billing documents to the selected Google account. Use the same business account on every device. Drafts stay local. Continue?").setNegativeButton("Cancel",null).setPositiveButton("Connect",(d,w)->{
+        try{if(store.recoveryCode().isEmpty()){recoveryMenu();return;}}catch(Exception e){toast("Recovery code unavailable");return;}
+        new AlertDialog.Builder(this).setTitle("Connect Google Drive").setMessage("Sync sends encrypted saved documents to the selected Google account. Use the same business account and recovery code on every device. Drafts stay local. Continue?").setNegativeButton("Cancel",null).setPositiveButton("Connect",(d,w)->{
             driveConnecting=true;
             com.google.android.gms.auth.api.identity.Identity.getAuthorizationClient(this).authorize(DriveSync.request()).addOnSuccessListener(result->{
                 try{
@@ -186,13 +219,14 @@ public final class MainActivity extends Activity {
     }
     private void queueBackup(){
         String target=records.getString("uri","");if(target.isEmpty())return;
-        io.execute(()->{try{org.json.JSONObject r=new org.json.JSONObject();r.put("app","USOA-Billing");r.put("version",1);if(!archiveReady)throw new IOException("Archive unavailable");r.put("records",store.rows("all"));try(OutputStream out=getContentResolver().openOutputStream(Uri.parse(target),"wt")){if(out==null)throw new IOException();out.write(r.toString().getBytes(StandardCharsets.UTF_8));}message("Backup written to provider");}catch(Exception e){message("Backup pending • retry in Backup");}});
+        io.execute(()->{try{org.json.JSONObject r=new org.json.JSONObject();r.put("app","USOA-Billing");r.put("version",1);if(!archiveReady)throw new IOException("Archive unavailable");String recovery=store.recoveryCode();if(recovery.isEmpty()){message("Set recovery code before manual backup");return;}r.put("records",store.rows("all"));String encrypted=new org.json.JSONObject().put("app","USOA-Billing-Encrypted").put("version",4).put("ciphertext",BackupCrypto.seal(recovery,"manual-backup",r.toString())).toString();try(OutputStream out=getContentResolver().openOutputStream(Uri.parse(target),"wt")){if(out==null)throw new IOException();out.write(encrypted.getBytes(StandardCharsets.UTF_8));}message("Encrypted backup written to provider");}catch(Exception e){message("Backup pending • retry in Backup");}});
     }
     private void importArchive(Uri uri){
         io.execute(()->{try(InputStream in=getContentResolver().openInputStream(uri)){
             if(in==null)throw new IOException();ByteArrayOutputStream buf=new ByteArrayOutputStream();byte[] b=new byte[8192];int n;
-            while((n=in.read(b))!=-1){if(buf.size()+n>50000000)throw new IOException();buf.write(b,0,n);}
+            while((n=in.read(b))!=-1){if(buf.size()+n>100000000)throw new IOException();buf.write(b,0,n);}
             org.json.JSONObject root=new org.json.JSONObject(buf.toString("UTF-8"));
+            if(root.optString("app").equals("USOA-Billing-Encrypted")&&root.optInt("version")==4){String recovery=store.recoveryCode();if(recovery.isEmpty())throw new IOException("Recovery code required");root=new org.json.JSONObject(BackupCrypto.open(recovery,"manual-backup",root.getString("ciphertext")));}
             if(!root.optString("app").equals("USOA-Billing")||root.optInt("version")!=1)throw new IOException();
             if(!archiveReady)throw new IOException("Archive unavailable");int count=store.merge(root.getJSONArray("records"));message("Imported "+count+" new records");queueBackup();DriveSync.schedule(this);
         }catch(Exception e){message("Backup import failed");}});
