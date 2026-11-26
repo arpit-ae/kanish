@@ -78,18 +78,24 @@ function normalize(o) {
 }
 let data=fresh();let storageOK=true;
 let online = {id:null, revision:0, dirty:false};
+let draftReadFailed = false;
 try {
-  const raw = localStorage.getItem(KEY);
+  const secure = window.AndroidExport ? AndroidExport.readDraft('domestic') : '';
+  if (secure.startsWith('!')) throw Error(secure);
+  const raw = secure || localStorage.getItem(KEY);
   if (raw) {
     const saved = JSON.parse(raw);
     data = normalize(saved);
     if (saved.online?.id && Number.isSafeInteger(saved.online.revision)) online = saved.online;
   }
-} catch { storageOK = false; }
+} catch { storageOK = false; draftReadFailed = true; }
 
 function persist() {
   try {
-    localStorage.setItem(KEY, JSON.stringify({...data, online}));
+    if(draftReadFailed)throw Error('Original draft could not be read');
+    const raw=JSON.stringify({...data, online});
+    if(window.AndroidExport){if(!AndroidExport.saveDraft('domestic',raw))throw Error('Encrypted draft save failed');}
+    else localStorage.setItem(KEY,raw);
     storageOK = true;
   } catch { storageOK = false; }
   $('status').textContent = !storageOK ? 'Device storage unavailable · download a backup' :
