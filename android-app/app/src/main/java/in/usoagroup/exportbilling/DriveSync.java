@@ -17,8 +17,9 @@ public final class DriveSync extends Worker {
     static final String SCOPE="https://www.googleapis.com/auth/drive.appdata";
     static final String API="https://www.googleapis.com/drive/v3/";
     static final String UPLOAD="https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart";
-    static final String PREF="billing-records", ACCOUNT="driveAccount", STATUS="driveStatus";
+    static final String PREF="billing-records", ACCOUNT="driveAccount", OWNER="driveOwner", STATUS="driveStatus";
     private static final int LIMIT=12_000_000;
+    private static final Object SYNC_LOCK=new Object();
     public DriveSync(Context context, WorkerParameters params){super(context,params);}
     static AuthorizationRequest request(){
         return AuthorizationRequest.builder().setRequestedScopes(Collections.singletonList(new Scope(SCOPE))).build();
@@ -33,7 +34,9 @@ public final class DriveSync extends Worker {
             new OneTimeWorkRequest.Builder(DriveSync.class).setConstraints(network).build());
     }
     static void disconnect(Context c){
-        c.getSharedPreferences(PREF,Context.MODE_PRIVATE).edit().remove(ACCOUNT).putString(STATUS,"Google Drive disconnected").commit();
+        SharedPreferences p=c.getSharedPreferences(PREF,Context.MODE_PRIVATE);
+        String owner=p.getString(OWNER,p.getString(ACCOUNT,""));
+        p.edit().putString(OWNER,owner).remove(ACCOUNT).putString(STATUS,"Google Drive disconnected").commit();
         WorkManager.getInstance(c).cancelUniqueWork("usoa-drive-periodic");
         WorkManager.getInstance(c).cancelUniqueWork("usoa-drive-now");
     }
@@ -74,10 +77,14 @@ public final class DriveSync extends Worker {
         out.write(row.getBytes(StandardCharsets.UTF_8));out.write(("\r\n--"+boundary+"--\r\n").getBytes(StandardCharsets.UTF_8));
         call(token,UPLOAD,"POST","multipart/related; boundary="+boundary,out.toByteArray());
     }
-    @androidx.annotation.NonNull @Override public Result doWork(){
+    @androidx.annotation.NonNull @Override public Result doWork(){synchronized(SYNC_LOCK){return sync();}}
+    private Result sync(){
         SharedPreferences prefs=getApplicationContext().getSharedPreferences(PREF,Context.MODE_PRIVATE);
         String bound=prefs.getString(ACCOUNT,"");if(bound.isEmpty())return Result.success();
         try{
+            BillingStore store=BillingStore.get(getApplicationContext());store.migrate(prefs);
+            String owner=prefs.getString(OWNER,bound);if(!bound.equals(owner))return Result.failure();
+            if(!prefs.contains(OWNER)&&!prefs.edit().putString(OWNER,bound).commit())throw new IOException("Account binding save failed");
             AuthorizationResult auth=Tasks.await(Identity.getAuthorizationClient(getApplicationContext()).authorize(request()),30,TimeUnit.SECONDS);
             if(auth.hasResolution()||auth.getAccessToken()==null){prefs.edit().putString(STATUS,"Reconnect Google Drive in Backup").apply();return Result.success();}
             String token=auth.getAccessToken();
@@ -92,23 +99,23 @@ public final class DriveSync extends Worker {
                     if(!name.matches("usoa-[0-9a-f-]{36}\\.json"))continue;
                     String id=name.substring(5,name.length()-5);try{if(!UUID.fromString(id).toString().equals(id))continue;}catch(Exception ignored){continue;}
                     if(!active(prefs,bound))return Result.success();
-                    if(!prefs.contains("r:"+id)){
+                    if(!store.has(id)){
                         JSONObject row=json(call(token,API+"files/"+enc(file.getString("id"))+"?alt=media","GET",null,null));
                         if(!valid(row,id))throw new IOException("Invalid cloud document");
                         if(!active(prefs,bound))return Result.success();
-                        if(!prefs.edit().putString("r:"+id,row.toString()).commit())throw new IOException("Local save failed");
+                        store.put(row,false);
                     }
                     remote.add(id);
                 }
                 page=listing.optString("nextPageToken","");
             }while(!page.isEmpty());
-            for(Map.Entry<String,?> entry:prefs.getAll().entrySet()){
-                if(!entry.getKey().startsWith("r:"))continue;
-                String id=entry.getKey().substring(2);
+            JSONArray saved=store.rows("all");
+            for(int i=0;i<saved.length();i++){
+                JSONObject record=saved.getJSONObject(i);String id=record.getString("id");
                 if(remote.contains(id))continue;
                 if(!active(prefs,bound))return Result.success();
-                String row=(String)entry.getValue();if(!valid(new JSONObject(row),id))throw new IOException("Invalid local document");
-                upload(token,id,row);remote.add(id);
+                if(!valid(record,id))throw new IOException("Invalid local document");
+                upload(token,id,record.toString());remote.add(id);
             }
             if(active(prefs,bound))prefs.edit().putString(STATUS,"Drive synced • "+remote.size()+" saved records • "+new Date()).apply();
             return Result.success();
