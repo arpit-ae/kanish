@@ -108,4 +108,40 @@ final class BillingStore extends SQLiteOpenHelper {
         }finally{db.endTransaction();}
     }
 
+    private String masterKey(String kind)throws IOException{
+        if(!kind.equals("customer")&&!kind.equals("product"))throw new IOException("Unknown master type");return "master:"+kind;
+    }
+    synchronized JSONArray masterRows(String kind)throws Exception{
+        String k=masterKey(kind),stored=meta(getReadableDatabase(),k);
+        return stored.isEmpty()?new JSONArray():new JSONArray(open(k,android.util.Base64.decode(stored,android.util.Base64.NO_WRAP)));
+    }
+    private String masterText(JSONObject raw,String field,int max)throws Exception{
+        String v=raw.optString(field,"").trim();
+        if(v.length()>max)throw new IOException("Master field too long");return v;
+    }
+    synchronized String saveMaster(String kind,String id,String payload)throws Exception{
+        if(payload.length()>40000)throw new IOException("Master entry too large");
+        String k=masterKey(kind);JSONObject raw=new JSONObject(payload),clean=new JSONObject();
+        if(kind.equals("customer")){
+            for(String field:new String[]{"name","address","gstin","state","contact"})clean.put(field,masterText(raw,field,field.equals("address")?10000:500));
+            if(clean.getString("name").isEmpty()||clean.getString("address").isEmpty()||!clean.getString("state").matches("[0-9]{2}"))throw new IOException("Customer name, address and state are required");
+            String gstin=clean.getString("gstin").toUpperCase(java.util.Locale.ROOT);if(!gstin.isEmpty()&&(!gstin.matches("[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]")||!gstin.startsWith(clean.getString("state"))))throw new IOException("Invalid customer GSTIN/state");clean.put("gstin",gstin);
+        }else{
+            for(String field:new String[]{"description","hsn","unit"})clean.put(field,masterText(raw,field,field.equals("description")?10000:100));
+            if(clean.getString("description").isEmpty()||clean.getString("unit").isEmpty())throw new IOException("Product description and unit required");
+            double rate=raw.getDouble("rate"),gst=raw.getDouble("gst");if(!Double.isFinite(rate)||rate<0||rate>1e9||!Double.isFinite(gst)||gst<0||gst>100)throw new IOException("Invalid product rate or tax");
+            clean.put("rate",rate).put("gst",gst);
+        }
+        SQLiteDatabase db=getWritableDatabase();db.beginTransaction();
+        try{
+            JSONArray all=masterRows(kind);int existing=-1;
+            if(id.isEmpty()){id=UUID.randomUUID().toString();}
+            else{if(!UUID.fromString(id).toString().equals(id))throw new IOException("Invalid master ID");for(int n=0;n<all.length();n++)if(id.equals(all.getJSONObject(n).getString("id"))){existing=n;break;}if(existing<0)throw new IOException("Master entry no longer exists");}
+            JSONObject entry=new JSONObject().put("id",id).put("value",clean).put("updated",System.currentTimeMillis());
+            if(existing>=0)all.put(existing,entry);else{if(all.length()>=1000)throw new IOException("Local master limit reached");all.put(entry);}
+            String json=all.toString();if(json.length()>4_000_000)throw new IOException("Master storage limit reached");
+            meta(db,k,android.util.Base64.encodeToString(seal(k,json),android.util.Base64.NO_WRAP));db.setTransactionSuccessful();return id;
+        }finally{db.endTransaction();}
+    }
+
 }
